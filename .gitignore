@@ -1,0 +1,9 @@
+/orca-source/
+/.claude/
+/.publication-checks/
+/ORCA-CORE-ORCHESTRATION-HANDOFF.md
+*.log
+node_modules/
+.env
+.env.*
+__pycache__/

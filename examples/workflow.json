@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "maxParallel": 2,
+  "tasks": [
+    {
+      "key": "implement",
+      "title": "Implement the requested change",
+      "spec": "Implement the change described by the coordinator in this project's working tree. Keep the scope focused, run relevant checks, and report a summary, evidence, and a handoff describing changed files and remaining limitations. Do not publish or merge changes.",
+      "agent": "codex",
+      "worktree": "current",
+      "workspaceUsage": "write"
+    },
+    {
+      "key": "test",
+      "title": "Verify the implementation",
+      "spec": "Read the implementation handoff and run the relevant tests against that code version. Do not modify source files. Report commands, results, and failures with evidence. Treat a failed required check as failure.",
+      "agent": "codex",
+      "dependsOn": ["implement"],
+      "workspaceFrom": "implement",
+      "workspaceUsage": "read"
+    },
+    {
+      "key": "review",
+      "title": "Review the implementation",
+      "spec": "Review the implementation for correctness, regressions, and missing coverage. Do not modify source files. Report evidence and an approved or changes_requested review verdict, with actionable findings when changes are needed.",
+      "agent": "claude",
+      "dependsOn": ["implement"],
+      "workspaceFrom": "implement",
+      "workspaceUsage": "read",
+      "reviewRole": "review",
+      "reviewOf": "implement"
+    }
+  ]
+}

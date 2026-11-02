@@ -1,0 +1,404 @@
+{
+  "formatVersion": 1,
+  "upstream": {
+    "repository": "https://github.com/stablyai/orca",
+    "version": "1.4.246",
+    "baseCommit": "55ccff19ad4cd8ba28b6f3d2be798c1e626a2c2c"
+  },
+  "implementationCommit": "efab515b6c4e882a3f887266507614b1d29a89e4",
+  "patch": {
+    "path": "patches/automatic-orchestration.patch",
+    "sha256": "24ffbef5405b40bb62ba9500fc6c8cd7c2985292686228ebaa3f1b32c1ba3aad"
+  },
+  "example": {
+    "path": "examples/workflow.json",
+    "sha256": "5dbbe8d42e27c69b5204f9fcd4e5b7bfb98de76cd3fa4c94aa38a6b402419047"
+  },
+  "files": [
+    {
+      "upstreamPath": "skill-guides/orchestration.md",
+      "snapshotPath": "changes/skill-guides/orchestration.md",
+      "sha256": "57b19d57e6d944dbfeb43239608cc8cec3d9a2d114fe6c189bfb72226fcc820c"
+    },
+    {
+      "upstreamPath": "skill-guides/orchestration/references/coordinator-loop.md",
+      "snapshotPath": "changes/skill-guides/orchestration/references/coordinator-loop.md",
+      "sha256": "0d56e592e4f36324f61f98bdfc195186369a73c838cbdb1cf6a75ab4ab4858a3"
+    },
+    {
+      "upstreamPath": "src/cli/bundled-skill-guides.ts",
+      "snapshotPath": "changes/src/cli/bundled-skill-guides.ts",
+      "sha256": "e96657a641d74f658b52ad4104b08be54bebeef61863d7cd9a82740e16f6be42"
+    },
+    {
+      "upstreamPath": "src/cli/flag-help-text.ts",
+      "snapshotPath": "changes/src/cli/flag-help-text.ts",
+      "sha256": "8d058143dccc23a762c54a17a67c9662f6d89042285b887d06dadaa87f5779c4"
+    },
+    {
+      "upstreamPath": "src/cli/handler-group-manifest.ts",
+      "snapshotPath": "changes/src/cli/handler-group-manifest.ts",
+      "sha256": "ba4eb44f7c2f107036ecf303e3084191624cc39a9cca0b342d3a7a8723fa0b13"
+    },
+    {
+      "upstreamPath": "src/cli/handlers/orchestration-run-cli.test.ts",
+      "snapshotPath": "changes/src/cli/handlers/orchestration-run-cli.test.ts",
+      "sha256": "0827403240aa3fd4b0541c073f8fcf634fc38f2c53abf77c78213d3a1f4b1700"
+    },
+    {
+      "upstreamPath": "src/cli/handlers/orchestration.ts",
+      "snapshotPath": "changes/src/cli/handlers/orchestration.ts",
+      "sha256": "bb6b1cc500efda6a4fc6bff03e7b7287bbca1d32c8e3c3616c1a2a54df5d2184"
+    },
+    {
+      "upstreamPath": "src/cli/handlers/orchestration/automatic-run-handlers.ts",
+      "snapshotPath": "changes/src/cli/handlers/orchestration/automatic-run-handlers.ts",
+      "sha256": "f8c6a1c236dc9b352670fb2a20d53af8d4feb01aa92638141d75cb9547db987d"
+    },
+    {
+      "upstreamPath": "src/cli/handlers/orchestration/message-payload.ts",
+      "snapshotPath": "changes/src/cli/handlers/orchestration/message-payload.ts",
+      "sha256": "ae20362528d2d76d58f25139e191548d252fc9f1ba8b1d1d5b24c045123ec69a"
+    },
+    {
+      "upstreamPath": "src/cli/handlers/orchestration/run-handlers.ts",
+      "snapshotPath": "changes/src/cli/handlers/orchestration/run-handlers.ts",
+      "sha256": "96cd1fa3129c0fd31a5de4bd477b2021eee1e17b2a73cf5f2fa96dc84f905494"
+    },
+    {
+      "upstreamPath": "src/cli/handlers/orchestration/task-agent-views.ts",
+      "snapshotPath": "changes/src/cli/handlers/orchestration/task-agent-views.ts",
+      "sha256": "c2c9f0e85de9f7e00c4e9bcdb8a8f812e56e1be5cce9dec44bb20a9fe321cb3d"
+    },
+    {
+      "upstreamPath": "src/cli/handlers/orchestration/task-handlers.ts",
+      "snapshotPath": "changes/src/cli/handlers/orchestration/task-handlers.ts",
+      "sha256": "b530da4ce65e4db1145ee7069bcb3c5cc2f192e4bdbf5e0cf015b73b7f6de58c"
+    },
+    {
+      "upstreamPath": "src/cli/specs/orchestration.ts",
+      "snapshotPath": "changes/src/cli/specs/orchestration.ts",
+      "sha256": "4b68f3a08c364c9a8957e990c42bfd3d2348e61c002e575e5462869d0cb576da"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/automatic-run-types.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/automatic-run-types.ts",
+      "sha256": "57de75615744396efe0e26253dbc4ac8b3e5a2e4a9456ea767357e49f166d471"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.test.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.test.ts",
+      "sha256": "a492fbf8cfc6a0345e73b72746b12f29f695ca999e3288fced3917c81d1edf76"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.ts",
+      "sha256": "e95c829b78849f2f877b36dc391e6be8ea833dbb183737f2344b5366628bd6f4"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/automatic-run/automatic-run-executor.test.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/automatic-run/automatic-run-executor.test.ts",
+      "sha256": "bc407fa87387176b6f8bd087f1dd8d4222d36b406418ebcc5f2e09eb1d73c5f3"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/automatic-run/automatic-run-executor.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/automatic-run/automatic-run-executor.ts",
+      "sha256": "c980a3e83a8f11b8f2a8506a22c09eaafd9e071fff581843cfbd7e87d38d2a17"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/automatic-run/automatic-run-launch.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/automatic-run/automatic-run-launch.ts",
+      "sha256": "e25de8d69979c40ea651b38641cab9d287530989fc7d4f37b4ca8b01e1e05d91"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/automatic-run/automatic-run-review.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/automatic-run/automatic-run-review.ts",
+      "sha256": "c648eb4575835302dce1a8f1045a5b019a0891dfeb45d6519be76216b40d42b0"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/automatic-run/automatic-run-settlement.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/automatic-run/automatic-run-settlement.ts",
+      "sha256": "d48de50a881fc828fcc4e91beb8ab6bf741501a75b57769012f2549158291bdb"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.test.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.test.ts",
+      "sha256": "1ab8407cdb748fd3bf3593f1a3d71674f731dfbda0b208d2099d1a04bb8b1845"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.ts",
+      "sha256": "0b64a60514edfeb0715ac8c64944f2eb0087e06c76d3a4c37049e361a327ee31"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/automatic-run/automatic-run-workspace.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/automatic-run/automatic-run-workspace.ts",
+      "sha256": "93262f99fcc665f1cf98b8298be1f399d50a14c5b9aad6abc76d84fceec49991"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/attach-orchestration-db-methods.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/attach-orchestration-db-methods.ts",
+      "sha256": "67f1560627d5f528dd9a4db201b4a5098f53d1d85c9211c1ee386c2054d8aabc"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/automatic-runs/automatic-report-delivery.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/automatic-runs/automatic-report-delivery.ts",
+      "sha256": "811a59164a740911c34232f03993eed4f2035825df232c33c5d29e24f73650cd"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/automatic-runs/automatic-run-activity-store.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/automatic-runs/automatic-run-activity-store.ts",
+      "sha256": "a29c36bf9b53564ca19c8b862b23247a9dd42bfc4eceace25ae2ea294c81ab09"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/automatic-runs/automatic-run-store.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/automatic-runs/automatic-run-store.ts",
+      "sha256": "9897d08d7925d1933d1a19ccb63dd18e87a9a9b5db282d8589f9f837fb2d4477"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/automatic-runs/workflow-apply.test.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/automatic-runs/workflow-apply.test.ts",
+      "sha256": "960f08fd6bd6949d2aad928341ef1e4f1560e5d0a56b4fa357121779b4fa3a18"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/automatic-runs/workflow-apply.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/automatic-runs/workflow-apply.ts",
+      "sha256": "ce8a32691e01775bf78652bb6558b6aaeeb3997ec6729a3b1a84958f4c633d54"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/contract-constants.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/contract-constants.ts",
+      "sha256": "901e7aec51d1bf7414c0d442ce427594781c022506c7fc2056aa379498d394e4"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/decision-gates/decision-gate-store.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/decision-gates/decision-gate-store.ts",
+      "sha256": "fc1aa90181ace5e1e480762d37c90c207d91e0cac49816075320442fe19ef39c"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/dispatch-context/dispatch-completion.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/dispatch-context/dispatch-completion.ts",
+      "sha256": "2a528e11d6ac7a76d6057d74e7f03d126feb8924028a79dd516795dd9c7085d1"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/dispatch-context/worker-report-settlement.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/dispatch-context/worker-report-settlement.ts",
+      "sha256": "fac435ae3ea3507184a8911d8bd045aea5e26d872cab95fade6884f08ca9f5ff"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/messages/automatic-message-routing.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/messages/automatic-message-routing.ts",
+      "sha256": "6ee68faceec22073203c80aa296701601772909cd9e537200395bfae12115b45"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/messages/message-inbox.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/messages/message-inbox.ts",
+      "sha256": "53faae9069f3db3b806fa308326d86ca3ca5be6bd120d1c7d685cf04ba5ddbcf"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/orchestration-db-methods.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/orchestration-db-methods.ts",
+      "sha256": "40c4f1629df8bce2b307fa51d87d65ff9dc5d4ba0ae04e9ede05eaacaae1e7b0"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/reset/orchestration-reset.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/reset/orchestration-reset.ts",
+      "sha256": "2dc265ad52073df43be85aa44ddb36c0a7543735841f9636d811068dbbd959d2"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/row-column-lists.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/row-column-lists.ts",
+      "sha256": "333ce193c89016d1e8a0120aefd3420507a54d62bd2a77b3d028e5b992c3f618"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/runs/run-create.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/runs/run-create.ts",
+      "sha256": "0b1f7fdfaf43c60f03ea331aef4f85f9b3bf003490a42f7b230c386c4ea48a5b"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/schema/create-core-tables-sql.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/schema/create-core-tables-sql.ts",
+      "sha256": "0e7e34945abff9fd922910ad1dd954327c971e8198359f62666b04bd372b245d"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/schema/create-graph-tables-sql.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/schema/create-graph-tables-sql.ts",
+      "sha256": "ed4a8e599c50ef8e32e1298eff5ab86e7d92a84649130399410761c1053ab6fa"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/schema/migrate-v47.test.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/schema/migrate-v47.test.ts",
+      "sha256": "30924114107d47f1bd13ac03688de96a3ad8f3c85ec127542205d39089479132"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/schema/migrate-v47.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/schema/migrate-v47.ts",
+      "sha256": "e3e7f20e28f7d80fe8ac9b7c86ce66f47e74c6feb30d3c0fcc6f76354e40c315"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/schema/migrate.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/schema/migrate.ts",
+      "sha256": "49cc1219307a9824515037767661a3b659a329da7cca292a1dd394ebfd0b1e07"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/tasks/task-store.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/tasks/task-store.ts",
+      "sha256": "55a4ab606e3e1e3dad2aa5b5228816bb402cf58098b460d65b5dfbeae30f9d16"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-outcome.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-outcome.ts",
+      "sha256": "16a5f837287faba6ffcf7f5a567f6cd7895310f34ec494f397262acc2765dcb2"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-start.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-start.ts",
+      "sha256": "c3406aa8abc796aedd793bd93d952271aa2c50ca08ec4e040df2e85c075ed180"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/legacy-contract-rows.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/legacy-contract-rows.ts",
+      "sha256": "642157e35c2da583a8be58639da4c9361e03c1a0a68fc5e6ea5a1ce22bccefe8"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/lifecycle-reconciliation.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/lifecycle-reconciliation.ts",
+      "sha256": "948a17817ab84f5141aea268b364f5d6a33da32cc40777a47ad20f903882b9ed"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/preamble.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/preamble.ts",
+      "sha256": "ef23a96c93499f2b23ee74d5923ddde5ab4d896929358b77a8b8c08aacdb0cee"
+    },
+    {
+      "upstreamPath": "src/main/runtime/orchestration/types.ts",
+      "snapshotPath": "changes/src/main/runtime/orchestration/types.ts",
+      "sha256": "3690401c20b0cf580b7ec48c29cb9a1f4dc79713770d898e3c592dd98b35bff5"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/methods/orchestration-structured-worker-start-failure.test.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration-structured-worker-start-failure.test.ts",
+      "sha256": "a2c98902dc6d59dbea6ebf72f61ca483741eae6a8f883f9eb56b713945e8df6b"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/methods/orchestration.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration.ts",
+      "sha256": "372073affc62ea24d3cf680321ada8ca0f7c85579f5385aa8b08a175c43b2939"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.test.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.test.ts",
+      "sha256": "20cb9e8cb49a5c3b262206cb32048969a1234f16e4b213371d55b3123cc33a94"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.ts",
+      "sha256": "6734f8981b9ccfde3ac3d42c6e38c90c2f546f69a6ab214c4ed5d0bb781255fd"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-methods.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-methods.ts",
+      "sha256": "d2f14dff2286a3fa8265ef3f0d676bcfa1a6de87c361f48444a550cb5ac33e90"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/methods/orchestration/gates/gates.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/gates/gates.ts",
+      "sha256": "88ec832630561bcd422e8c64a7ffced4e8ee9b120d7737a5f40fb548bdce0f6a"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/methods/orchestration/messaging/check-methods.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/messaging/check-methods.ts",
+      "sha256": "77f03b026e51b7889d1c5218ac797947ff2fa9caefd8c827a5408e91ad2a66d5"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/methods/orchestration/messaging/message-methods.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/messaging/message-methods.ts",
+      "sha256": "1fcbf5b4485bc96415e9b2ae62d1612ad88b0a1bdff36b1b41dd5a545103fb33"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/methods/orchestration/messaging/send-point-to-point.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/messaging/send-point-to-point.ts",
+      "sha256": "8d66bbe4a98f701c13f2c60e30ea0d216b06b239e9fc995e7ba91dfd97ec57b7"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/methods/orchestration/messaging/task-list-projection.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/messaging/task-list-projection.ts",
+      "sha256": "a50239cc62f82a81def515e1fc3fc1bec454f0a9d0fc12ea3e5dab699773fe09"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/methods/orchestration/runs/run-receipt.test.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/runs/run-receipt.test.ts",
+      "sha256": "2632ffc269a57b1a3a1d6e1f44ff369822a8da36dffa6407accbf918a4851026"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/methods/orchestration/runs/runs.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/runs/runs.ts",
+      "sha256": "d29e7e4be06aee1aca58132bb91f2ce2ec0d2efbe8e8a50571dfbdf10a34070c"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/methods/orchestration/worker/local-worker-start.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/worker/local-worker-start.ts",
+      "sha256": "9486c038ebf9b6350a6778af1415e45d3c545aca548709b99eb61ceb53e49a5b"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/orchestration-session-caller.test.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/orchestration-session-caller.test.ts",
+      "sha256": "3645ae21ce23ecb4cf83890ef9937c8afc89c97764014d4f133fa64ba752be7f"
+    },
+    {
+      "upstreamPath": "src/main/runtime/rpc/orchestration-session-caller.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/orchestration-session-caller.ts",
+      "sha256": "06128389d80510b2e6b9c6998124e2f05fee606275f3527363a650a28521df83"
+    },
+    {
+      "upstreamPath": "src/main/runtime/runtime-agent-orchestration-projection.ts",
+      "snapshotPath": "changes/src/main/runtime/runtime-agent-orchestration-projection.ts",
+      "sha256": "1877a558e54c4795f5b951992326b9262c06f57ed028735da0247c396cf1917c"
+    },
+    {
+      "upstreamPath": "src/main/runtime/runtime-orchestration-db.test-fixture.ts",
+      "snapshotPath": "changes/src/main/runtime/runtime-orchestration-db.test-fixture.ts",
+      "sha256": "5e525136bec5a488e1ac1499aa65146caec2cacc5b1d3cb2ae4d1e9c0bf0f2f1"
+    },
+    {
+      "upstreamPath": "src/main/runtime/workspaces/persisted-surfaces/automation-operations.ts",
+      "snapshotPath": "changes/src/main/runtime/workspaces/persisted-surfaces/automation-operations.ts",
+      "sha256": "9443601ddc3bdffa713a73dc601b5821790ad4becce02dcd6b67621b38402051"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard/dashboard-card-labels.ts",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard/dashboard-card-labels.ts",
+      "sha256": "f508e828183e41e3e3bd8b0d4c91a7924785bdad0a3b024dc1705b5e8cf6dc78"
+    },
+    {
+      "upstreamPath": "src/renderer/src/store/slices/agent-status/agent-status-orchestration-context.ts",
+      "snapshotPath": "changes/src/renderer/src/store/slices/agent-status/agent-status-orchestration-context.ts",
+      "sha256": "020cb69129b8f47d99b678c81b13a455a877ef4a980dd33f7d464609f0d875e6"
+    },
+    {
+      "upstreamPath": "src/shared/agent-status-types.ts",
+      "snapshotPath": "changes/src/shared/agent-status-types.ts",
+      "sha256": "d466f82638ed0c0a46d5965026b9a4ea789b6584e9ad67f62e49d4999bc0a25c"
+    },
+    {
+      "upstreamPath": "src/shared/orchestration-workflow.ts",
+      "snapshotPath": "changes/src/shared/orchestration-workflow.ts",
+      "sha256": "96ac5f54aad8307db61b1d8e19f62351e94d7c5bed7d8842418b6a213e6a0b47"
+    },
+    {
+      "upstreamPath": "src/shared/rpc-contract/orchestration-automatic-run-params.ts",
+      "snapshotPath": "changes/src/shared/rpc-contract/orchestration-automatic-run-params.ts",
+      "sha256": "eb6441cfadad360b285c7767e1cac5491441a8d7b3db80c7c8af003303f3fea6"
+    },
+    {
+      "upstreamPath": "src/shared/rpc-contract/orchestration-runs-params.ts",
+      "snapshotPath": "changes/src/shared/rpc-contract/orchestration-runs-params.ts",
+      "sha256": "a4fbcd08ed8c93c003337746a5e794555d86c0ebddda8c5592188277ff51f017"
+    },
+    {
+      "upstreamPath": "src/shared/rpc-contract/rpc-params-catalog.generated.ts",
+      "snapshotPath": "changes/src/shared/rpc-contract/rpc-params-catalog.generated.ts",
+      "sha256": "c704df311255d9f1d19ea84db505604cc8b43998f7467290bef7b63f8a86cd0d"
+    }
+  ]
+}
