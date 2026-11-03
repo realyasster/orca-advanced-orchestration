@@ -765,6 +765,33 @@ class InstallationTestCase(unittest.TestCase):
         self.assertIn("Modified since install", rendered)
         self.assertIn("src/app.ts", rendered)
 
+    def test_powershell_installer_verify_action(self) -> None:
+        script = REPO_ROOT / "install.ps1"
+        self.assertTrue(script.is_file())
+        shell = shutil.which("pwsh") or shutil.which("powershell")
+        if not shell:
+            self.skipTest("PowerShell is not available")
+        result = subprocess.run(
+            [
+                shell,
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                str(script),
+                "-Action",
+                "verify",
+                "-NoPause",
+            ],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+            errors="replace",
+            timeout=120,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Verified 79 files", result.stdout)
+
     def test_readme_local_links_resolve(self) -> None:
         for readme in ("README.md", "README.en.md", "docs/DESIGN.md", "docs/VALIDATION.md"):
             document = REPO_ROOT / readme

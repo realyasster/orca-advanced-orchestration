@@ -22,7 +22,7 @@ Kapsanan senaryolar arasında sıralama, paralel birleşme, kapasite sınırı, 
 
 ## Installer testleri
 
-**2 test dosyası, 45 test: geçti.** Testler yalnızca Python standart kütüphanesi ve Git kullanır; geçici Git checkout'ları ve sentetik bir değişiklik paketi oluşturur. Gerçek kullanıcı checkout'unda veya kurulu Orca uygulamasında install/uninstall denenmedi.
+**2 test dosyası, 46 test: geçti.** Testler yalnızca Python standart kütüphanesi ve Git kullanır; geçici Git checkout'ları ve sentetik bir değişiklik paketi oluşturur. Gerçek kullanıcı checkout'unda veya kurulu Orca uygulamasında install/uninstall denenmedi.
 
 ```sh
 python scripts/verify_bundle.py
@@ -41,6 +41,7 @@ Kapsam:
 - Canlı kilit, ölü kilit kurtarma, bayat kilit devralma yarışı, eşzamanlılık reddi.
 - Symlink ve Windows junction üzerinden yazmanın reddedilmesi; linked worktree için ayrı per-worktree Git veri dizininin kullanılması.
 - Dry-run ve status komutlarının bütün checkout ağacında (`.git` dahil) hiçbir içerik değiştirmemesi.
+- `install.ps1 -Action verify` PowerShell smoke testi; PowerShell yoksa test atlanır.
 - Gerçek `patches/automatic-orchestration.patch` dosyasının taban commit'teki 77 dosyalık geçici ağaca uygulanması ve 77 snapshot hash'iyle eşleşmesi.
 - `verify_bundle.py` çıktısının geriye uyumlu kalması (79 dosya) ve README yerel bağlantılarının çözülmesi.
 

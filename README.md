@@ -42,6 +42,7 @@ Uygulama (Codex)
 | Yol | İçerik |
 | --- | --- |
 | [`scripts/manage_installation.py`](scripts/manage_installation.py) | Kaynak checkout için yedeklemeli install / status / uninstall aracı |
+| [`install.ps1`](install.ps1) | Windows için etkileşimli PowerShell kurulum menüsü |
 | [`scripts/orca_install/`](scripts/orca_install/) | Aracın paket doğrulama, kilit, günlük, yedek ve geri yükleme modülleri |
 | [`patches/automatic-orchestration.patch`](patches/automatic-orchestration.patch) | Upstream tabana uygulanacak gerçek değişiklikler |
 | [`changes/`](changes/) | Değişen veya eklenen 77 dosyanın uygulama sonrası halleri; özgün yollar korunur |
@@ -64,12 +65,56 @@ Paketi ve ayrı bir Orca kaynak checkout'unu hazırlayın (Python 3.9+ ve Git ge
 
 ```sh
 git clone https://github.com/realyasster/orca-advanced-orchestration.git
-git clone --branch v1.4.246 --depth 1 https://github.com/stablyai/orca.git orca-dev
+git -c core.autocrlf=false clone --branch v1.4.246 --depth 1 https://github.com/stablyai/orca.git orca-dev
 cd orca-advanced-orchestration
 python scripts/manage_installation.py install --source ../orca-dev
 ```
 
-Komutlar iki klonun aynı üst klasörde olduğunu varsayar. `--source` mutlaka checkout'un Git kök klasörü olmalıdır.
+Komutlar iki klonun aynı üst klasörde olduğunu varsayar. `--source` mutlaka checkout'un Git kök klasörü olmalıdır. Windows'ta `core.autocrlf=false` kullanılması, patch'in beklediği LF satır sonlarının korunmasını sağlar.
+
+### PowerShell menüsü (Windows)
+
+Depo ve `orca-dev` checkout'u hazır olduktan sonra tek komutla menüyü açabilirsiniz:
+
+```powershell
+cd orca-advanced-orchestration
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+Menüden seçim yapın:
+
+```text
+  1) Kur
+  2) Durum
+  3) Kaldır
+  4) Kurulum provası (dry-run)
+  5) Kaldırma provası (dry-run)
+  6) Paketi doğrula
+  7) Orca kaynak yolunu değiştir
+  0) Çıkış
+```
+
+`install.ps1` yalnızca mevcut Python aracını çağırır. Depoyu veya Orca checkout'unu **klonlamaz**; ikisinin de önceden hazır olması gerekir. `-Source` verilmezse önce `..\orca-dev` aranır, bulunamazsa yol sorulur.
+
+Doğrudan eylem seçmek için:
+
+```powershell
+.\install.ps1 -Action install -Source ..\orca-dev
+.\install.ps1 -Action install -Source ..\orca-dev -DryRun
+.\install.ps1 -Action status -Source ..\orca-dev
+.\install.ps1 -Action uninstall -Source ..\orca-dev
+.\install.ps1 -Action verify
+```
+
+`-NoPause` otomasyon için işlem sonu beklemesini kapatır; depo kökü otomatik bulunamazsa `-RepoRoot` ile belirtin.
+
+Depo kökündeyken `irm ... | iex` de aynı menüyü açar; depo dışından çalıştırılırsa script depoyu bulamaz:
+
+```powershell
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/main/install.ps1 | iex
+```
+
+`iex` uzaktan indirilen betiği doğrudan çalıştırır; URL'yi ve betiği önce inceleyin.
 
 Önce yapılacakları görmek için:
 
@@ -210,7 +255,7 @@ Duraklatma yeni başlangıçları engeller; çalışan işçiler devam eder. İp
 
 ## Doğrulama durumu
 
-İlgili **7 Orca test dosyasındaki 48 test geçti**; iki dosyada `max-lines` lint hatası kaldı. Installer için **45 Python testi geçti**: temiz/kesintili kurulum, durum, kaldırma, kurtarma arşivi, CRLF, izinler, yedek doğrulama, kilit yarışı, path traversal, symlink/junction, linked worktree ve gerçek 77 dosyalık patch'in taban ağacına uygulanması.
+İlgili **7 Orca test dosyasındaki 48 test geçti**; iki dosyada `max-lines` lint hatası kaldı. Installer için **46 Python testi geçti**: temiz/kesintili kurulum, durum, kaldırma, kurtarma arşivi, CRLF, izinler, yedek doğrulama, kilit yarışı, path traversal, symlink/junction, linked worktree, PowerShell menüsü ve gerçek 77 dosyalık patch'in taban ağacına uygulanması.
 
 Tam CI, uygulama paketlemesi ve canlı çok ajanlı uçtan uca çalışma doğrulanmadı. Testler kontrollü işçi host'ları kullanır; gerçek üretim token ölçümü değildir. Gerçek patch fixture testi yerel `orca-source/` checkout'una ihtiyaç duyar ve o yoksa atlanır.
 

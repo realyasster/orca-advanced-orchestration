@@ -11,6 +11,7 @@ This repository contains only the orchestration changes, their tests, documentat
 ## Contents
 
 - [`scripts/manage_installation.py`](scripts/manage_installation.py): backup-aware install/status/uninstall tool for a source checkout.
+- [`install.ps1`](install.ps1): interactive PowerShell installation menu for Windows.
 - [`scripts/orca_install/`](scripts/orca_install/): bundle verification, locking, journal, backup, and restore modules.
 - `patches/automatic-orchestration.patch`: actual changes against Orca v1.4.246.
 - `changes/`: post-change snapshots of the 77 affected source and skill-guide files, preserving upstream paths. Existing files include surrounding upstream code; the patch identifies the changed lines.
@@ -33,12 +34,58 @@ Python 3.9+ and Git are required; no third-party Python packages are needed.
 
 ```sh
 git clone https://github.com/realyasster/orca-advanced-orchestration.git
-git clone --branch v1.4.246 --depth 1 https://github.com/stablyai/orca.git orca-dev
+git -c core.autocrlf=false clone --branch v1.4.246 --depth 1 https://github.com/stablyai/orca.git orca-dev
 cd orca-advanced-orchestration
 python scripts/manage_installation.py install --source ../orca-dev
 ```
 
-This assumes sibling clones. `--source` must point at the Git root of the checkout. Preview actions without changing anything:
+This assumes sibling clones. `--source` must point at the Git root of the checkout. On Windows, `core.autocrlf=false` keeps the LF line endings the patch expects.
+
+### PowerShell menu (Windows)
+
+Once the bundle and an `orca-dev` checkout are ready, open the menu with one command:
+
+```powershell
+cd orca-advanced-orchestration
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+Choose an action:
+
+```text
+  1) Install
+  2) Status
+  3) Uninstall
+  4) Install dry-run
+  5) Uninstall dry-run
+  6) Verify bundle
+  7) Change Orca source path
+  0) Exit
+```
+
+`install.ps1` only wraps the existing Python tool. It does **not** clone the bundle or the Orca checkout; both must already exist. Without `-Source`, it looks for `..\orca-dev` first and then asks for a path.
+
+Run a single action directly:
+
+```powershell
+.\install.ps1 -Action install -Source ..\orca-dev
+.\install.ps1 -Action install -Source ..\orca-dev -DryRun
+.\install.ps1 -Action status -Source ..\orca-dev
+.\install.ps1 -Action uninstall -Source ..\orca-dev
+.\install.ps1 -Action verify
+```
+
+`-NoPause` skips the wait after an action for automation. Use `-RepoRoot` when the repository root cannot be detected automatically.
+
+Running `irm ... | iex` from the repository root opens the same menu; from any other directory the script cannot locate the bundle:
+
+```powershell
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/main/install.ps1 | iex
+```
+
+`iex` executes downloaded code directly; inspect the URL and the script first.
+
+Preview actions without changing anything:
 
 ```sh
 python scripts/manage_installation.py install --source ../orca-dev --dry-run
@@ -163,7 +210,7 @@ Controls are documented in [the main README](README.md). Use `node config/script
 
 ## Verification and limitations
 
-**48 focused Orca tests passed across 7 files**, and two `max-lines` lint errors remain. The installer has **45 passing Python tests** covering clean and interrupted installs, status, uninstall, recovery archives, CRLF, permissions, backup validation, lock races, path traversal, symlinks/junctions, linked worktrees, and applying the real 77-file patch to a base tree.
+**48 focused Orca tests passed across 7 files**, and two `max-lines` lint errors remain. The installer has **46 passing Python tests** covering clean and interrupted installs, status, uninstall, recovery archives, CRLF, permissions, backup validation, lock races, path traversal, symlinks/junctions, linked worktrees, the PowerShell menu, and applying the real 77-file patch to a base tree.
 
 Full CI, packaging, and a live multi-agent end-to-end run were not verified. Tests use controlled worker hosts; they do not measure production token usage. The real-patch fixture test needs a local `orca-source/` checkout and is skipped when absent.
 
