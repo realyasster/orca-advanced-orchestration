@@ -219,6 +219,14 @@ function Invoke-VerifyAction {
     return $code
 }
 
+function Confirm-Uninstall {
+    $answer = Read-Host 'Kaldırmak istediğinizden emin misiniz? (e/H)'
+    if ($null -eq $answer) {
+        return $false
+    }
+    return $answer.Trim() -match '^(e|evet|y|yes)$'
+}
+
 function Show-Menu {
     while ($true) {
         $sourceLabel = '(kurulumda sorulacak)'
@@ -258,15 +266,33 @@ function Show-Menu {
             switch ($choice) {
                 '1' { $code = Invoke-InstallAction }
                 '2' { $code = Invoke-StatusAction }
-                '3' { $code = Invoke-UninstallAction }
+                '3' {
+                    if (Confirm-Uninstall) {
+                        $code = Invoke-UninstallAction
+                    }
+                    else {
+                        Write-Warn 'Kaldırma iptal edildi.'
+                        $code = 0
+                    }
+                }
                 '4' { $code = Invoke-InstallAction -DryRun }
                 '5' { $code = Invoke-UninstallAction -DryRun }
                 '6' { $code = Invoke-VerifyAction }
                 '7' {
+                    $previousResolved = $script:ResolvedSource
+                    $previousRequested = $script:RequestedSource
                     $script:ResolvedSource = $null
                     $script:RequestedSource = $null
-                    [void](Resolve-Source)
-                    $code = 0
+                    try {
+                        [void](Resolve-Source)
+                        $code = 0
+                    }
+                    catch {
+                        $script:ResolvedSource = $previousResolved
+                        $script:RequestedSource = $previousRequested
+                        Write-Warn "Kaynak yolu değiştirilmedi: $($_.Exception.Message)"
+                        $code = 0
+                    }
                 }
                 default {
                     Write-Warn "Geçersiz seçim: $choice"

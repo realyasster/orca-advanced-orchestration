@@ -94,6 +94,8 @@ Menüden seçim yapın:
   0) Çıkış
 ```
 
+Menüde `3) Kaldır` işlem başlamadan önce onay ister; onaylanmazsa hiçbir şey yapılmaz. Doğrudan `-Action uninstall` çağrısı onay sormaz. `7) Orca kaynak yolunu değiştir` seçeneğinde işlem iptal edilirse önceki kaynak yolu korunur.
+
 `install.ps1` yalnızca mevcut Python aracını çağırır. Depoyu veya Orca checkout'unu **klonlamaz**; ikisinin de önceden hazır olması gerekir. `-Source` verilmezse önce `..\orca-dev` aranır, bulunamazsa yol sorulur.
 
 Doğrudan eylem seçmek için:

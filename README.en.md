@@ -63,6 +63,8 @@ Choose an action:
   0) Exit
 ```
 
+In the menu, `3) Uninstall` asks for confirmation before starting; if declined, nothing changes. Direct `-Action uninstall` does not prompt. If `7) Change Orca source path` is cancelled, the previous source path is kept.
+
 `install.ps1` only wraps the existing Python tool. It does **not** clone the bundle or the Orca checkout; both must already exist. Without `-Source`, it looks for `..\orca-dev` first and then asks for a path.
 
 Run a single action directly:
