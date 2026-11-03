@@ -27,6 +27,7 @@ from helpers import (
 )
 
 from orca_install import cli, installer, uninstaller
+from orca_install.bundle import patch_affected_paths
 from orca_install.errors import (
     BundleError,
     InstallationError,
@@ -36,6 +37,7 @@ from orca_install.errors import (
     RecoveryRequiredError,
     StateError,
 )
+from orca_install.lock import InstallationLock
 from orca_install.status import collect_status
 
 
@@ -390,6 +392,34 @@ class InstallationTestCase(unittest.TestCase):
             self.install()
         self.assertIn("disagree", str(context.exception))
 
+    def test_patch_with_deletion_or_rename_is_rejected(self) -> None:
+        cases = (
+            (
+                "deletion",
+                b"diff --git a/docs/old.md b/docs/old.md\n"
+                b"deleted file mode 100644\n",
+                "delete",
+            ),
+            (
+                "rename",
+                b"diff --git a/docs/old.md b/docs/old.md\n"
+                b"rename from docs/old.md\n"
+                b"rename to docs/old.md\n",
+                "rename",
+            ),
+            (
+                "similarity",
+                b"diff --git a/docs/old.md b/docs/old.md\n"
+                b"similarity index 90%\n",
+                "rename or copy",
+            ),
+        )
+        for label, patch, expected in cases:
+            with self.subTest(label=label):
+                with self.assertRaises(BundleError) as context:
+                    patch_affected_paths(patch)
+                self.assertIn(expected, str(context.exception).lower())
+
     # ------------------------------------------------------------------
     # Locks and crash recovery
     # ------------------------------------------------------------------
@@ -430,6 +460,39 @@ class InstallationTestCase(unittest.TestCase):
         with mock.patch("orca_install.lock.pid_is_alive", return_value=False):
             result = self.install_ok()
         self.assertTrue(result.installation_id)
+        self.assertFalse(store.lock_path.exists())
+
+    def test_stale_lock_reclaim_does_not_steal_a_fresh_lock(self) -> None:
+        store = self.fx.store()
+        store.base_dir.mkdir(parents=True)
+        stale = {
+            "formatVersion": 1,
+            "pid": 424242,
+            "hostname": __import__("socket").gethostname(),
+            "createdAt": "2026-01-01T00:00:00Z",
+            "command": "stale",
+            "token": "stale-token",
+        }
+        store.lock_path.write_text(json.dumps(stale), encoding="utf-8")
+        first = InstallationLock(store, "first")
+        second = InstallationLock(store, "second")
+
+        with mock.patch("orca_install.lock.pid_is_alive", return_value=False):
+            first.acquire()
+            # Simulate a process that read the stale bytes before the first
+            # process replaced them: its later unlink must not remove the live lock.
+            second._read_lock = lambda: stale  # type: ignore[method-assign]
+            with self.assertRaises(LockError) as context:
+                second.acquire()
+
+        self.assertIn("changed", str(context.exception).lower())
+        self.assertTrue(first.acquired)
+        self.assertFalse(second.acquired)
+        current = json.loads(store.lock_path.read_text(encoding="utf-8"))
+        self.assertEqual(current["token"], first.token)
+        self.assertEqual(list(store.base_dir.glob("*.stale")), [])
+
+        first.release()
         self.assertFalse(store.lock_path.exists())
 
     def test_uncertain_lock_owner_is_not_stolen(self) -> None:

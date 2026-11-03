@@ -114,6 +114,20 @@ def patch_affected_paths(patch_bytes: bytes) -> List[str]:
                 "Bundle patch must not change file modes on existing files; "
                 "mode-only changes are ambiguous for a source checkout"
             )
+        if line.startswith("deleted file mode "):
+            raise BundleError(
+                "Bundle patch must not delete files; deletions cannot be represented "
+                "in the managed backup/restore record"
+            )
+        if (
+            line.startswith("rename from ")
+            or line.startswith("rename to ")
+            or line.startswith("similarity index ")
+        ):
+            raise BundleError(
+                "Bundle patch must not rename or copy files; renames are ambiguous "
+                "for a source checkout"
+            )
         if not line.startswith("diff --git "):
             continue
         old, new = _split_git_header(line[len("diff --git ") :])

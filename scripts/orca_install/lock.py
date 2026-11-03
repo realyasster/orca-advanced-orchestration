@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Optional
 import json
 import os
@@ -72,12 +73,15 @@ class InstallationLock:
             indent=2,
         ).encode("utf-8")
 
-    def _read_lock(self) -> Optional[dict]:
+    def _read_lock_at(self, path: Path) -> Optional[dict]:
         try:
-            data = json.loads(self.path.read_text(encoding="utf-8"))
+            data = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             return None
         return data if isinstance(data, dict) else None
+
+    def _read_lock(self) -> Optional[dict]:
+        return self._read_lock_at(self.path)
 
     def _owner_is_gone(self, data: Optional[dict]) -> bool:
         if not data:
@@ -93,6 +97,94 @@ class InstallationLock:
             return False
         return pid_is_alive(pid) is False
 
+    def _restore_moved_lock(self, moved: Path) -> bool:
+        """Put a displaced lock back without replacing a lock created meanwhile."""
+
+        try:
+            os.link(moved, self.path)
+        except FileExistsError:
+            return False
+        except OSError:
+            # Hard links are not available everywhere; recreate the file with O_EXCL.
+            try:
+                raw = moved.read_bytes()
+            except OSError:
+                return False
+            try:
+                fd = os.open(
+                    self.path,
+                    os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0),
+                    0o600,
+                )
+            except OSError:
+                return False
+            try:
+                with os.fdopen(fd, "wb") as handle:
+                    handle.write(raw)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+            except OSError:
+                try:
+                    self.path.unlink()
+                except OSError:
+                    pass
+                return False
+        try:
+            moved.unlink()
+        except OSError:
+            pass
+        return True
+
+    def _reclaim_stale_lock(self, observed: dict) -> bool:
+        """Move the observed stale lock aside and confirm it is still the same one.
+
+        Checking liveness and then unlinking by path is racy: another process can
+        replace the stale lock in between. Renaming the file first and comparing
+        the token inside the moved file closes that window. A fresh lock that was
+        moved by mistake is put back and the caller gets a LockError instead of
+        both processes believing they own the lock.
+        """
+
+        token = observed.get("token")
+        if not isinstance(token, str) or not token:
+            # Without a token the displaced file cannot be identified safely.
+            return False
+        moved = self.path.with_name(
+            f"{self.path.name}.{os.getpid()}.{os.urandom(6).hex()}.stale"
+        )
+        try:
+            os.replace(self.path, moved)
+        except FileNotFoundError:
+            # Another process removed or replaced it first; retry with O_EXCL.
+            return True
+        except OSError as exc:
+            raise LockError(
+                f"Could not move the stale installation lock aside: {exc}"
+            ) from exc
+
+        moved_data = self._read_lock_at(moved)
+        if not moved_data or moved_data.get("token") != token:
+            restored = self._restore_moved_lock(moved)
+            detail = (
+                "the displaced lock was restored"
+                if restored
+                else f"the displaced lock could not be restored and remains at {moved}"
+            )
+            raise LockError(
+                "The installation lock changed while a stale lock was being reclaimed; "
+                f"another process may have acquired it ({detail}). Re-run the operation."
+            )
+
+        try:
+            moved.unlink()
+        except FileNotFoundError:
+            pass
+        except OSError as exc:
+            raise LockError(
+                f"The stale installation lock was moved aside but could not be removed: {exc}"
+            ) from exc
+        return True
+
     def acquire(self) -> None:
         self.store.base_dir.mkdir(parents=True, exist_ok=True)
         for attempt in range(2):
@@ -105,11 +197,8 @@ class InstallationLock:
             except FileExistsError:
                 data = self._read_lock()
                 if attempt == 0 and self._owner_is_gone(data):
-                    try:
-                        self.path.unlink()
-                    except FileNotFoundError:
-                        pass
-                    continue
+                    if self._reclaim_stale_lock(data):
+                        continue
                 owner = "unknown"
                 if data:
                     owner = (

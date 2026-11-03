@@ -96,6 +96,18 @@ Yedek konumu checkout'a özgüdür:
 
 Araç derleme yapmaz, uygulama başlatmaz, veritabanı migrasyonu çalıştırmaz ve kurulu binary'yi değiştirmez. Kaynak dosyalar geri yüklendikten veya patch uygulandıktan sonra geliştirme sürümünü ayrıca derlemeniz gerekir.
 
+### Kurulumdan sonra derleme
+
+Kurulum yalnızca kaynak dosyaları değiştirir; değişikliklerin çalışması için patch uygulanmış Orca checkout'unda derleme yapılmalıdır:
+
+```sh
+cd ../orca-dev
+pnpm install --frozen-lockfile
+pnpm build
+```
+
+`pnpm dev --worktree-profile` geliştirme için gerekli paketleri kendisi derler. Tam masaüstü ve native derlemesi için `pnpm build` kullanın; derleme tamamlanmadan yeni otomasyon davranışı çalışmaz.
+
 ### Durum ve tekrar kurulum
 
 ```sh
@@ -198,7 +210,7 @@ Duraklatma yeni başlangıçları engeller; çalışan işçiler devam eder. İp
 
 ## Doğrulama durumu
 
-İlgili **7 Orca test dosyasındaki 48 test geçti**; iki dosyada `max-lines` lint hatası kaldı. Installer için **43 Python testi geçti**: temiz/kesintili kurulum, durum, kaldırma, kurtarma arşivi, CRLF, izinler, yedek doğrulama, kilit, path traversal, symlink/junction, linked worktree ve gerçek 77 dosyalık patch'in taban ağacına uygulanması.
+İlgili **7 Orca test dosyasındaki 48 test geçti**; iki dosyada `max-lines` lint hatası kaldı. Installer için **45 Python testi geçti**: temiz/kesintili kurulum, durum, kaldırma, kurtarma arşivi, CRLF, izinler, yedek doğrulama, kilit yarışı, path traversal, symlink/junction, linked worktree ve gerçek 77 dosyalık patch'in taban ağacına uygulanması.
 
 Tam CI, uygulama paketlemesi ve canlı çok ajanlı uçtan uca çalışma doğrulanmadı. Testler kontrollü işçi host'ları kullanır; gerçek üretim token ölçümü değildir. Gerçek patch fixture testi yerel `orca-source/` checkout'una ihtiyaç duyar ve o yoksa atlanır.
 

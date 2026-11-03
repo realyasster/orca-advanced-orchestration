@@ -111,11 +111,8 @@ def inspect_destination(path: Path, with_hash: bool = False) -> DestinationState
         # O_NOFOLLOW where the platform supports it.
         flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0)
         fd = os.open(path, flags)
-        try:
-            with os.fdopen(fd, "rb") as handle:
-                digest = hashlib.sha256(handle.read()).hexdigest()
-        except Exception:
-            raise
+        with os.fdopen(fd, "rb") as handle:
+            digest = hashlib.sha256(handle.read()).hexdigest()
     return DestinationState(
         exists=True,
         is_file=is_file,

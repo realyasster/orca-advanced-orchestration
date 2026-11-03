@@ -124,6 +124,18 @@ git apply ../orca-advanced-orchestration/patches/automatic-orchestration.patch
 
 Confirm the checkout matches the base commit above. Manual application provides no backup, journal, status tracking, or automatic restore; use your Git branch to revert. Compatibility with other Orca versions has not been verified.
 
+### Build after installation
+
+Installation only changes source files; build the patched Orca checkout before the changes can run:
+
+```sh
+cd ../orca-dev
+pnpm install --frozen-lockfile
+pnpm build
+```
+
+`pnpm dev --worktree-profile` builds the packages needed for development. Use `pnpm build` for a full desktop and native build; the new automation behavior is not active until that build completes.
+
 ## Run the development build
 
 Run these commands in the **patched Orca source checkout**, not this bundle. Use Node.js 24, Orca's pinned pnpm/Bun versions, and the native prerequisites in its `.github/CONTRIBUTING.md`.
@@ -151,7 +163,7 @@ Controls are documented in [the main README](README.md). Use `node config/script
 
 ## Verification and limitations
 
-**48 focused Orca tests passed across 7 files**, and two `max-lines` lint errors remain. The installer has **43 passing Python tests** covering clean and interrupted installs, status, uninstall, recovery archives, CRLF, permissions, backup validation, locks, path traversal, symlinks/junctions, linked worktrees, and applying the real 77-file patch to a base tree.
+**48 focused Orca tests passed across 7 files**, and two `max-lines` lint errors remain. The installer has **45 passing Python tests** covering clean and interrupted installs, status, uninstall, recovery archives, CRLF, permissions, backup validation, lock races, path traversal, symlinks/junctions, linked worktrees, and applying the real 77-file patch to a base tree.
 
 Full CI, packaging, and a live multi-agent end-to-end run were not verified. Tests use controlled worker hosts; they do not measure production token usage. The real-patch fixture test needs a local `orca-source/` checkout and is skipped when absent.
 
