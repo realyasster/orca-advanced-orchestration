@@ -33,6 +33,11 @@ def reconcile_locked(store: Store, checkout: Checkout, command: str) -> Optional
 
         rollback_interrupted_install(store, checkout, record)
         return "install"
+    if record.status == "updating":
+        from .updater import rollback_interrupted_update
+
+        rollback_interrupted_update(store, checkout, record)
+        return "update"
     if record.status == "uninstalling":
         from .uninstaller import resume_interrupted_uninstall
 

@@ -368,6 +368,16 @@ class InstallationTestCase(unittest.TestCase):
             self.install()
         self.assertEqual(snapshot_worktree(self.source), before)
 
+    def test_manifest_requires_package_metadata(self) -> None:
+        manifest = read_manifest(self.bundle)
+        del manifest["package"]
+        write_manifest(self.bundle, manifest)
+        before = snapshot_worktree(self.source)
+        with self.assertRaises(BundleError) as context:
+            self.install()
+        self.assertIn("package", str(context.exception))
+        self.assertEqual(snapshot_worktree(self.source), before)
+
     def test_corrupt_snapshot_is_rejected(self) -> None:
         snapshot = self.bundle / "changes" / "src" / "app.ts"
         snapshot.write_bytes(snapshot.read_bytes() + b"tampered\n")

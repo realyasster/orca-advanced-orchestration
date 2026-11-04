@@ -30,6 +30,7 @@ class BundleFile:
     upstream_path: str
     snapshot_path: str
     sha256: str
+    data: bytes
 
 
 @dataclass(frozen=True)
@@ -42,6 +43,8 @@ class Bundle:
     base_commit: str
     implementation_commit: Optional[str]
     fingerprint: str
+    package_version: str
+    package_name: str
 
     @property
     def patch_paths(self) -> List[str]:
@@ -144,6 +147,9 @@ def patch_affected_paths(patch_bytes: bytes) -> List[str]:
 def _fingerprint(manifest: Dict, files: Sequence[BundleFile]) -> str:
     payload = {
         "formatVersion": BUNDLE_FORMAT_VERSION,
+        "packageVersion": manifest.get("package", {}).get("version")
+        if isinstance(manifest.get("package"), dict)
+        else None,
         "baseCommit": manifest["upstream"]["baseCommit"],
         "repository": manifest["upstream"].get("repository"),
         "version": manifest["upstream"].get("version"),
@@ -190,6 +196,14 @@ def load_bundle(bundle_root: Path | str) -> Bundle:
         raise BundleError("Bundle manifest upstream.baseCommit is not a Git object id")
     _require_string(upstream.get("repository"), "upstream.repository")
     _require_string(upstream.get("version"), "upstream.version")
+
+    package_info = manifest.get("package")
+    if not isinstance(package_info, dict):
+        raise BundleError(
+            "Bundle manifest field 'package' must be an object with name and version"
+        )
+    package_version = _require_string(package_info.get("version"), "package.version")
+    package_name = _require_string(package_info.get("name"), "package.name")
 
     implementation_commit = manifest.get("implementationCommit")
     if implementation_commit is not None:
@@ -248,13 +262,18 @@ def load_bundle(bundle_root: Path | str) -> Bundle:
         seen.add(upstream_path)
         seen_casefold.add(folded)
         snapshot_file = _resolve_bundle_path(root, snapshot_path, f"files[{index}].snapshotPath")
-        _, actual = _read_and_hash(snapshot_file, snapshot_path)
+        snapshot_data, actual = _read_and_hash(snapshot_file, snapshot_path)
         if actual != expected:
             raise BundleError(
                 f"Snapshot hash mismatch for '{snapshot_path}': expected {expected}, got {actual}"
             )
         files.append(
-            BundleFile(upstream_path=upstream_path, snapshot_path=snapshot_path, sha256=expected)
+            BundleFile(
+                upstream_path=upstream_path,
+                snapshot_path=snapshot_path,
+                sha256=expected,
+                data=snapshot_data,
+            )
         )
 
     patch_paths = patch_affected_paths(patch_bytes)
@@ -279,4 +298,6 @@ def load_bundle(bundle_root: Path | str) -> Bundle:
         base_commit=base_commit,
         implementation_commit=implementation_commit,
         fingerprint=fingerprint,
+        package_version=package_version,
+        package_name=package_name,
     )

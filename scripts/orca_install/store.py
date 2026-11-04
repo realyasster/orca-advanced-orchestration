@@ -23,6 +23,7 @@ LOCK_FILE_NAME = "installation.lock"
 STATUSES = (
     "installing",
     "installed",
+    "updating",
     "uninstalling",
     "uninstalled",
     "recovery_required",
@@ -197,6 +198,7 @@ class Installation:
     package_base_commit: str
     package_implementation_commit: Optional[str]
     package_fingerprint: str
+    package_version: Optional[str]
     backup_path: str
     backup_manifest_path: str
     recovery_archives: List[str]
@@ -204,6 +206,7 @@ class Installation:
     files: List[FileRecord]
     progress: Progress
     completed_at: Optional[str] = None
+    update_id: Optional[str] = None
 
     def to_dict(self) -> Dict:
         return {
@@ -221,6 +224,7 @@ class Installation:
                 "baseCommit": self.package_base_commit,
                 "implementationCommit": self.package_implementation_commit,
                 "fingerprint": self.package_fingerprint,
+                "version": self.package_version,
                 "fileCount": len(self.files),
             },
             "backup": {
@@ -231,6 +235,7 @@ class Installation:
             "createdDirectories": list(self.created_directories),
             "managedFiles": [item.to_dict() for item in self.files],
             "progress": self.progress.to_dict(),
+            "updateId": self.update_id,
         }
 
     @classmethod
@@ -272,6 +277,14 @@ class Installation:
         implementation = package.get("implementationCommit")
         _require(implementation is None or isinstance(implementation, str),
                  "Installation record package.implementationCommit is invalid")
+        package_version = package.get("version")
+        _require(package_version is None or isinstance(package_version, str),
+                 "Installation record package.version is invalid")
+        update_id = data.get("updateId")
+        _require(update_id is None or isinstance(update_id, str),
+                 "Installation record updateId is invalid")
+        _require(update_id is None or bool(_ID_RE.fullmatch(update_id)),
+                 "Installation record updateId is invalid")
         return cls(
             installation_id=installation_id,
             status=status,
@@ -283,6 +296,7 @@ class Installation:
             package_base_commit=_string(package.get("baseCommit"), "package.baseCommit"),
             package_implementation_commit=implementation,
             package_fingerprint=fingerprint,
+            package_version=package_version,
             backup_path=_string(backup.get("path"), "backup.path"),
             backup_manifest_path=_string(backup.get("manifestPath"), "backup.manifestPath"),
             recovery_archives=list(archives),
@@ -290,6 +304,7 @@ class Installation:
             files=files,
             progress=Progress.from_dict(data.get("progress")),
             completed_at=completed_at,
+            update_id=update_id,
         )
 
 

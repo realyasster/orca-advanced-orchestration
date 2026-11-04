@@ -1,5 +1,9 @@
 {
   "formatVersion": 1,
+  "package": {
+    "name": "orca-advanced-orchestration",
+    "version": "1.0.0"
+  },
   "upstream": {
     "repository": "https://github.com/stablyai/orca",
     "version": "1.4.246",

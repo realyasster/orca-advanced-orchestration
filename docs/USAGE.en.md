@@ -1,167 +1,258 @@
-# Orca Advanced Orchestration
+# Orca Advanced Orchestration usage guide
 
-An independent **change bundle** adding event-driven automatic workflows to Orca's core runtime.
+This package applies automatic task orchestration changes to the Orca v1.4.246 source code. It is not a standalone application or plugin; the source checkout must be built after installation.
 
-[Türkçe README](../README.md) · [Design](../docs/DESIGN.md) · [Validation](../docs/VALIDATION.md) · [MIT license](../LICENSE)
+[Türkçe](USAGE.md) · [README](../README.en.md) · [Design](DESIGN.md) · [Validation](VALIDATION.md)
 
-Define a workflow once. Orca schedules dependent agents, while the coordinator handles planning, questions, failures, review decisions, and the final report. Worker agents still consume tokens; no production token-savings percentage is claimed.
+## Quick start
 
-This repository contains only the orchestration changes, their tests, documentation, and an example. It does **not** contain the full Orca repository or upstream Git history. It is not a plugin or a standalone application.
-
-## Contents
-
-- [`scripts/manage_installation.py`](../scripts/manage_installation.py): backup-aware install/status/uninstall tool for a source checkout.
-- [`install.ps1`](../install.ps1): interactive PowerShell installation menu for Windows.
-- [`scripts/orca_install/`](../scripts/orca_install/): bundle verification, locking, journal, backup, and restore modules.
-- `patches/automatic-orchestration.patch`: actual changes against Orca v1.4.246.
-- `changes/`: post-change snapshots of the 77 affected source and skill-guide files, preserving upstream paths. Existing files include surrounding upstream code; the patch identifies the changed lines.
-- `examples/workflow.json`: implementation followed by parallel testing and review.
-- `bundle-manifest.json`: exact base, implementation reference, and SHA-256 hashes.
-- `scripts/verify_bundle.py`: bundle integrity verification.
-- [`tests/`](../tests/): installer tests using only the Python standard library.
-
-Capabilities include sequential and parallel dependencies, two workers by default, versioned workflow updates, durable scheduling events, interrupted-launch recovery, workspace coordination, review gates, bounded correction rounds, pause/resume/cancel, and CLI/RPC integration.
-
-## Apply to Orca
-
-The supported base is [stablyai/orca](https://github.com/stablyai/orca) v1.4.246, commit `55ccff19ad4cd8ba28b6f3d2be798c1e626a2c2c`.
-
-The automated tool manages **only a source checkout whose `HEAD` is the supported base commit**. It does not change an installed or packaged Orca application. If the checkout `HEAD` differs, it refuses before touching any source file.
-
-### Automated installation (recommended)
-
-Python 3.9+ and Git are required; no third-party Python packages are needed.
-
-```sh
-git clone https://github.com/realyasster/orca-advanced-orchestration.git
-git -c core.autocrlf=false clone --branch v1.4.246 --depth 1 https://github.com/stablyai/orca.git orca-dev
-cd orca-advanced-orchestration
-python scripts/manage_installation.py install --source ../orca-dev
-```
-
-This assumes sibling clones. `--source` must point at the Git root of the checkout. On Windows, `core.autocrlf=false` keeps the LF line endings the patch expects.
-
-### PowerShell menu (Windows)
-
-Once the bundle and an `orca-dev` checkout are ready, open the menu with one command:
-
-```powershell
-cd orca-advanced-orchestration
-powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
-```
-
-Choose an action:
-
-```text
-  1) Install
-  2) Status
-  3) Uninstall
-  4) Install dry-run
-  5) Uninstall dry-run
-  6) Verify bundle
-  7) Change Orca source path
-  0) Exit
-```
-
-In the menu, `3) Uninstall` asks for confirmation before starting; if declined, nothing changes. Direct `-Action uninstall` does not prompt. If `7) Change Orca source path` is cancelled, the previous source path is kept.
-
-`install.ps1` only wraps the existing Python tool. It does **not** clone the bundle or the Orca checkout; both must already exist. Without `-Source`, it looks for `..\orca-dev` first and then asks for a path.
-
-Run a single action directly:
-
-```powershell
-.\install.ps1 -Action install -Source ..\orca-dev
-.\install.ps1 -Action install -Source ..\orca-dev -DryRun
-.\install.ps1 -Action status -Source ..\orca-dev
-.\install.ps1 -Action uninstall -Source ..\orca-dev
-.\install.ps1 -Action verify
-```
-
-`-NoPause` skips the wait after an action for automation. Use `-RepoRoot` when the repository root cannot be detected automatically.
-
-Running `irm ... | iex` from the repository root opens the same menu; from any other directory the script cannot locate the bundle:
+From any working directory in Windows PowerShell:
 
 ```powershell
 irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/main/install.ps1 | iex
 ```
 
-`iex` executes downloaded code directly; inspect the URL and the script first.
+Choose **Install** in the menu. The script:
 
-Preview actions without changing anything:
+1. Checks Python 3.9+ and Git.
+2. Resolves the latest stable GitHub Release once (or uses `-Version`).
+3. Downloads the versioned ZIP and `.sha256` containing only installation files.
+4. Verifies the ZIP SHA-256, then every one of the 77 file hashes in `bundle-manifest.json`.
+5. Caches the package by version under `%LOCALAPPDATA%\OrcaAdvancedOrchestration\packages\<version>\`.
+6. Resolves an Orca source checkout; offers to clone the supported upstream version when missing.
+7. Compares the target `HEAD` with the package's base commit.
+8. Creates a verified backup and applies the changes.
+
+It never downloads the full repository, Git history, tests, or development files.
+
+### Requirements
+
+- Windows PowerShell 5.1 or PowerShell 7.
+- Python 3.9+ (`py -3`, `python`, or `python3`).
+- Git.
+- Node.js 24 and Orca's pinned pnpm version for the build.
+
+### Orca source checkout
+
+Pass an existing checkout with `-Source` or let the menu prompt for it. Without it, these locations are tried:
+
+1. The persisted source path in `config.json`.
+2. `orca-dev` beside the local package directory.
+3. `orca-dev` in the current directory.
+4. `%USERPROFILE%\orca-dev`.
+
+If none exists, the menu prompts for a path and offers to clone the supported version:
+
+```powershell
+git -c core.autocrlf=false clone --branch v1.4.246 --depth 1 https://github.com/stablyai/orca.git <path>
+```
+
+If the cloned `HEAD` is not `upstream.baseCommit`, the tool refuses with a clear error; it never runs `git reset` or `git checkout` automatically.
+
+## Menu
+
+```text
+  1) Install
+  2) Update
+  3) Uninstall
+  4) Status and versions
+  5) Verify
+  6) Operation rehearsal (dry-run)
+  7) Change Orca source path
+  0) Exit
+```
+
+- **Install**: downloads/verifies the package and applies it.
+- **Update**: compares the installed and target versions; same version is a no-op. The new package is fully downloaded and verified, preflight checks run, and the operation executes under one lock.
+- **Uninstall**: restores original files, archives files changed after installation, and never deletes the Orca source directory. Asks for confirmation.
+- **Status and versions**: shows installation state, package version, backups, local changes, cached versions, and the latest stable version when reachable.
+- **Verify**: verifies package hashes and, when present, the installation record and backup.
+- **Operation rehearsal**: runs install, update, or uninstall with `--dry-run`; no file changes.
+- **Change Orca source path**: validates and persists the new path. Cancellation keeps the previous path.
+
+Under `irm | iex` the script never calls `exit` on the caller's shell. With `-File` it returns an exit code.
+
+## Non-interactive use
+
+```powershell
+.\install.ps1 -Action install -Source C:\orca-dev
+.\install.ps1 -Action install -Source C:\orca-dev -Version 1.0.0 -DryRun
+.\install.ps1 -Action update -Source C:\orca-dev
+.\install.ps1 -Action update -Source C:\orca-dev -Version 1.0.0 -DryRun
+.\install.ps1 -Action status -Source C:\orca-dev
+.\install.ps1 -Action verify
+.\install.ps1 -Action uninstall -Source C:\orca-dev
+```
+
+- Without `-Version`, the latest stable GitHub Release is resolved once per action.
+- Without `-Source`, the persisted path and known locations are tried; non-interactive mode fails clearly if none exists.
+- `-RepoRoot` selects a local package directory and skips downloads.
+- `-NoPause` disables the end-of-action wait.
+- `-DryRun` is meaningful only for install, update, and uninstall.
+
+To run only from a local package directory:
+
+```powershell
+cd orca-advanced-orchestration
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -RepoRoot . -Action install -Source ..\orca-dev
+```
+
+Local mode reads the version from `bundle-manifest.json`; `-Version` cannot be used there.
+
+## Cache, offline use, and integrity
+
+```text
+%LOCALAPPDATA%\OrcaAdvancedOrchestration\
+  config.json
+  packages\<version>\
+    .verified
+    bundle-manifest.json
+    install.ps1
+    scripts\...
+    changes\...
+  downloads\
+```
+
+- The downloaded ZIP is compared with the SHA-256 asset before extraction.
+- Archive paths that escape the destination (`..`, rooted paths, drive syntax) are rejected.
+- `.verified` is written only after bundle hashes pass.
+- A cached version is reused; the version is resolved once per action.
+- Uninstall works without network access through the cached management tool. If the cache is empty and the installed version is unknown, it fails clearly.
+
+## Build after installation
+
+Installation only changes source files. The tool does not build, launch the app, migrate a database, or replace an installed binary. Patched source and a ready-to-use application are separate states.
+
+```powershell
+cd <orca-source>
+pnpm install --frozen-lockfile
+pnpm build
+```
+
+For development:
+
+```powershell
+pnpm dev --worktree-profile
+```
+
+After install/update the menu prints these commands and, in interactive mode, offers to run them.
+
+## Direct Python tool
+
+The PowerShell script wraps the Python tool. The same operations are available directly:
 
 ```sh
 python scripts/manage_installation.py install --source ../orca-dev --dry-run
+python scripts/manage_installation.py install --source ../orca-dev
+python scripts/manage_installation.py update --source ../orca-dev --dry-run
+python scripts/manage_installation.py update --source ../orca-dev
+python scripts/manage_installation.py status --source ../orca-dev
+python scripts/manage_installation.py status --source ../orca-dev --json
+python scripts/manage_installation.py verify --source ../orca-dev
+python scripts/manage_installation.py uninstall --source ../orca-dev --dry-run
+python scripts/manage_installation.py uninstall --source ../orca-dev
 ```
 
-During installation the tool:
+There is no `--bundle` CLI flag; the tool uses its own package root (the directory containing `bundle-manifest.json`). To use a cached version, run `scripts/manage_installation.py` from that version's directory. Uninstall does not need the current bundle manifest.
 
-1. Verifies the patch, example, and all 77 file SHA-256 values in `bundle-manifest.json`.
-2. Checks the Git checkout, the supported base commit, every managed path, and symlink/junction safety.
-3. Applies the patch to temporary copies of the affected local files, preserving compatible local edits. If the patch does not apply exactly, it stops without changing the target.
-4. Stores the **raw bytes and permissions** of existing managed files under the checkout's Git data directory, verifies the backup hashes, and writes a durable JSON journal.
-5. Replaces each file atomically, records progress, and verifies every resulting hash.
-6. On a write failure, restores changed files from the first backup. If rollback cannot complete, it does not claim success and marks the installation `recovery_required`.
+## Installation flow
 
-The backup is checkout-specific:
+1. Verifies the manifest, patch, example, and all 77 file SHA-256 values.
+2. Checks the Git checkout, base commit, managed paths, and symlink/junction safety.
+3. Applies the patch to temporary copies of affected files. Compatible local edits are preserved; a patch that does not apply stops without changing the target.
+4. Stores raw bytes and permissions of existing managed files under the checkout's Git data directory, verifies hashes, and writes a durable JSON journal.
+5. Replaces files atomically, records progress, and verifies resulting hashes.
+6. On a write failure, restores changed files from the first backup. If rollback cannot complete, marks `recovery_required` and never claims success.
+
+Checkout-specific backup location:
 
 ```text
 <git-dir>/orca-advanced-orchestration/<installation-id>/backup
 ```
 
-Find `<git-dir>` with `git -C ../orca-dev rev-parse --absolute-git-dir`. For a linked worktree, the per-worktree Git directory returned by Git is used, so it never mixes with the main checkout's backup.
+For a linked worktree, the per-worktree Git directory returned by Git is used.
 
-The tool does not build, launch, migrate a database, or replace an installed binary. After installing (or after restoring sources), build and run the development app separately.
+## Update flow
 
-### Status and repeat installation
+- With no active installation or `uninstalled` state, update is refused; use install.
+- Identical package fingerprint is a no-op; no file or journal is written.
+- The same version with different content is rejected; publish a new version instead.
+- Files modified or missing since installation block the update before any write.
+- The installed and new package must target the same upstream base. Different bases or a mismatched checkout `HEAD` are never reset automatically.
+- Added and removed managed paths are supported. A newly managed path that already exists is captured as an original.
+- Before touching targets, the previous installed bytes are written to a verified rollback snapshot.
+- One `installation.lock` and a durable journal are used. Failure or interruption restores the previous installed version; unexpected post-crash content is archived first.
+- A successful update creates a cumulative original backup while preserving the first pre-install backup directory.
 
-```sh
-python scripts/manage_installation.py status --source ../orca-dev
-```
+During an update the journal may briefly show `updating`. The next command reconciles it first and asks you to re-run the command.
 
-`status` is read-only. It shows the installation id, package, backup path, recovery archives, files changed or missing since installation, and any pending interruption. It creates no files, backups, locks, or journal entries.
+## Status and verification
 
-Re-running `install` for the same package succeeds without changes and **never overwrites the first backup**. Files edited locally after installation are not silently reverted. If a different package version is installed, uninstall it first.
+`status` is read-only. It shows the installation id, package version, backup, recovery archives, files changed or missing since installation, and any pending interruption. `--json` emits machine-readable output.
 
-### Uninstall and recovery archive
+`verify` checks package hashes and the installation record: installed file hashes, the backup manifest, and backup bytes. It does not continue automatically in `recovery_required`.
 
-```sh
-python scripts/manage_installation.py uninstall --source ../orca-dev --dry-run
-python scripts/manage_installation.py uninstall --source ../orca-dev
-```
+## Uninstall and recovery archive
 
-`uninstall` uses the list and backup recorded at installation time, **not the current bundle manifest**. It still works if the bundle is later updated or deleted. It:
+`uninstall` uses the list and original backup recorded at installation time, not the current manifest. It still works if the package is updated or deleted later.
 
-1. Verifies the target checkout identity, recorded paths, and every backup hash. A missing or corrupt backup means no target file is touched.
-2. Archives the current bytes of files changed since installation. Original files that went missing are recorded with a "missing" entry in the archive manifest.
-3. Re-verifies the archive hashes before restoring anything.
-4. Restores files that existed before installation from the first backup, byte-for-byte and with their permissions.
-5. Removes files added by the installation; new files edited after installation are archived first.
-6. Removes only installation-created directories that are still empty. Directories containing user content are kept.
-7. Verifies result hashes and permissions and records `uninstalled`.
+1. Verifies checkout identity, recorded paths, and every backup hash.
+2. Archives files changed after installation; records originals that went missing before uninstall as missing entries.
+3. Re-verifies the archive before touching targets.
+4. Restores original bytes and permissions.
+5. Removes files added by installation, archiving post-install edits first.
+6. Removes only installation-created directories that are still empty.
+7. Verifies result hashes and records `uninstalled`.
 
-Recovery archive location:
+Recovery archive:
 
 ```text
 <git-dir>/orca-advanced-orchestration/<installation-id>/recovery/<archive-id>/
 ```
 
-The archive's `manifest.json` records why each file was archived (`modified-after-install` or `missing-before-uninstall`), its hash, and its archive path. The first backup and recovery archives are retained after uninstall; their paths appear in command output and `status`.
+`manifest.json` records why each file was archived, its hash, and its archive path. The first backup and archives are retained after uninstall. A second uninstall is a safe no-op. The Orca source directory is never deleted.
 
-A second `uninstall` is a safe no-op. A later install creates a new installation id and a new backup; older backups are retained.
+## Interruptions, locking, and safety
 
-### Interruptions, locking, and safety
+Recorded states: `installing`, `installed`, `updating`, `uninstalling`, `uninstalled`, `recovery_required`.
 
-Recorded states: `installing`, `installed`, `uninstalling`, `uninstalled`, `recovery_required`.
+- An interrupted operation is reconciled by the next command; no new mutation starts in that same invocation.
+- An interrupted install rolls back to originals; an interrupted update restores the previous installed version; an interrupted uninstall resumes.
+- `recovery_required` refuses automatic continuation; inspect the journal path and files.
+- A lock prevents concurrent operations on the same checkout. A stale lock is reclaimed only when its owner is provably not running.
+- Manifest, record, and target paths that escape the checkout or traverse symlinks/junctions are rejected.
+- `--dry-run` creates no files, backups, locks, or journal entries; `status` is always read-only.
 
-- If an operation is interrupted, the next `install`/`uninstall` reconciles the journal first and does not start a new mutation in the same invocation. An interrupted install rolls back from backup and asks you to re-run install; an interrupted uninstall resumes and completes.
-- Content that matches neither the original nor the recorded installed version is archived before restore.
-- In `recovery_required`, the tool refuses to continue automatically. Inspect the recorded paths and files, repair them, then proceed deliberately.
-- A lock prevents concurrent operations on the same checkout. A stale lock is reclaimed only when its owner is provably not running; uncertain process liveness never breaks the lock automatically.
-- Manifest, record, and target paths that escape the checkout (`..`, absolute paths, drive syntax) or traverse symlinks/junctions are rejected.
+## Building and publishing the release package
 
-`--dry-run` creates no files, backups, locks, or journal entries. `status` is always read-only.
+Local build:
 
-### Manual installation (alternative)
+```powershell
+python scripts/build_release.py --output dist
+```
+
+Outputs:
+
+```text
+dist/orca-advanced-orchestration-1.0.0.zip
+dist/orca-advanced-orchestration-1.0.0.zip.sha256
+```
+
+The archive contains only `install.ps1`, `bundle-manifest.json`, `LICENSE`, the management Python modules, the patch, the example, and the 77 change snapshots. Tests, `orca-source/`, `.git`, README, and development files are excluded. The ZIP is deterministic.
+
+The version comes from `package.version` in `bundle-manifest.json`. Do not publish the same tag without bumping it.
+
+GitHub Actions (`.github/workflows/release.yml`):
+
+- Runs on a `v*` tag or manually.
+- Runs bundle verification and the Python tests.
+- Checks the tag version against `package.version`.
+- Builds the ZIP and `.sha256`, uploads a workflow artifact.
+- On a tag, creates or updates a GitHub Release.
+
+If no release has been published yet, the real `irm` download cannot work. Use `-Version` with a pre-populated cache for offline validation.
+
+## Manual installation
 
 ```sh
 cd orca-dev
@@ -171,56 +262,15 @@ git apply --check ../orca-advanced-orchestration/patches/automatic-orchestration
 git apply ../orca-advanced-orchestration/patches/automatic-orchestration.patch
 ```
 
-Confirm the checkout matches the base commit above. Manual application provides no backup, journal, status tracking, or automatic restore; use your Git branch to revert. Compatibility with other Orca versions has not been verified.
+The `HEAD` must equal the base commit. Manual application provides no backup, journal, status tracking, or automatic restore.
 
-### Build after installation
+## Limitations
 
-Installation only changes source files; build the patched Orca checkout before the changes can run:
+- The tool does not build or launch Orca or modify an installed package.
+- Compatibility with other Orca versions is not verified; different upstream bases are never switched automatically.
+- Update is refused when managed files have local changes after installation. Revert them or uninstall and reinstall.
+- PowerShell behavior on macOS/Linux is not validated as thoroughly as on Windows.
 
-```sh
-cd ../orca-dev
-pnpm install --frozen-lockfile
-pnpm build
-```
+## License and source
 
-`pnpm dev --worktree-profile` builds the packages needed for development. Use `pnpm build` for a full desktop and native build; the new automation behavior is not active until that build completes.
-
-## Run the development build
-
-Run these commands in the **patched Orca source checkout**, not this bundle. Use Node.js 24, Orca's pinned pnpm/Bun versions, and the native prerequisites in its `.github/CONTRIBUTING.md`.
-
-```sh
-pnpm install --frozen-lockfile
-pnpm dev --worktree-profile
-```
-
-Use the development profile rather than modifying a production installation. This repository does not publish an installer or a packaged Orca release.
-
-## Workflow creation and controls
-
-With the development app running, use Orca's managed coordinator terminal:
-
-```sh
-node config/scripts/orca-dev.mjs orchestration run-create --objective "Implement, test, and review a change" --mode automatic --max-parallel 2 --json
-node config/scripts/orca-dev.mjs orchestration workflow-apply --run "<run_id>" --workflow-file ../orca-advanced-orchestration/examples/workflow.json --expected-version 0 --json
-node config/scripts/orca-dev.mjs orchestration run-start --id "<run_id>" --json
-```
-
-Adjust the example task instructions for your work. Codex and Claude must be installed and enabled inside Orca. `workspaceFrom` passes the implementation workspace to later workers. Change the workflow path for your terminal's working directory if needed.
-
-Controls are documented in [the usage guide](USAGE.md#kontroller). Use `node config/scripts/orca-dev.mjs` from the patched checkout to target its development runtime; bare `orca` may target an installed build without these changes.
-
-## Verification and limitations
-
-**48 focused Orca tests passed across 7 files**, and two `max-lines` lint errors remain. The installer has **46 passing Python tests** covering clean and interrupted installs, status, uninstall, recovery archives, CRLF, permissions, backup validation, lock races, path traversal, symlinks/junctions, linked worktrees, the PowerShell menu, and applying the real 77-file patch to a base tree.
-
-Full CI, packaging, and a live multi-agent end-to-end run were not verified. Tests use controlled worker hosts; they do not measure production token usage. The real-patch fixture test needs a local `orca-source/` checkout and is skipped when absent.
-
-```sh
-python scripts/verify_bundle.py
-python -m unittest discover -s tests -v
-```
-
-See [validation details](../docs/VALIDATION.md).
-
-Based on Orca by Stably / Lovecast Inc.; upstream MIT copyright and license notices are retained. Independently maintained, with no claim of upstream endorsement.
+Based on Orca v1.4.246. Bundled Orca sources and adaptations are covered by the [MIT license](../LICENSE); upstream copyright notices are retained. This repository claims no affiliation with or endorsement by the upstream Orca project.

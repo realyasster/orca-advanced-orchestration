@@ -1,0 +1,65 @@
+name: Release installer package
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verify bundle
+        run: python scripts/verify_bundle.py
+
+      - name: Run installer tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Check tag against bundle manifest
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          manifest_version="$(python -c 'import sys; sys.path.insert(0, "scripts"); from pathlib import Path; from orca_install.bundle import load_bundle; print(load_bundle(Path(".")).package_version)')"
+          tag_version="${GITHUB_REF_NAME#v}"
+          if [ "$manifest_version" != "$tag_version" ]; then
+            echo "Tag version $tag_version does not match package.version $manifest_version" >&2
+            exit 1
+          fi
+
+      - name: Build versioned ZIP and SHA-256
+        run: python scripts/build_release.py --output dist
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: orca-advanced-orchestration-release
+          path: dist/*
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/*.zip dist/*.sha256 --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              dist/*.zip dist/*.sha256 \
+              --title "Orca Advanced Orchestration $GITHUB_REF_NAME" \
+              --notes "Versioned installer package. Use the ZIP and its .sha256 checksum together. Run install.ps1 via irm to install, update, verify, or uninstall." \
+              --verify-tag
+          fi

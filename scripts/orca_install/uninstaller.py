@@ -10,6 +10,7 @@ from .archive import ArchiveEntry, write_recovery_archive
 from .backup import LoadedBackup, load_backup
 from .errors import (
     InstallationError,
+    InterruptedOperationError,
     PathSafetyError,
     RecoveryRequiredError,
     StateError,
@@ -330,7 +331,7 @@ def uninstall(source: Path | str, dry_run: bool = False) -> UninstallResult:
             f"The installation is in recovery_required state. Inspect {store.base_dir} "
             "before changing anything."
         )
-    if record.status in ("installing", "uninstalling"):
+    if record.status in ("installing", "uninstalling", "updating"):
         if dry_run:
             return UninstallResult(
                 outcome="dry-run",
@@ -364,6 +365,14 @@ def uninstall(source: Path | str, dry_run: bool = False) -> UninstallResult:
                         "There is no active installation to remove."
                     ],
                 )
+            if record.status == "updating":
+                from .recovery import reconcile_locked
+
+                reconcile_locked(store, checkout, "uninstall")
+                raise InterruptedOperationError(
+                    "Recovered an interrupted update and restored the previously "
+                    "installed version. Re-run uninstall to remove it."
+                )
             return _uninstall_record(store, checkout, record, resuming=True)
 
     if dry_run:
@@ -393,7 +402,7 @@ def uninstall(source: Path | str, dry_run: bool = False) -> UninstallResult:
             raise RecoveryRequiredError(
                 f"The installation is in recovery_required state. Inspect {store.base_dir}."
             )
-        if record.status in ("installing", "uninstalling"):
+        if record.status in ("installing", "uninstalling", "updating"):
             if record.status == "installing":
                 from .recovery import reconcile_locked
 
@@ -406,6 +415,14 @@ def uninstall(source: Path | str, dry_run: bool = False) -> UninstallResult:
                         "Recovered an interrupted install and restored original files. "
                         "There is no active installation to remove."
                     ],
+                )
+            if record.status == "updating":
+                from .recovery import reconcile_locked
+
+                reconcile_locked(store, checkout, "uninstall")
+                raise InterruptedOperationError(
+                    "Recovered an interrupted update and restored the previously "
+                    "installed version. Re-run uninstall to remove it."
                 )
             return _uninstall_record(store, checkout, record, resuming=True)
         return _uninstall_record(store, checkout, record, resuming=False)

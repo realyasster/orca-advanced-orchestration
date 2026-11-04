@@ -252,6 +252,10 @@ def build_fixture(root: Path, executable: bool = True) -> Fixture:
     example.write_bytes(b'{"example": true}\n')
     manifest = {
         "formatVersion": 1,
+        "package": {
+            "name": "test-bundle",
+            "version": "1.0.0",
+        },
         "upstream": {
             "repository": "https://example.invalid/orca",
             "version": "test",
@@ -301,6 +305,76 @@ def build_fixture(root: Path, executable: bool = True) -> Fixture:
 
 def write_manifest(bundle: Path, manifest: dict) -> None:
     (bundle / "bundle-manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
+
+def make_version_bundle(
+    fixture: Fixture,
+    version: str,
+    modify: Optional[Dict[str, bytes]] = None,
+    add: Optional[Dict[str, bytes]] = None,
+    remove: Optional[list[str]] = None,
+    base_commit: Optional[str] = None,
+) -> Path:
+    """Derive a second package version from a fixture without touching the target.
+
+    The generated patch only contains ``diff --git`` headers. Update tests use
+    the verified snapshots directly; they do not apply this patch to a base tree.
+    """
+
+    import copy
+
+    modify = modify or {}
+    add = add or {}
+    remove = set(remove or [])
+    target = fixture.root / f"bundle-{version}"
+    if target.exists():
+        shutil.rmtree(target)
+    shutil.copytree(fixture.bundle, target)
+    manifest = copy.deepcopy(read_manifest(fixture.bundle))
+    manifest["package"]["version"] = version
+    if base_commit is not None:
+        manifest["upstream"]["baseCommit"] = base_commit
+
+    files = []
+    for entry in manifest["files"]:
+        rel = entry["upstreamPath"]
+        if rel in remove:
+            continue
+        if rel in modify:
+            data = modify[rel]
+        else:
+            data = (fixture.bundle / entry["snapshotPath"]).read_bytes()
+        snapshot = target / entry["snapshotPath"]
+        snapshot.parent.mkdir(parents=True, exist_ok=True)
+        snapshot.write_bytes(data)
+        files.append(
+            {
+                "upstreamPath": rel,
+                "snapshotPath": entry["snapshotPath"],
+                "sha256": sha(data),
+            }
+        )
+    for rel, data in add.items():
+        snapshot_rel = f"changes/{rel}"
+        snapshot = target / snapshot_rel
+        snapshot.parent.mkdir(parents=True, exist_ok=True)
+        snapshot.write_bytes(data)
+        files.append(
+            {
+                "upstreamPath": rel,
+                "snapshotPath": snapshot_rel,
+                "sha256": sha(data),
+            }
+        )
+    manifest["files"] = files
+    patch = b"".join(
+        f"diff --git a/{entry['upstreamPath']} b/{entry['upstreamPath']}\n".encode()
+        for entry in files
+    )
+    (target / manifest["patch"]["path"]).write_bytes(patch)
+    manifest["patch"]["sha256"] = sha(patch)
+    write_manifest(target, manifest)
+    return target
 
 
 def read_manifest(bundle: Path) -> dict:

@@ -4,6 +4,7 @@
 
 - Orca tabanı: `55ccff19ad4cd8ba28b6f3d2be798c1e626a2c2c` (v1.4.246).
 - Uygulama referansı: yerel kaynak deposundaki `efab515b6c4e882a3f887266507614b1d29a89e4` commit'i. Bu commit'in tam kaynak geçmişi bu değişiklik paketinde yayımlanmaz.
+- Paket sürümü: `bundle-manifest.json` içindeki `package.version` (`1.0.0`).
 - Makineyle okunabilir yollar ve SHA-256 değerleri: [`bundle-manifest.json`](../bundle-manifest.json).
 
 ## Çalıştırılan odaklı Orca testleri
@@ -16,38 +17,71 @@ Patch uygulanmış checkout içinde yeniden çalıştırmak için:
 pnpm test src/main/runtime/orchestration/automatic-run/automatic-run-executor.test.ts src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.test.ts src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.test.ts src/main/runtime/orchestration/db/automatic-runs/workflow-apply.test.ts src/main/runtime/orchestration/db/schema/migrate-v47.test.ts src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.test.ts src/cli/handlers/orchestration-run-cli.test.ts --maxWorkers=2
 ```
 
-Yayımlama hazırlığında aynı dosyalar `pnpm exec vitest run --config config/vitest.config.ts ... --maxWorkers=2` ile mevcut geliştirme ortamında doğrulandı.
-
-Kapsanan senaryolar arasında sıralama, paralel birleşme, kapasite sınırı, yinelenen tamamlanma, bağımsız kolun ilerlemesi, inceleme kapıları, kalıcı uyanış kayıtları, kesinti sonrası devam, çalışma alanı çakışmaları, pause/cancel, akış sürümü ve normal zincirde ara koordinatör bildirimi oluşmaması bulunur.
-
 ## Installer testleri
 
-**2 test dosyası, 46 test: geçti.** Testler yalnızca Python standart kütüphanesi ve Git kullanır; geçici Git checkout'ları ve sentetik bir değişiklik paketi oluşturur. Gerçek kullanıcı checkout'unda veya kurulu Orca uygulamasında install/uninstall denenmedi.
+**5 test dosyası, 70 test: geçti.** Testler yalnızca Python standart kütüphanesi ve Git kullanır; geçici Git checkout'ları ve sentetik paketler oluşturur. Windows PowerShell 5.1 üzerinde çalıştırıldı.
 
 ```sh
 python scripts/verify_bundle.py
 python -m unittest discover -s tests -v
 ```
 
-Kapsam:
+### Kurulum, durum ve kaldırma
 
-- Temiz install → status → uninstall: orijinal baytlar ve normal izinler birebir geri gelir; eklenen dosyalar ve boş kurulum dizinleri kaldırılır; ilgisiz dosyalar, Git `HEAD` ve index korunur.
+- Temiz install → status → uninstall: orijinal baytlar ve izinler birebir geri gelir; eklenen dosyalar ve boş kurulum dizinleri kaldırılır; ilgisiz dosyalar, Git `HEAD` ve index korunur.
 - CRLF dosyasının install sırasında değişmesi ve uninstall sonrası orijinal CRLF baytlarına dönmesi.
 - Patch ile uyumlu yerel düzenlemelerin korunması; çakışan patch'in hedefi değiştirmemesi.
 - Aynı paketin tekrar kurulumunun idempotent olması ve ilk yedeği ezmemesi; farklı paket sürümünün kurulu yedeği değiştirmemesi.
-- Install sonrası düzenlenen orijinal/yeni dosyaların ve silinen orijinal dosyaların kurtarma arşivine alınması; arşiv manifestindeki neden ve hash'lerin doğrulanması.
+- Install sonrası düzenlenen orijinal/yeni dosyaların ve silinen orijinal dosyaların kurtarma arşivine alınması.
 - Eksik/bozuk yedek, bozuk paket, yanlış taban commit, geçersiz kayıt, checkout dışına çıkan path ve başka checkout'a ait kayıtların hedef değiştirmeden reddedilmesi.
-- Yazma hatasında otomatik geri alma; geri alma tamamlanamazsa `recovery_required` ve dürüst hata; kesintiye uğramış install/uninstall günlüğünün sonraki çağrıda uzlaştırılması; kesinti sonrası düzenlenmiş içeriğin arşivlenmesi.
+- Yazma hatasında otomatik geri alma; geri alma tamamlanamazsa `recovery_required` ve dürüst hata; kesintiye uğramış install/uninstall günlüğünün sonraki çağrıda uzlaştırılması.
 - Canlı kilit, ölü kilit kurtarma, bayat kilit devralma yarışı, eşzamanlılık reddi.
 - Symlink ve Windows junction üzerinden yazmanın reddedilmesi; linked worktree için ayrı per-worktree Git veri dizininin kullanılması.
-- Dry-run ve status komutlarının bütün checkout ağacında (`.git` dahil) hiçbir içerik değiştirmemesi.
-- `install.ps1 -Action verify` PowerShell smoke testi; PowerShell yoksa test atlanır.
-- Gerçek `patches/automatic-orchestration.patch` dosyasının taban commit'teki 77 dosyalık geçici ağaca uygulanması ve 77 snapshot hash'iyle eşleşmesi.
+- Dry-run ve status komutlarının checkout ağacında hiçbir içerik değiştirmemesi.
+- `install.ps1 -Action verify` PowerShell smoke testi.
+- Gerçek `patches/automatic-orchestration.patch` dosyasının taban commit'teki 77 dosyalık geçici ağaca uygulanması ve snapshot hash'leriyle eşleşmesi.
 - `verify_bundle.py` çıktısının geriye uyumlu kalması (79 dosya) ve README yerel bağlantılarının çözülmesi.
+- Manifestte `package` bölümü yoksa paket yüklemenin sessiz fallback yapmadan reddedilmesi.
 
-Ek olarak, `orca-source` deposundan `--shared` ile oluşturulan geçici, sparse bir v1.4.246 checkout'unda gerçek paketle uçtan uca CLI denemesi yapıldı: `install` 77 dosyayı yazdı, `status` 77/77 eşleşme gösterdi, `uninstall` 50 dosyayı geri yükleyip 27 dosyayı kaldırdı ve hedef checkout `git status` temiz döndü. Bu deneme yerel `orca-source` çalışma ağacını değiştirmedi; test fixture dışında gerçek kullanıcı checkout'u kullanılmadı.
+### Güncelleme motoru
 
-Testler bu çalışma ortamında Windows üzerinde çalıştırıldı. macOS/Linux'ta süreç ve izin davranışları ayrıca çalıştırılmadı; kod platforma duyarlı izin/executable-bit dallarını içerir ancak bu dallar burada yalnızca koşullu olarak atlandı.
+- Temiz güncelleme: dosya değişimi, yeni dosya ekleme ve yönetimden çıkarma; sonrasında uninstall'ın taban ağacı birebir geri getirmesi.
+- İlk kurulum öncesi özgün yedek dizininin güncelleme sonrasında korunması.
+- Aynı paket sürümünde no-op; durum dosyasının değişmemesi.
+- Aynı sürüm farklı içerikle gelirse reddetme.
+- Kurulum sonrası yerel değişiklikte hedefe dokunmadan reddetme.
+- Farklı upstream tabanında otomatik reset/checkout yapmadan açık hata.
+- Dry-run'ın hiçbir dosya/günlük değiştirmemesi.
+- Hedef yazma hatasında önceki kurulu sürümün baytlarına geri dönme; kayıt sürümünün eski sürümde kalması.
+- Kesintiye uğramış güncellemenin `updating` günlüğünden kurtarılması; kesinti sonrası düzenlenmiş içeriğin arşivlenmesi ve önceki kurulu sürümün geri gelmesi.
+- Önceden yönetilmeyen bir upstream dosyasının yeni pakette yönetilmesi durumunda özgün olarak yedeklenmesi ve uninstall'da geri gelmesi.
+- Etkin kurulum yokken güncellemenin reddedilmesi.
+- Yönetimden çıkarılan dosyaların özgün girdilerinin kümülatif yedeğin `retiredEntries` bölümünde tutulması.
+- Yönetimden çıkarılan dosyaların boş bıraktığı kurulum-oluşturulmuş dizinlerin güncelleme sırasında temizlenmesi.
+- Başarılı güncellemede `updates/<id>` günlüğünün, geri alma/kesinti kurtarmasında ayrıca `backup-<id>` dizininin temizlenmesi.
+- Kesintiye uğramış `installing`/`updating`/`uninstalling` kayıtlarının `verify` çıktısında problem olarak raporlanması.
+- Kümülatif yedek yazımı yarıda kalırsa oluşturduğu dizini kendisinin temizlemesi.
+
+### Release paketi
+
+- Sürümlenmiş ZIP ve `.sha256` üretimi; checksum dosyasının ZIP hash'iyle eşleşmesi.
+- Arşivin yalnızca çalışma zamanı dosyalarını içermesi; `tests/`, `orca-source/`, `docs/`, `.git/`, README ve workflow dosyalarının dışarıda kalması.
+- Arşivden çıkarılan paketin `load_bundle` ve `verify_bundle.py` ile doğrulanması.
+- `scripts/orca_install` altındaki tüm `.py` dosyalarının (alt paketler dahil) ZIP'te bulunması ve çıkarılan paketten `orca_install.cli`/`orca_install.updater` import edilmesi.
+- İki ayrı üretimin bayt düzeyinde deterministik olması.
+
+### PowerShell giriş betiği
+
+- Repo dışından `-RepoRoot` ile yerel paket üzerinden install → status → uninstall.
+- İkinci çağrıda `-Source` verilmeden kayıtlı kaynak yolunun kullanılması.
+- Repo dışına kopyalanmış `install.ps1` ile önbellekteki sürüm üzerinden çevrimdışı install, no-op update ve uninstall.
+- Yerel pakette aynı sürüm farklı içerikli güncellemenin ağ araması yapmadan Python `_check_package` kontrolüne ulaşması.
+- SemVer ön-sürüm sıralaması (`1.0.0-rc1 < 1.0.0`, `rc.2 < rc.10`, `alpha < alpha.1`).
+- `py` adayı stderr yazıp başarısız olduğunda Python çözümlemenin sonraki adaya geçmesi.
+- `[scriptblock]::Create(...)` ile çalıştırmada betiğin çağıran shell'i kapatmaması ve sonraki komutun çalışması.
+- Yerel HTTP sunucusundan gerçek `irm ... | iex` çalıştırmasının menüyü açması, `0` ile temiz çıkması ve çağıran shell'de sonraki komutun çalışması.
+
+Canlı `https://raw.githubusercontent.com/.../main/install.ps1` URL'sinden `irm` indirmesi **henüz yayımlanmış bir GitHub Release olmadığı ve ağ testi yapılmadığı için çalıştırılmadı**. Aynı `irm ... | iex` hattı yerel HTTP sunucusundan doğrulandı; indirme/önbellek yolu ayrıca önceden doldurulmuş önbellekle test edildi. Canlı GitHub Release indirmesi ve yayın workflow'unun gerçek çalışması doğrulanmadı.
 
 ## Paket kontrolleri
 
@@ -55,6 +89,7 @@ Testler bu çalışma ortamında Windows üzerinde çalıştırıldı. macOS/Lin
 - Patch, taban commit'teki etkilenen dosyalardan oluşturulmuş geçici bir ağaçta uygulanır ve sonuç snapshot'larla karşılaştırılır.
 - README yerel dosya bağlantıları kontrol edilir.
 - Örnek iş akışı uygulamanın gerçek şeması ve bağımlılık doğrulamasıyla kontrol edilmiştir.
+- Release ZIP'inin içeriği ve checksum'u test edilir.
 
 ## Bilinen lint sonuçları
 
@@ -67,4 +102,9 @@ Bu yayımlama için uygulama kodu yeniden düzenlenmedi; mevcut sonuç açıkça
 
 ## Doğrulanmayanlar
 
-Tam CI, bütün uygulama derlemesi/paketlemesi, canlı çok ajanlı uçtan uca senaryo, gerçek üretim token tasarrufu ve diğer Orca sürümlerine uygulanabilirlik bu kayıtların kapsamı dışındadır. Kontrollü işçi host'larıyla geçen testler bu alanlarda üretim doğrulaması anlamına gelmez. Installer, gerçek kullanıcı checkout'unda veya kurulu uygulamada denenmedi; macOS/Linux çalıştırması ve gerçek bir Orca derlemesi de doğrulanmadı.
+Tam CI, bütün uygulama derlemesi/paketlemesi, canlı çok ajanlı uçtan uca senaryo, gerçek üretim token tasarrufu ve diğer Orca sürümlerine uygulanabilirlik bu kayıtların kapsamı dışındadır.
+
+- Gerçek GitHub Release yayımlanmadı; `irm` canlı indirmesi ve Actions yayın adımı çalıştırılmadı.
+- Installer gerçek kullanıcı checkout'unda veya kurulu uygulamada denenmedi; testler geçici Git depoları kullanır.
+- Gerçek bir Orca derlemesi (`pnpm install`, `pnpm build`) bu doğrulamada çalıştırılmadı.
+- macOS/Linux PowerShell davranışı ve izin dalları Windows kadar kapsamlı doğrulanmadı.
