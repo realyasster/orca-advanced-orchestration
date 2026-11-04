@@ -10,7 +10,7 @@ param(
     [string[]]$Pack,
     [string]$BundleRef = 'v1.4.246-todo.1',
     [string]$BundleUrl = '',
-    [string]$BundleManifestSha256 = '03e19fce94a5c2c7f64eae251ed09452a12790cbcad953c4be57dade62af2fc3',
+    [string]$BundleManifestSha256 = '50fc1f15c3f26688df6fa46c022aa91015b4d32a1f512728a10cb444dd8695f9',
     [string]$BundleArchiveSha256 = '',
     [switch]$NoPause
 )
