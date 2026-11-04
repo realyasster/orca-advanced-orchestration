@@ -155,6 +155,26 @@ class PowerShellBootstrapTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("Verified 135 files", result.stdout)
 
+    def test_verify_works_without_system_drive(self) -> None:
+        home = self.root / "home"
+        home.mkdir()
+        result = run_powershell(
+            [
+                "-File",
+                str(REPO_ROOT / "install.ps1"),
+                "-Action",
+                "verify",
+                "-RepoRoot",
+                str(REPO_ROOT),
+                "-NoPause",
+            ],
+            self.outside,
+            self.local_app_data,
+            extra_env={"SystemDrive": "", "HOME": str(home)},
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Verified 135 files", result.stdout)
+
     def test_temporary_local_bundle_path_is_persisted(self) -> None:
         run_powershell(
             [

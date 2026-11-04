@@ -988,18 +988,16 @@ function Get-OrcaSourceCandidates {
     }
     if ($HOME) {
         foreach ($relative in @(
-            'orca-dev', 'orca', 'dev\orca', 'Dev\orca', 'projects\orca', 'Projects\orca',
-            'source\repos\orca', 'repos\orca', 'code\orca', 'src\orca'
+            'orca-dev', 'orca', 'dev/orca', 'Dev/orca', 'projects/orca', 'Projects/orca',
+            'source/repos/orca', 'repos/orca', 'code/orca', 'src/orca'
         )) {
             $candidates += (Join-Path $HOME $relative)
         }
     }
-    $drive = $env:SystemDrive
-    if (-not $drive) {
-        $drive = 'C:'
-    }
-    foreach ($relative in @('orca', 'orca-dev', 'dev\orca', 'src\orca', 'projects\orca')) {
-        $candidates += (Join-Path "$drive\" $relative)
+    if ($env:SystemDrive) {
+        foreach ($relative in @('orca', 'orca-dev', 'dev/orca', 'src/orca', 'projects/orca')) {
+            $candidates += (Join-Path "$($env:SystemDrive)\" $relative)
+        }
     }
     return $candidates
 }
@@ -1009,7 +1007,7 @@ function Find-OrcaSource {
     $roots = @()
     if ($HOME) {
         $roots += $HOME
-        foreach ($relative in @('source\repos', 'projects', 'Projects', 'dev', 'Dev', 'code', 'checkouts', 'workspaces', 'repos', 'src')) {
+        foreach ($relative in @('source/repos', 'projects', 'Projects', 'dev', 'Dev', 'code', 'checkouts', 'workspaces', 'repos', 'src')) {
             $roots += (Join-Path $HOME $relative)
         }
     }
