@@ -20,7 +20,7 @@ Bu depo, **Orca v1.4.246 kaynak koduna uygulanan bir değişiklik paketidir**. K
 Hızlı başlangıç (Windows PowerShell):
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.4.246-todo.1/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/b9f7e62f3ea89ba51e4e102817c16920b473a7fe/install.ps1 | iex
 ```
 
 Kurulum menüsünde **Orchestrator** ve **Todo** bileşenlerini ayrı ayrı seçebilirsiniz.

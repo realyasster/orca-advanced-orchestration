@@ -83,7 +83,7 @@ Run a single action directly:
 `irm ... | iex` opens the same menu. If the bundle repository is not present locally, the script downloads a temporary archive and removes it afterwards:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.4.246-todo.1/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/b9f7e62f3ea89ba51e4e102817c16920b473a7fe/install.ps1 | iex
 ```
 
 `iex` executes downloaded code directly; inspect the URL and the script first. The bootstrap resolves `-BundleRef` (default `v1.4.246-todo.1`) to an immutable GitHub commit SHA, downloads that commit's archive, and verifies the SHA-256 of `bundle-manifest.json` plus the **bootstrap script hash list** in that manifest. Use `-BundleRef`, `-BundleUrl`, `-BundleManifestSha256`, and optionally `-BundleArchiveSha256` for a different version, a local archive, or full ZIP verification. The default requires the release tag to exist; `-BundleRef main` is available as a temporary override.

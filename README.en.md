@@ -20,7 +20,7 @@ This repository is a **change bundle for the Orca v1.4.246 source code**. The in
 Quick start (Windows PowerShell):
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.4.246-todo.1/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/b9f7e62f3ea89ba51e4e102817c16920b473a7fe/install.ps1 | iex
 ```
 
 Choose **Orchestrator** and **Todo** independently in the installer menu.

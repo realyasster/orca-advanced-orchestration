@@ -114,7 +114,7 @@ Doğrudan eylem seçmek için:
 `irm ... | iex` aynı menüyü açar. Paket deposu yerelde yoksa betik arşivi geçici olarak indirir; işlem sonunda geçici kopya silinir:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.4.246-todo.1/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/b9f7e62f3ea89ba51e4e102817c16920b473a7fe/install.ps1 | iex
 ```
 
 `iex` uzaktan indirilen betiği doğrudan çalıştırır; URL'yi ve betiği önce inceleyin. Bootstrap, `-BundleRef` (varsayılan `v1.4.246-todo.1`) değerini GitHub API ile **sabit commit SHA’sına** çözümler, o commit'in arşivini indirir, `bundle-manifest.json` SHA-256 değerini ve manifestteki **bootstrap script hash listesini** doğrular. Yerel bir arşiv veya farklı sürüm için `-BundleRef`, `-BundleUrl`, `-BundleManifestSha256` ve isteğe bağlı tam zip doğrulaması için `-BundleArchiveSha256` kullanılabilir. Release tag’i yayımlanmadan varsayılan bootstrap çalışmaz; geçici olarak `-BundleRef main` verilebilir.
