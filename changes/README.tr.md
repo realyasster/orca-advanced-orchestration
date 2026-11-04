@@ -2,7 +2,7 @@
 
 Orca çekirdeğine eklenen olay tabanlı görev yürütücüsü. Akışı bir kez tarif edersiniz; bağımlılıklar tamamlandıkça sıradaki ajanı Orca başlatır. Orkestratör beklemek ve normal görev geçişlerini yönetmek için model çağrısı yapmak zorunda kalmaz.
 
-Bu proje [stablyai/orca](https://github.com/stablyai/orca) v1.4.246 üzerine geliştirilmiş bağımsız bir kaynak deposudur. **Plugin veya resmi Orca sürümü değildir.**
+Bu proje [stablyai/orca](https://github.com/stablyai/orca) v1.4.248 üzerine geliştirilmiş bağımsız bir kaynak deposudur. **Plugin veya resmi Orca sürümü değildir.**
 
 ## Neler içeriyor?
 

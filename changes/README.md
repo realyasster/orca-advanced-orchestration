@@ -4,7 +4,7 @@ Event-driven task workflows for Orca: define the work once, let the runtime laun
 
 [Türkçe](README.tr.md) · [Upstream Orca README](README.upstream.md) · [License](LICENSE)
 
-This is an independent development repository based on [stablyai/orca](https://github.com/stablyai/orca), version **1.4.246** (base commit `55ccff19`). It extends Orca's core runtime; it is **not a plugin** and is not an official Orca release.
+This is an independent development repository based on [stablyai/orca](https://github.com/stablyai/orca), version **1.4.248** (base commit `965978bc`). It extends Orca's core runtime; it is **not a plugin** and is not an official Orca release.
 
 ## Why this exists
 

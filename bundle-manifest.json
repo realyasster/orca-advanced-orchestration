@@ -2,17 +2,17 @@
   "formatVersion": 1,
   "package": {
     "name": "orca-advanced-orchestration",
-    "version": "1.1.1"
+    "version": "1.2.0"
   },
   "upstream": {
     "repository": "https://github.com/stablyai/orca",
-    "version": "1.4.246",
-    "baseCommit": "55ccff19ad4cd8ba28b6f3d2be798c1e626a2c2c"
+    "version": "1.4.248",
+    "baseCommit": "965978bc78bf03a6a43187c1ed28fcffe0e01bb5"
   },
-  "implementationCommit": "efab515b6c4e882a3f887266507614b1d29a89e4",
+  "implementationCommit": "967737fa6e809b6245e947fb6bcd18a3e8ca5f9c",
   "patch": {
     "path": "patches/automatic-orchestration.patch",
-    "sha256": "e25a1bcf55fb0f14ecccbba8294fba6ec1ebe7ba47f7f06eeca3e5e78fa4bd4d"
+    "sha256": "d7c6d0b561462af7ce0f040a4bb2232982b54c76e72986a748a5bf6d4699c4f3"
   },
   "example": {
     "path": "examples/workflow.json",
@@ -22,12 +22,12 @@
     {
       "upstreamPath": "README.md",
       "snapshotPath": "changes/README.md",
-      "sha256": "628d0a8ec9d7c2d04648af3248603d36d1b0cec087bce9b0bcd7f0d582ba7a38"
+      "sha256": "71f570b9185e898e27142e63d1709cf5fe8ee951a15d1840ed0aaa0f685712ee"
     },
     {
       "upstreamPath": "README.tr.md",
       "snapshotPath": "changes/README.tr.md",
-      "sha256": "b96ba2f8500245faffd030cba9d636322d68a90764b50213bb475c458a018631"
+      "sha256": "fd6c44bbb3d3ff37e9a3903bff0fa8939e295a6a3c555f13d3a11d290bbd79a5"
     },
     {
       "upstreamPath": "README.upstream.md",
@@ -42,7 +42,7 @@
     {
       "upstreamPath": "skill-guides/orchestration.md",
       "snapshotPath": "changes/skill-guides/orchestration.md",
-      "sha256": "57b19d57e6d944dbfeb43239608cc8cec3d9a2d114fe6c189bfb72226fcc820c"
+      "sha256": "e23435382519e527ed7a747b904c7ef5cb030ed8a637c5659a7f7a7a522e6525"
     },
     {
       "upstreamPath": "skill-guides/orchestration/references/coordinator-loop.md",
@@ -52,22 +52,22 @@
     {
       "upstreamPath": "src/cli/bundled-skill-guides.ts",
       "snapshotPath": "changes/src/cli/bundled-skill-guides.ts",
-      "sha256": "e96657a641d74f658b52ad4104b08be54bebeef61863d7cd9a82740e16f6be42"
+      "sha256": "926d69944ce1c9618b59fbb55e2b72c2c5e29be02a276425e532499bef575756"
     },
     {
       "upstreamPath": "src/cli/flag-help-text.ts",
       "snapshotPath": "changes/src/cli/flag-help-text.ts",
-      "sha256": "8d058143dccc23a762c54a17a67c9662f6d89042285b887d06dadaa87f5779c4"
+      "sha256": "2bee9a26617cc029471d7e37c4cedad19cdf5248b5c8d681c3788f560f90c62b"
     },
     {
       "upstreamPath": "src/cli/handler-group-manifest.ts",
       "snapshotPath": "changes/src/cli/handler-group-manifest.ts",
-      "sha256": "ba4eb44f7c2f107036ecf303e3084191624cc39a9cca0b342d3a7a8723fa0b13"
+      "sha256": "14834cb6da21a8d8173e2cd5aef7d045718ca3942beac06f5b6a1ccd382a5f61"
     },
     {
       "upstreamPath": "src/cli/handlers/orchestration-run-cli.test.ts",
       "snapshotPath": "changes/src/cli/handlers/orchestration-run-cli.test.ts",
-      "sha256": "0827403240aa3fd4b0541c073f8fcf634fc38f2c53abf77c78213d3a1f4b1700"
+      "sha256": "87e1ddb830041f1c34259755b8af281eb290e2035deb6d14a33ada05d36603ac"
     },
     {
       "upstreamPath": "src/cli/handlers/orchestration.ts",
@@ -87,7 +87,7 @@
     {
       "upstreamPath": "src/cli/handlers/orchestration/run-handlers.ts",
       "snapshotPath": "changes/src/cli/handlers/orchestration/run-handlers.ts",
-      "sha256": "96cd1fa3129c0fd31a5de4bd477b2021eee1e17b2a73cf5f2fa96dc84f905494"
+      "sha256": "6a269f62099d14c95d3af404942e1242b426273cf7a3a5c92794c362e132293a"
     },
     {
       "upstreamPath": "src/cli/handlers/orchestration/task-agent-views.ts",
@@ -212,7 +212,7 @@
     {
       "upstreamPath": "src/main/runtime/orchestration/db/attach-orchestration-db-methods.ts",
       "snapshotPath": "changes/src/main/runtime/orchestration/db/attach-orchestration-db-methods.ts",
-      "sha256": "67f1560627d5f528dd9a4db201b4a5098f53d1d85c9211c1ee386c2054d8aabc"
+      "sha256": "faef4acbed5864ccca3ac03b883e225a1fb0e1ad18da19e4141dfeecbc436d31"
     },
     {
       "upstreamPath": "src/main/runtime/orchestration/db/automatic-runs/automatic-report-delivery.ts",
@@ -272,7 +272,7 @@
     {
       "upstreamPath": "src/main/runtime/orchestration/db/orchestration-db-methods.ts",
       "snapshotPath": "changes/src/main/runtime/orchestration/db/orchestration-db-methods.ts",
-      "sha256": "40c4f1629df8bce2b307fa51d87d65ff9dc5d4ba0ae04e9ede05eaacaae1e7b0"
+      "sha256": "61e916374c5e2697dfcf847baff0a59f2c34fdfda66cfd860b21d138753c9b10"
     },
     {
       "upstreamPath": "src/main/runtime/orchestration/db/reset/orchestration-reset.ts",
@@ -292,7 +292,7 @@
     {
       "upstreamPath": "src/main/runtime/orchestration/db/schema/create-core-tables-sql.ts",
       "snapshotPath": "changes/src/main/runtime/orchestration/db/schema/create-core-tables-sql.ts",
-      "sha256": "0e7e34945abff9fd922910ad1dd954327c971e8198359f62666b04bd372b245d"
+      "sha256": "47376c2cb4f664d62d0b6e012e0af0b7c95fe30c8430a6a014a2864d59afac0e"
     },
     {
       "upstreamPath": "src/main/runtime/orchestration/db/schema/create-graph-tables-sql.ts",
@@ -342,7 +342,7 @@
     {
       "upstreamPath": "src/main/runtime/orchestration/preamble.ts",
       "snapshotPath": "changes/src/main/runtime/orchestration/preamble.ts",
-      "sha256": "ef23a96c93499f2b23ee74d5923ddde5ab4d896929358b77a8b8c08aacdb0cee"
+      "sha256": "33705ecbd08b798d38d03af0b9763f2550b05ac526f2eb8c890bf9a29bc2ea1f"
     },
     {
       "upstreamPath": "src/main/runtime/orchestration/types.ts",
@@ -352,12 +352,12 @@
     {
       "upstreamPath": "src/main/runtime/rpc/methods/orchestration-structured-worker-start-failure.test.ts",
       "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration-structured-worker-start-failure.test.ts",
-      "sha256": "a2c98902dc6d59dbea6ebf72f61ca483741eae6a8f883f9eb56b713945e8df6b"
+      "sha256": "491f6adff8311ca6cb06d15aa66a176e000def9a79eb97c867e29d22426d28cd"
     },
     {
       "upstreamPath": "src/main/runtime/rpc/methods/orchestration.ts",
       "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration.ts",
-      "sha256": "372073affc62ea24d3cf680321ada8ca0f7c85579f5385aa8b08a175c43b2939"
+      "sha256": "cefe57e845f620292b28b204febf2daf6182047aa0186d84b5f15ae97192e13e"
     },
     {
       "upstreamPath": "src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.test.ts",
@@ -382,7 +382,7 @@
     {
       "upstreamPath": "src/main/runtime/rpc/methods/orchestration/messaging/check-methods.ts",
       "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/messaging/check-methods.ts",
-      "sha256": "77f03b026e51b7889d1c5218ac797947ff2fa9caefd8c827a5408e91ad2a66d5"
+      "sha256": "aa6fe019b605620b45dcbb03f1bfecb83f8d226fb182fd0fe6e54cad6057437b"
     },
     {
       "upstreamPath": "src/main/runtime/rpc/methods/orchestration/messaging/message-methods.ts",
@@ -407,12 +407,12 @@
     {
       "upstreamPath": "src/main/runtime/rpc/methods/orchestration/runs/runs.ts",
       "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/runs/runs.ts",
-      "sha256": "d29e7e4be06aee1aca58132bb91f2ce2ec0d2efbe8e8a50571dfbdf10a34070c"
+      "sha256": "6b10b4cfd30b9e3d2e76bfbb1c137a03a10e3b8257ccdf8d6c78b484405efdc2"
     },
     {
       "upstreamPath": "src/main/runtime/rpc/methods/orchestration/worker/local-worker-start.ts",
       "snapshotPath": "changes/src/main/runtime/rpc/methods/orchestration/worker/local-worker-start.ts",
-      "sha256": "9486c038ebf9b6350a6778af1415e45d3c545aca548709b99eb61ceb53e49a5b"
+      "sha256": "dd95893abe1946831d5ceb4c3ec1faa80e5aa74e80520c4bb1f4c9f76831d862"
     },
     {
       "upstreamPath": "src/main/runtime/rpc/methods/worktree-set-method.ts",
@@ -422,7 +422,7 @@
     {
       "upstreamPath": "src/main/runtime/rpc/orchestration-session-caller.test.ts",
       "snapshotPath": "changes/src/main/runtime/rpc/orchestration-session-caller.test.ts",
-      "sha256": "3645ae21ce23ecb4cf83890ef9937c8afc89c97764014d4f133fa64ba752be7f"
+      "sha256": "bb7ac456de27b313d25400d23ae33c858c5d1e8e7b08a311551308e66b6ae2e2"
     },
     {
       "upstreamPath": "src/main/runtime/rpc/orchestration-session-caller.ts",
@@ -432,7 +432,7 @@
     {
       "upstreamPath": "src/main/runtime/runtime-agent-orchestration-projection.ts",
       "snapshotPath": "changes/src/main/runtime/runtime-agent-orchestration-projection.ts",
-      "sha256": "1877a558e54c4795f5b951992326b9262c06f57ed028735da0247c396cf1917c"
+      "sha256": "ee6783d4edbe73cfc37fde9ac519fc0437d2f63d2712e9c74f82d0513d2d12b5"
     },
     {
       "upstreamPath": "src/main/runtime/runtime-orchestration-db.test-fixture.ts",
@@ -442,12 +442,12 @@
     {
       "upstreamPath": "src/main/runtime/runtime-project-group-controller.ts",
       "snapshotPath": "changes/src/main/runtime/runtime-project-group-controller.ts",
-      "sha256": "66536b1dc1a947e846a4d1fde343a94db099dd7589ab7ce2a0203189d0b4ed9e"
+      "sha256": "e5642f4c7b08e931cdab1d94e861194855f4214478c1afff5b63caeb0e7d49a8"
     },
     {
       "upstreamPath": "src/main/runtime/workspaces/persisted-surfaces/automation-operations.ts",
       "snapshotPath": "changes/src/main/runtime/workspaces/persisted-surfaces/automation-operations.ts",
-      "sha256": "9443601ddc3bdffa713a73dc601b5821790ad4becce02dcd6b67621b38402051"
+      "sha256": "b9b064cd3b1c02ec2c49525152bc6a440be01f2baaec040b4cd380ec73963cd8"
     },
     {
       "upstreamPath": "src/preload/api/dashboard-api.ts",
@@ -472,7 +472,7 @@
     {
       "upstreamPath": "src/renderer/src/components/dashboard-popout/AgentKanbanBoard.tsx",
       "snapshotPath": "changes/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.tsx",
-      "sha256": "dcde360de1b108f81e24d58bf3088abc44c63bd22c5898e7998cf4bd2691f540"
+      "sha256": "57bb2fb156f62e3bfb82e1f49ba127906477054c1d38377f1cb0f60075d9ac70"
     },
     {
       "upstreamPath": "src/renderer/src/components/dashboard-popout/WorkspaceTodoAddForm.tsx",
@@ -507,7 +507,7 @@
     {
       "upstreamPath": "src/renderer/src/components/dashboard/AgentDashboardDrawer.tsx",
       "snapshotPath": "changes/src/renderer/src/components/dashboard/AgentDashboardDrawer.tsx",
-      "sha256": "2b6e1ca9c6e0dafea54952c88f16aba9bf044be6eee98c6c9462a799448d8ca2"
+      "sha256": "da2011d164fdaf0010febebfa9f806b18cd35cc89e0b03703a5022a70d6dd7ef"
     },
     {
       "upstreamPath": "src/renderer/src/components/dashboard/build-dashboard-snapshot.todos.test.ts",
@@ -547,12 +547,12 @@
     {
       "upstreamPath": "src/renderer/src/store/folder-workspaces/folder-workspace-mutations.ts",
       "snapshotPath": "changes/src/renderer/src/store/folder-workspaces/folder-workspace-mutations.ts",
-      "sha256": "8058db1d26acace8171062c008ea7241c20fe48587585e2a2154e67b4e814f64"
+      "sha256": "90f3b1ee0146a4350c8f4795ec55666ce192c8850a579b293bdad4a433e837fe"
     },
     {
       "upstreamPath": "src/renderer/src/store/repos/repo-state.ts",
       "snapshotPath": "changes/src/renderer/src/store/repos/repo-state.ts",
-      "sha256": "dfd6e2f04f8ad46297c90bf2498b08af9da64e3a768a27a1b21acf5c9456ccac"
+      "sha256": "2e61d76513e68ee0b9596ef7b21859eea53c41c88a038371c7d9b28a99e5a079"
     },
     {
       "upstreamPath": "src/renderer/src/store/slices/agent-status/agent-status-orchestration-context.ts",
@@ -562,7 +562,7 @@
     {
       "upstreamPath": "src/renderer/src/store/slices/worktree-helpers.ts",
       "snapshotPath": "changes/src/renderer/src/store/slices/worktree-helpers.ts",
-      "sha256": "9c4b78276b481e8f3598da55117367ed8a4cb05b35d1590e2520f989704585b7"
+      "sha256": "df067614796676dfa172d5d1e4d2c20af9feb6f651dff5f1e2b7d6f37bdb6f29"
     },
     {
       "upstreamPath": "src/renderer/src/store/slices/worktrees.ts",
@@ -572,12 +572,12 @@
     {
       "upstreamPath": "src/renderer/src/store/slices/worktrees/listing/detected-worktree-meta.ts",
       "snapshotPath": "changes/src/renderer/src/store/slices/worktrees/listing/detected-worktree-meta.ts",
-      "sha256": "a5109cf4b176f5b581a2dd23d3e8f5df72cb5be5403a4443c8e78a13d75f9031"
+      "sha256": "4b94ea8544d931e2b1945a5619122af4fb561234b2e52d140fa6c262818fa73f"
     },
     {
       "upstreamPath": "src/renderer/src/store/slices/worktrees/metadata/update-worktree-meta.ts",
       "snapshotPath": "changes/src/renderer/src/store/slices/worktrees/metadata/update-worktree-meta.ts",
-      "sha256": "999bcfbcc42f41fe40f6716a17cf9f10eeaaa271f4816e60704913cb9c7ec7eb"
+      "sha256": "4ac4ec161446a88dbd12a6fa82ff185b3b94be455d8d84d163fa29afa10db8be"
     },
     {
       "upstreamPath": "src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.test.ts",
@@ -617,7 +617,7 @@
     {
       "upstreamPath": "src/shared/folder-workspace-worktree.ts",
       "snapshotPath": "changes/src/shared/folder-workspace-worktree.ts",
-      "sha256": "18167c457bf1c39e90b42f23e9f897515873b117c57bd29fd6dc5ed39e82aed8"
+      "sha256": "4038644a9dc2321eee38d9bf3b42e4f734c674ce74265dc4f9f56b4dc512d7c2"
     },
     {
       "upstreamPath": "src/shared/folder-workspaces.ts",
@@ -647,7 +647,7 @@
     {
       "upstreamPath": "src/shared/rpc-contract/rpc-params-catalog.generated.ts",
       "snapshotPath": "changes/src/shared/rpc-contract/rpc-params-catalog.generated.ts",
-      "sha256": "c704df311255d9f1d19ea84db505604cc8b43998f7467290bef7b63f8a86cd0d"
+      "sha256": "8c93a0ef2415158b08bbb15bee8f9288b5d16e6eb3a790c90e48713676edbed3"
     },
     {
       "upstreamPath": "src/shared/rpc-contract/worktree-params.ts",

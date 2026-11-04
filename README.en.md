@@ -17,14 +17,14 @@ Example: **Write code → Run tests and review in parallel → Fix if needed →
 From Windows PowerShell, without cloning this repository:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.1/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.2.0/install.ps1 | iex
 ```
 
 Choose **Install (select components)** in the menu and toggle **Orchestrator** and **Todo** independently. The script downloads only the versioned ZIP required for installation from GitHub Releases, verifies its SHA-256 checksum and every bundle hash, and caches it by version under `%LOCALAPPDATA%\OrcaAdvancedOrchestration`. It never downloads the full repository, Git history, tests, or development files.
 
 Requirements: **Python 3.9+** and **Git**. The Orca source checkout is located automatically; when none exists, **Install** clones the supported version into `%USERPROFILE%\orca-dev` without asking for a path. Pass `-Source` to use a different checkout. If the cloned `HEAD` differs from the package's required base commit, the tool refuses with a clear error and never runs `git reset` or `git checkout` automatically.
 
-This repository is not a standalone application or plugin: it **modifies the Orca v1.4.246 source code**. After installation the source is patched, but the new behavior is not active until you build it:
+This repository is not a standalone application or plugin: it **modifies the Orca v1.4.248 source code**. After installation the source is patched, but the new behavior is not active until you build it:
 
 ```powershell
 cd <orca-source>
@@ -41,7 +41,7 @@ Non-interactive use:
 ```powershell
 .\install.ps1 -Action install -Source C:\orca-dev
 .\install.ps1 -Action update -Source C:\orca-dev
-.\install.ps1 -Action update -Source C:\orca-dev -Version 1.1.1 -DryRun
+.\install.ps1 -Action update -Source C:\orca-dev -Version 1.2.0 -DryRun
 .\install.ps1 -Action status -Source C:\orca-dev
 .\install.ps1 -Action verify
 .\install.ps1 -Action uninstall -Source C:\orca-dev

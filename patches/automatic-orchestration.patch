@@ -1,5 +1,5 @@
 diff --git a/README.md b/README.md
-index 402342ea..bd075620 100644
+index 402342ea54..cc33efe52b 100644
 --- a/README.md
 +++ b/README.md
 @@ -1,279 +1,117 @@
@@ -27,7 +27,7 @@ index 402342ea..bd075620 100644
 -  <strong>The AI Orchestrator for 100x builders.</strong><br/>
 -  Run Codex, ClaudeCode, OpenCode or Pi side-by-side — each in its own worktree, tracked in one place.
 -</p>
-+This is an independent development repository based on [stablyai/orca](https://github.com/stablyai/orca), version **1.4.246** (base commit `55ccff19`). It extends Orca's core runtime; it is **not a plugin** and is not an official Orca release.
++This is an independent development repository based on [stablyai/orca](https://github.com/stablyai/orca), version **1.4.248** (base commit `965978bc`). It extends Orca's core runtime; it is **not a plugin** and is not an official Orca release.
  
 -<h3 align="center"><a href="https://onorca.dev/download"><ins>Download Orca</ins></a></h3>
 +## Why this exists
@@ -360,7 +360,7 @@ index 402342ea..bd075620 100644
 +Based on Orca by Stably / Lovecast Inc. Upstream copyright notices and the [MIT license](LICENSE) are retained. The original product documentation is preserved in [README.upstream.md](README.upstream.md). This repository is independently maintained and does not imply upstream endorsement.
 diff --git a/README.tr.md b/README.tr.md
 new file mode 100644
-index 00000000..afe085f8
+index 0000000000..10a37efef9
 --- /dev/null
 +++ b/README.tr.md
 @@ -0,0 +1,45 @@
@@ -368,7 +368,7 @@ index 00000000..afe085f8
 +
 +Orca çekirdeğine eklenen olay tabanlı görev yürütücüsü. Akışı bir kez tarif edersiniz; bağımlılıklar tamamlandıkça sıradaki ajanı Orca başlatır. Orkestratör beklemek ve normal görev geçişlerini yönetmek için model çağrısı yapmak zorunda kalmaz.
 +
-+Bu proje [stablyai/orca](https://github.com/stablyai/orca) v1.4.246 üzerine geliştirilmiş bağımsız bir kaynak deposudur. **Plugin veya resmi Orca sürümü değildir.**
++Bu proje [stablyai/orca](https://github.com/stablyai/orca) v1.4.248 üzerine geliştirilmiş bağımsız bir kaynak deposudur. **Plugin veya resmi Orca sürümü değildir.**
 +
 +## Neler içeriyor?
 +
@@ -411,7 +411,7 @@ index 00000000..afe085f8
 +Orca'nın [MIT lisansı](LICENSE) ve upstream telif bildirimleri korunmuştur. Orijinal README [README.upstream.md](README.upstream.md) dosyasındadır.
 diff --git a/README.upstream.md b/README.upstream.md
 new file mode 100644
-index 00000000..402342ea
+index 0000000000..402342ea54
 --- /dev/null
 +++ b/README.upstream.md
 @@ -0,0 +1,279 @@
@@ -696,7 +696,7 @@ index 00000000..402342ea
 +Orca is free and open source under the [MIT License](LICENSE).
 diff --git a/examples/automatic-orchestration/workflow.json b/examples/automatic-orchestration/workflow.json
 new file mode 100644
-index 00000000..6388b040
+index 0000000000..6388b0406c
 --- /dev/null
 +++ b/examples/automatic-orchestration/workflow.json
 @@ -0,0 +1,34 @@
@@ -735,10 +735,10 @@ index 00000000..6388b040
 +  ]
 +}
 diff --git a/skill-guides/orchestration.md b/skill-guides/orchestration.md
-index bf672870..10515bb8 100644
+index 7726f951bb..0fab3521d2 100644
 --- a/skill-guides/orchestration.md
 +++ b/skill-guides/orchestration.md
-@@ -60,6 +60,33 @@ Never:
+@@ -61,6 +61,33 @@ Never:
  - Steer through a worker's terminal; use `send`.
  - Make checkouts yourself; let `worker-start` create a worker's workspace.
  
@@ -771,9 +771,9 @@ index bf672870..10515bb8 100644
 +
  ## When Orca wakes you
  
- - Run the `check` command the wake gives you. Answer a `question` with
+ - In a chat, each message arrives whole as its own message: act on it. A wake
 diff --git a/skill-guides/orchestration/references/coordinator-loop.md b/skill-guides/orchestration/references/coordinator-loop.md
-index c94372dd..016f9699 100644
+index c94372dd37..016f9699e5 100644
 --- a/skill-guides/orchestration/references/coordinator-loop.md
 +++ b/skill-guides/orchestration/references/coordinator-loop.md
 @@ -14,6 +14,22 @@ ORCA orchestration worker-start --task <task_id> --worktree current --agent code
@@ -800,10 +800,10 @@ index c94372dd..016f9699 100644
  
  A later `run-create` keeps your earlier Runs: their mail still wakes you, but
 diff --git a/src/cli/bundled-skill-guides.ts b/src/cli/bundled-skill-guides.ts
-index 5b6a91cd..f66d5b57 100644
+index f5459868be..53f45701d3 100644
 --- a/src/cli/bundled-skill-guides.ts
 +++ b/src/cli/bundled-skill-guides.ts
-@@ -3566,6 +3566,33 @@ const ORCHESTRATION_MARKDOWN = [
+@@ -3868,6 +3868,33 @@ const ORCHESTRATION_MARKDOWN = [
    "- Steer through a worker's terminal; use `send`.",
    "- Make checkouts yourself; let `worker-start` create a worker's workspace.",
    "",
@@ -836,8 +836,8 @@ index 5b6a91cd..f66d5b57 100644
 +  "",
    "## When Orca wakes you",
    "",
-   "- Run the `check` command the wake gives you. Answer a `question` with",
-@@ -3636,6 +3663,22 @@ const ORCHESTRATION_COORDINATOR_LOOP_REFERENCE_MARKDOWN = [
+   "- In a chat, each message arrives whole as its own message: act on it. A wake",
+@@ -3941,6 +3968,22 @@ const ORCHESTRATION_COORDINATOR_LOOP_REFERENCE_MARKDOWN = [
    "",
    "On every wake, start the Tasks `task-list --ready` shows.",
    "",
@@ -861,7 +861,7 @@ index 5b6a91cd..f66d5b57 100644
    "",
    "A later `run-create` keeps your earlier Runs: their mail still wakes you, but",
 diff --git a/src/cli/flag-help-text.ts b/src/cli/flag-help-text.ts
-index fbbd7914..0466c1fd 100644
+index 4a6dd7536b..b6059e4dd1 100644
 --- a/src/cli/flag-help-text.ts
 +++ b/src/cli/flag-help-text.ts
 @@ -46,7 +46,14 @@ export const FLAG_HELP_TEXT: Record<string, string> = {
@@ -893,7 +893,7 @@ index fbbd7914..0466c1fd 100644
    'to-element-index': '--to-element-index <n> Destination element index from get-app-state',
    'to-x': '--to-x <x>             Destination window-local x coordinate',
 diff --git a/src/cli/handler-group-manifest.ts b/src/cli/handler-group-manifest.ts
-index 9bc54fd6..4915f6d0 100644
+index 4d98747ae9..961a15ea87 100644
 --- a/src/cli/handler-group-manifest.ts
 +++ b/src/cli/handler-group-manifest.ts
 @@ -127,6 +127,11 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
@@ -909,7 +909,7 @@ index 9bc54fd6..4915f6d0 100644
        'orchestration run-current',
        'orchestration run-list',
 diff --git a/src/cli/handlers/orchestration-run-cli.test.ts b/src/cli/handlers/orchestration-run-cli.test.ts
-index f80d8c20..6db108dc 100644
+index 0625cc2af2..a3904c1557 100644
 --- a/src/cli/handlers/orchestration-run-cli.test.ts
 +++ b/src/cli/handlers/orchestration-run-cli.test.ts
 @@ -62,6 +62,89 @@ describe('lightweight Run CLI handlers', () => {
@@ -1003,7 +1003,7 @@ index f80d8c20..6db108dc 100644
      callMock
        .mockResolvedValueOnce({ result: { run: { id: 'run_1', objective: 'Work' } } })
 diff --git a/src/cli/handlers/orchestration.ts b/src/cli/handlers/orchestration.ts
-index a6e5b610..684c21f4 100644
+index a6e5b610ce..684c21f494 100644
 --- a/src/cli/handlers/orchestration.ts
 +++ b/src/cli/handlers/orchestration.ts
 @@ -10,6 +10,7 @@ import { ORCHESTRATION_QUESTION_HANDLER } from './orchestration/question-handler
@@ -1024,7 +1024,7 @@ index a6e5b610..684c21f4 100644
    ...ORCHESTRATION_INBOX_HANDLERS,
 diff --git a/src/cli/handlers/orchestration/automatic-run-handlers.ts b/src/cli/handlers/orchestration/automatic-run-handlers.ts
 new file mode 100644
-index 00000000..9b26671f
+index 0000000000..9b26671f63
 --- /dev/null
 +++ b/src/cli/handlers/orchestration/automatic-run-handlers.ts
 @@ -0,0 +1,126 @@
@@ -1155,7 +1155,7 @@ index 00000000..9b26671f
 +  }
 +}
 diff --git a/src/cli/handlers/orchestration/message-payload.ts b/src/cli/handlers/orchestration/message-payload.ts
-index 26213dd3..f7733054 100644
+index 26213dd3b0..f773305406 100644
 --- a/src/cli/handlers/orchestration/message-payload.ts
 +++ b/src/cli/handlers/orchestration/message-payload.ts
 @@ -11,13 +11,21 @@ export function getOptionalStructuredMessagePayload(
@@ -1209,7 +1209,7 @@ index 26213dd3..f7733054 100644
    return JSON.stringify(payload)
  }
 diff --git a/src/cli/handlers/orchestration/run-handlers.ts b/src/cli/handlers/orchestration/run-handlers.ts
-index b023c2db..1ed21e5a 100644
+index b46c413327..f9ff8fc172 100644
 --- a/src/cli/handlers/orchestration/run-handlers.ts
 +++ b/src/cli/handlers/orchestration/run-handlers.ts
 @@ -7,6 +7,7 @@ import {
@@ -1245,7 +1245,7 @@ index b023c2db..1ed21e5a 100644
        from
      })
      if (unboundRunId && unboundRunId !== result.result.run.id) {
-@@ -126,6 +139,13 @@ export const ORCHESTRATION_RUN_HANDLERS: Record<string, CommandHandler> = {
+@@ -127,6 +140,13 @@ export const ORCHESTRATION_RUN_HANDLERS: Record<string, CommandHandler> = {
          consumer_generation: number
          legacy: number
          created_at: string
@@ -1259,7 +1259,7 @@ index b023c2db..1ed21e5a 100644
        }
        removedWork?: RunRemovedWork
      }>('orchestration.runShow', {
-@@ -146,13 +166,33 @@ export const ORCHESTRATION_RUN_HANDLERS: Record<string, CommandHandler> = {
+@@ -147,13 +167,33 @@ export const ORCHESTRATION_RUN_HANDLERS: Record<string, CommandHandler> = {
      printResult(result, json, (r) =>
        removed
          ? formatRemovedWorkListing(r.run.id, r.removedWork, cursor)
@@ -1299,7 +1299,7 @@ index b023c2db..1ed21e5a 100644
 +  }
  }
 diff --git a/src/cli/handlers/orchestration/task-agent-views.ts b/src/cli/handlers/orchestration/task-agent-views.ts
-index 1b2d86eb..5a8ecc4d 100644
+index 1b2d86eb75..5a8ecc4d9b 100644
 --- a/src/cli/handlers/orchestration/task-agent-views.ts
 +++ b/src/cli/handlers/orchestration/task-agent-views.ts
 @@ -13,6 +13,16 @@ export type TaskListResult = {
@@ -1338,7 +1338,7 @@ index 1b2d86eb..5a8ecc4d 100644
      runId: r.runId,
      legacyReadOnly: r.legacyReadOnly || undefined
 diff --git a/src/cli/handlers/orchestration/task-handlers.ts b/src/cli/handlers/orchestration/task-handlers.ts
-index b5647fe5..292b5c26 100644
+index b5647fe55a..292b5c264e 100644
 --- a/src/cli/handlers/orchestration/task-handlers.ts
 +++ b/src/cli/handlers/orchestration/task-handlers.ts
 @@ -75,11 +75,19 @@ export const ORCHESTRATION_TASK_HANDLERS: Record<string, CommandHandler> = {
@@ -1364,7 +1364,7 @@ index b5647fe5..292b5c26 100644
          .join('\n')
        return r.legacyReadOnly ? `Legacy Run ${r.runId} (read-only)\n${tasks}` : tasks
 diff --git a/src/cli/specs/orchestration.ts b/src/cli/specs/orchestration.ts
-index c507da2f..6f6f89e9 100644
+index c507da2fd4..6f6f89e913 100644
 --- a/src/cli/specs/orchestration.ts
 +++ b/src/cli/specs/orchestration.ts
 @@ -7,14 +7,77 @@ export const ORCHESTRATION_COMMAND_SPECS: CommandSpec[] = [
@@ -1470,7 +1470,7 @@ index c507da2f..6f6f89e9 100644
      identityFlagRoles: { from: 'caller' },
      notes: [
 diff --git a/src/main/ipc/dashboard-payload-validation.ts b/src/main/ipc/dashboard-payload-validation.ts
-index 955a7084..b55f779e 100644
+index 955a7084ad..b55f779e53 100644
 --- a/src/main/ipc/dashboard-payload-validation.ts
 +++ b/src/main/ipc/dashboard-payload-validation.ts
 @@ -94,6 +94,10 @@ export function isDashboardSnapshot(value: unknown): value is DashboardSnapshot
@@ -1496,7 +1496,7 @@ index 955a7084..b55f779e 100644
      !isDashboardFilterOptions(snapshot.filterOptions) ||
      !isDashboardLaunchOptions(snapshot.launchableAgentsByWorktreeId) ||
 diff --git a/src/main/ipc/dashboard-popout.test.ts b/src/main/ipc/dashboard-popout.test.ts
-index 9f1046b6..a0634eb5 100644
+index 9f1046b69e..a0634eb5dd 100644
 --- a/src/main/ipc/dashboard-popout.test.ts
 +++ b/src/main/ipc/dashboard-popout.test.ts
 @@ -223,4 +223,68 @@ describe('registerDashboardPopoutHandlers', () => {
@@ -1569,7 +1569,7 @@ index 9f1046b6..a0634eb5 100644
 +  })
  })
 diff --git a/src/main/ipc/dashboard-popout.ts b/src/main/ipc/dashboard-popout.ts
-index 715b6abf..faece3f6 100644
+index 715b6abf7f..faece3f632 100644
 --- a/src/main/ipc/dashboard-popout.ts
 +++ b/src/main/ipc/dashboard-popout.ts
 @@ -1,7 +1,14 @@
@@ -1717,7 +1717,7 @@ index 715b6abf..faece3f6 100644
      if (
        !isDashboardPopoutRenderer(event.sender) ||
 diff --git a/src/main/ipc/dashboard-workspace-payload-validation.ts b/src/main/ipc/dashboard-workspace-payload-validation.ts
-index f64cf63d..b30d38ff 100644
+index f64cf63d42..b30d38ffb0 100644
 --- a/src/main/ipc/dashboard-workspace-payload-validation.ts
 +++ b/src/main/ipc/dashboard-workspace-payload-validation.ts
 @@ -4,6 +4,7 @@ import {
@@ -1749,7 +1749,7 @@ index f64cf63d..b30d38ff 100644
  }
  
 diff --git a/src/main/ipc/repos/repo-ipc-arg-schemas.ts b/src/main/ipc/repos/repo-ipc-arg-schemas.ts
-index 1cac2d6f..31441c8f 100644
+index 1cac2d6fb5..31441c8f42 100644
 --- a/src/main/ipc/repos/repo-ipc-arg-schemas.ts
 +++ b/src/main/ipc/repos/repo-ipc-arg-schemas.ts
 @@ -5,6 +5,7 @@ import { WorkspaceLinkedItemSchema } from '../../../shared/workspace-linked-item
@@ -1771,7 +1771,7 @@ index 1cac2d6f..31441c8f 100644
      .superRefine(assertFolderWorkspaceLinkedSourceContextMatch)
  })
 diff --git a/src/main/ipc/worktree-metadata-merge.ts b/src/main/ipc/worktree-metadata-merge.ts
-index 77cd70ef..da804482 100644
+index 77cd70efc9..da80448213 100644
 --- a/src/main/ipc/worktree-metadata-merge.ts
 +++ b/src/main/ipc/worktree-metadata-merge.ts
 @@ -5,6 +5,7 @@ import { DEFAULT_WORKSPACE_STATUS_ID } from '../../shared/workspace-statuses'
@@ -1792,7 +1792,7 @@ index 77cd70ef..da804482 100644
    }
  }
 diff --git a/src/main/ipc/worktrees/folder-workspace-model.ts b/src/main/ipc/worktrees/folder-workspace-model.ts
-index fbbfb61f..49c90444 100644
+index fbbfb61f15..49c904444a 100644
 --- a/src/main/ipc/worktrees/folder-workspace-model.ts
 +++ b/src/main/ipc/worktrees/folder-workspace-model.ts
 @@ -7,6 +7,7 @@ import {
@@ -1813,7 +1813,7 @@ index fbbfb61f..49c90444 100644
    }
  }
 diff --git a/src/main/persistence/loading-store/worktree-meta-write-normalization.ts b/src/main/persistence/loading-store/worktree-meta-write-normalization.ts
-index 08add101..bd414faa 100644
+index 08add1011d..bd414faa3c 100644
 --- a/src/main/persistence/loading-store/worktree-meta-write-normalization.ts
 +++ b/src/main/persistence/loading-store/worktree-meta-write-normalization.ts
 @@ -7,6 +7,7 @@ import { DEFAULT_WORKSPACE_STATUS_ID } from '../../../shared/workspace-statuses'
@@ -1835,7 +1835,7 @@ index 08add101..bd414faa 100644
    const sourceContext = normalizeStoredTaskSourceContext(updated.linkedTaskSourceContext)
    updated.linkedTaskSourceContext = isWorkspaceLinkedItemSourceContextMatch(
 diff --git a/src/main/persistence/restoring-sessions/folder-workspace-operations.ts b/src/main/persistence/restoring-sessions/folder-workspace-operations.ts
-index e5f6ce03..9a9f87fa 100644
+index e5f6ce0374..9a9f87fac8 100644
 --- a/src/main/persistence/restoring-sessions/folder-workspace-operations.ts
 +++ b/src/main/persistence/restoring-sessions/folder-workspace-operations.ts
 @@ -16,6 +16,7 @@ import { findRepoRowForHostScopedWrite } from '../tracking-repos/repo-update-ope
@@ -1865,7 +1865,7 @@ index e5f6ce03..9a9f87fa 100644
      this.scheduleSave()
      return workspace
 diff --git a/src/main/persistence/tracking-repos/persistence-worktree-meta-and-folder-workspaces.test.ts b/src/main/persistence/tracking-repos/persistence-worktree-meta-and-folder-workspaces.test.ts
-index 12709314..d223fc55 100644
+index 127093141b..d223fc5501 100644
 --- a/src/main/persistence/tracking-repos/persistence-worktree-meta-and-folder-workspaces.test.ts
 +++ b/src/main/persistence/tracking-repos/persistence-worktree-meta-and-folder-workspaces.test.ts
 @@ -15,6 +15,7 @@ import type { PersistedState } from '../../../shared/persisted-state-types'
@@ -1932,7 +1932,7 @@ index 12709314..d223fc55 100644
  })
 diff --git a/src/main/runtime/orchestration/automatic-run-types.ts b/src/main/runtime/orchestration/automatic-run-types.ts
 new file mode 100644
-index 00000000..d007ff48
+index 0000000000..d007ff4807
 --- /dev/null
 +++ b/src/main/runtime/orchestration/automatic-run-types.ts
 @@ -0,0 +1,29 @@
@@ -1967,7 +1967,7 @@ index 00000000..d007ff48
 +}
 diff --git a/src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.test.ts b/src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.test.ts
 new file mode 100644
-index 00000000..abd877b2
+index 0000000000..abd877b2f3
 --- /dev/null
 +++ b/src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.test.ts
 @@ -0,0 +1,115 @@
@@ -2088,7 +2088,7 @@ index 00000000..abd877b2
 +})
 diff --git a/src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.ts b/src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.ts
 new file mode 100644
-index 00000000..7b7f64a2
+index 0000000000..7b7f64a283
 --- /dev/null
 +++ b/src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.ts
 @@ -0,0 +1,103 @@
@@ -2197,7 +2197,7 @@ index 00000000..7b7f64a2
 +}
 diff --git a/src/main/runtime/orchestration/automatic-run/automatic-run-executor.test.ts b/src/main/runtime/orchestration/automatic-run/automatic-run-executor.test.ts
 new file mode 100644
-index 00000000..af0332b5
+index 0000000000..af0332b535
 --- /dev/null
 +++ b/src/main/runtime/orchestration/automatic-run/automatic-run-executor.test.ts
 @@ -0,0 +1,599 @@
@@ -2802,7 +2802,7 @@ index 00000000..af0332b5
 +})
 diff --git a/src/main/runtime/orchestration/automatic-run/automatic-run-executor.ts b/src/main/runtime/orchestration/automatic-run/automatic-run-executor.ts
 new file mode 100644
-index 00000000..71ff9a40
+index 0000000000..71ff9a408b
 --- /dev/null
 +++ b/src/main/runtime/orchestration/automatic-run/automatic-run-executor.ts
 @@ -0,0 +1,309 @@
@@ -3117,7 +3117,7 @@ index 00000000..71ff9a40
 +}
 diff --git a/src/main/runtime/orchestration/automatic-run/automatic-run-launch.ts b/src/main/runtime/orchestration/automatic-run/automatic-run-launch.ts
 new file mode 100644
-index 00000000..15a119b3
+index 0000000000..15a119b330
 --- /dev/null
 +++ b/src/main/runtime/orchestration/automatic-run/automatic-run-launch.ts
 @@ -0,0 +1,178 @@
@@ -3301,7 +3301,7 @@ index 00000000..15a119b3
 +}
 diff --git a/src/main/runtime/orchestration/automatic-run/automatic-run-review.ts b/src/main/runtime/orchestration/automatic-run/automatic-run-review.ts
 new file mode 100644
-index 00000000..27700614
+index 0000000000..2770061410
 --- /dev/null
 +++ b/src/main/runtime/orchestration/automatic-run/automatic-run-review.ts
 @@ -0,0 +1,148 @@
@@ -3455,7 +3455,7 @@ index 00000000..27700614
 +}
 diff --git a/src/main/runtime/orchestration/automatic-run/automatic-run-settlement.ts b/src/main/runtime/orchestration/automatic-run/automatic-run-settlement.ts
 new file mode 100644
-index 00000000..ee8427f1
+index 0000000000..ee8427f121
 --- /dev/null
 +++ b/src/main/runtime/orchestration/automatic-run/automatic-run-settlement.ts
 @@ -0,0 +1,131 @@
@@ -3592,7 +3592,7 @@ index 00000000..ee8427f1
 +}
 diff --git a/src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.test.ts b/src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.test.ts
 new file mode 100644
-index 00000000..c18de7f8
+index 0000000000..c18de7f893
 --- /dev/null
 +++ b/src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.test.ts
 @@ -0,0 +1,70 @@
@@ -3668,7 +3668,7 @@ index 00000000..c18de7f8
 +})
 diff --git a/src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.ts b/src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.ts
 new file mode 100644
-index 00000000..4b0e28df
+index 0000000000..4b0e28df2e
 --- /dev/null
 +++ b/src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.ts
 @@ -0,0 +1,48 @@
@@ -3722,7 +3722,7 @@ index 00000000..4b0e28df
 +}
 diff --git a/src/main/runtime/orchestration/automatic-run/automatic-run-workspace.ts b/src/main/runtime/orchestration/automatic-run/automatic-run-workspace.ts
 new file mode 100644
-index 00000000..369c5c76
+index 0000000000..369c5c7633
 --- /dev/null
 +++ b/src/main/runtime/orchestration/automatic-run/automatic-run-workspace.ts
 @@ -0,0 +1,83 @@
@@ -3810,10 +3810,11 @@ index 00000000..369c5c76
 +    : activeWriteWorkspaces.has(workspaceKey)
 +}
 diff --git a/src/main/runtime/orchestration/db/attach-orchestration-db-methods.ts b/src/main/runtime/orchestration/db/attach-orchestration-db-methods.ts
-index 05f8d028..b67ca3d6 100644
+index f15cb9c577..20329c058e 100644
 --- a/src/main/runtime/orchestration/db/attach-orchestration-db-methods.ts
 +++ b/src/main/runtime/orchestration/db/attach-orchestration-db-methods.ts
-@@ -1,4 +1,7 @@
+@@ -1,5 +1,8 @@
+ import { attachCrewMutationNotifications } from '../crew/crew-mutation-notifications'
  import { attachAttemptObservationStore } from './attempt-observation-store'
 +import { attachAutomaticRunActivityStore } from './automatic-runs/automatic-run-activity-store'
 +import { attachAutomaticRunStore } from './automatic-runs/automatic-run-store'
@@ -3821,15 +3822,15 @@ index 05f8d028..b67ca3d6 100644
  import { attachCoordinatorRunStore } from './coordinator-runs/coordinator-run-store'
  import { attachDecisionGateStore } from './decision-gates/decision-gate-store'
  import { attachDispatchCompletion } from './dispatch-context/dispatch-completion'
-@@ -31,6 +34,7 @@ import { attachDirectMailboxRouting } from './messages/direct-mailbox-routing'
+@@ -32,6 +35,7 @@ import { attachDirectMailboxRouting } from './messages/direct-mailbox-routing'
  import { attachForeignDirectMailboxRouting } from './messages/foreign-direct-mailbox-routing'
  import { attachMailboxPointerEnterState } from './messages/mailbox-pointer-enter-state'
  import { attachMessageInbox } from './messages/message-inbox'
 +import { attachAutomaticMessageRouting } from './messages/automatic-message-routing'
  import { attachMessageInsert } from './messages/message-insert'
  import { attachRoleMailboxDelivery } from './messages/role-mailbox-delivery'
- import { attachStructuredPointerOperationStore } from './messages/structured-pointer-operation-store'
-@@ -69,6 +73,9 @@ import { attachWorkerTerminalTransfer } from './worker-terminal/worker-terminal-
+ import { attachStructuredMailSendStore } from './messages/structured-mail-send-store'
+@@ -70,6 +74,9 @@ import { attachWorkerTerminalTransfer } from './worker-terminal/worker-terminal-
  
  export function attachOrchestrationDbMethods(ctor: { prototype: object }): void {
    attachAttemptObservationStore(ctor)
@@ -3839,17 +3840,17 @@ index 05f8d028..b67ca3d6 100644
    attachCreateTables(ctor)
    attachSchemaMigrate(ctor)
    attachSchemaColumnProbes(ctor)
-@@ -94,6 +101,7 @@ export function attachOrchestrationDbMethods(ctor: { prototype: object }): void
+@@ -95,6 +102,7 @@ export function attachOrchestrationDbMethods(ctor: { prototype: object }): void
    attachLegacyCoordinatorMailTakeover(ctor)
    attachRunDelivery(ctor)
    attachMessageInsert(ctor)
 +  attachAutomaticMessageRouting(ctor)
    attachRoleMailboxDelivery(ctor)
-   attachStructuredPointerOperationStore(ctor)
+   attachStructuredMailSendStore(ctor)
    attachMessageInbox(ctor)
 diff --git a/src/main/runtime/orchestration/db/automatic-runs/automatic-report-delivery.ts b/src/main/runtime/orchestration/db/automatic-runs/automatic-report-delivery.ts
 new file mode 100644
-index 00000000..5e51918e
+index 0000000000..5e51918e1e
 --- /dev/null
 +++ b/src/main/runtime/orchestration/db/automatic-runs/automatic-report-delivery.ts
 @@ -0,0 +1,52 @@
@@ -3907,7 +3908,7 @@ index 00000000..5e51918e
 +}
 diff --git a/src/main/runtime/orchestration/db/automatic-runs/automatic-run-activity-store.ts b/src/main/runtime/orchestration/db/automatic-runs/automatic-run-activity-store.ts
 new file mode 100644
-index 00000000..2250e01b
+index 0000000000..2250e01b5c
 --- /dev/null
 +++ b/src/main/runtime/orchestration/db/automatic-runs/automatic-run-activity-store.ts
 @@ -0,0 +1,261 @@
@@ -4174,7 +4175,7 @@ index 00000000..2250e01b
 +}
 diff --git a/src/main/runtime/orchestration/db/automatic-runs/automatic-run-store.ts b/src/main/runtime/orchestration/db/automatic-runs/automatic-run-store.ts
 new file mode 100644
-index 00000000..8862009b
+index 0000000000..8862009b11
 --- /dev/null
 +++ b/src/main/runtime/orchestration/db/automatic-runs/automatic-run-store.ts
 @@ -0,0 +1,183 @@
@@ -4363,7 +4364,7 @@ index 00000000..8862009b
 +}
 diff --git a/src/main/runtime/orchestration/db/automatic-runs/workflow-apply.test.ts b/src/main/runtime/orchestration/db/automatic-runs/workflow-apply.test.ts
 new file mode 100644
-index 00000000..dd2aee96
+index 0000000000..dd2aee961c
 --- /dev/null
 +++ b/src/main/runtime/orchestration/db/automatic-runs/workflow-apply.test.ts
 @@ -0,0 +1,182 @@
@@ -4551,7 +4552,7 @@ index 00000000..dd2aee96
 +})
 diff --git a/src/main/runtime/orchestration/db/automatic-runs/workflow-apply.ts b/src/main/runtime/orchestration/db/automatic-runs/workflow-apply.ts
 new file mode 100644
-index 00000000..45ee98ff
+index 0000000000..45ee98ff66
 --- /dev/null
 +++ b/src/main/runtime/orchestration/db/automatic-runs/workflow-apply.ts
 @@ -0,0 +1,274 @@
@@ -4830,7 +4831,7 @@ index 00000000..45ee98ff
 +  })
 +}
 diff --git a/src/main/runtime/orchestration/db/contract-constants.ts b/src/main/runtime/orchestration/db/contract-constants.ts
-index 04192854..64974ba5 100644
+index 04192854ac..64974ba5eb 100644
 --- a/src/main/runtime/orchestration/db/contract-constants.ts
 +++ b/src/main/runtime/orchestration/db/contract-constants.ts
 @@ -16,4 +16,4 @@ export function federatedStubHomeRunId(dispatchId: string): string {
@@ -4840,7 +4841,7 @@ index 04192854..64974ba5 100644
 -export const SCHEMA_VERSION = 46
 +export const SCHEMA_VERSION = 47
 diff --git a/src/main/runtime/orchestration/db/decision-gates/decision-gate-store.ts b/src/main/runtime/orchestration/db/decision-gates/decision-gate-store.ts
-index 3e8acf84..4e9c0cd3 100644
+index 3e8acf84ca..4e9c0cd3d2 100644
 --- a/src/main/runtime/orchestration/db/decision-gates/decision-gate-store.ts
 +++ b/src/main/runtime/orchestration/db/decision-gates/decision-gate-store.ts
 @@ -4,6 +4,7 @@ import { generateId } from '../generated-id'
@@ -4871,7 +4872,7 @@ index 3e8acf84..4e9c0cd3 100644
        | DecisionGateRow
        | undefined
 diff --git a/src/main/runtime/orchestration/db/dispatch-context/dispatch-completion.ts b/src/main/runtime/orchestration/db/dispatch-context/dispatch-completion.ts
-index 52c447b4..480af0f7 100644
+index 52c447b45e..480af0f7a9 100644
 --- a/src/main/runtime/orchestration/db/dispatch-context/dispatch-completion.ts
 +++ b/src/main/runtime/orchestration/db/dispatch-context/dispatch-completion.ts
 @@ -11,6 +11,7 @@ import {
@@ -4918,7 +4919,7 @@ index 52c447b4..480af0f7 100644
        | DispatchContextRow
        | undefined
 diff --git a/src/main/runtime/orchestration/db/dispatch-context/worker-report-settlement.ts b/src/main/runtime/orchestration/db/dispatch-context/worker-report-settlement.ts
-index f945c90b..faddf0cf 100644
+index f945c90bef..faddf0cf62 100644
 --- a/src/main/runtime/orchestration/db/dispatch-context/worker-report-settlement.ts
 +++ b/src/main/runtime/orchestration/db/dispatch-context/worker-report-settlement.ts
 @@ -11,6 +11,8 @@ import {
@@ -4958,7 +4959,7 @@ index f945c90b..faddf0cf 100644
  }
 diff --git a/src/main/runtime/orchestration/db/messages/automatic-message-routing.ts b/src/main/runtime/orchestration/db/messages/automatic-message-routing.ts
 new file mode 100644
-index 00000000..f4f36649
+index 0000000000..f4f3664918
 --- /dev/null
 +++ b/src/main/runtime/orchestration/db/messages/automatic-message-routing.ts
 @@ -0,0 +1,62 @@
@@ -5025,7 +5026,7 @@ index 00000000..f4f36649
 +  Object.assign(ctor.prototype, { markMessageHandled })
 +}
 diff --git a/src/main/runtime/orchestration/db/messages/message-inbox.ts b/src/main/runtime/orchestration/db/messages/message-inbox.ts
-index d35fc8fd..193c206d 100644
+index d35fc8fd05..193c206d45 100644
 --- a/src/main/runtime/orchestration/db/messages/message-inbox.ts
 +++ b/src/main/runtime/orchestration/db/messages/message-inbox.ts
 @@ -2,6 +2,7 @@ import type { MessageType, MessageRow } from '../../types'
@@ -5050,7 +5051,7 @@ index d35fc8fd..193c206d 100644
  
  // delivered_at prevents push replay; only explicit check sets read.
 diff --git a/src/main/runtime/orchestration/db/orchestration-db-methods.ts b/src/main/runtime/orchestration/db/orchestration-db-methods.ts
-index 68622bae..64ebda27 100644
+index 1de24dd9a4..c6cb154ff7 100644
 --- a/src/main/runtime/orchestration/db/orchestration-db-methods.ts
 +++ b/src/main/runtime/orchestration/db/orchestration-db-methods.ts
 @@ -52,6 +52,10 @@ import type { SchemaColumnProbesMethods } from './schema/schema-column-probes'
@@ -5076,7 +5077,7 @@ index 68622bae..64ebda27 100644
    SchemaMigrateMethods &
    SchemaColumnProbesMethods &
 diff --git a/src/main/runtime/orchestration/db/reset/orchestration-reset.ts b/src/main/runtime/orchestration/db/reset/orchestration-reset.ts
-index 97611059..040b6e78 100644
+index 9761105970..040b6e7800 100644
 --- a/src/main/runtime/orchestration/db/reset/orchestration-reset.ts
 +++ b/src/main/runtime/orchestration/db/reset/orchestration-reset.ts
 @@ -29,6 +29,9 @@ export function resetAll(this: OrchestrationDb): void {
@@ -5100,7 +5101,7 @@ index 97611059..040b6e78 100644
      DELETE FROM remote_questions;
      UPDATE question_threads
 diff --git a/src/main/runtime/orchestration/db/row-column-lists.ts b/src/main/runtime/orchestration/db/row-column-lists.ts
-index f6306ca3..35b03c06 100644
+index f6306ca3a9..35b03c067a 100644
 --- a/src/main/runtime/orchestration/db/row-column-lists.ts
 +++ b/src/main/runtime/orchestration/db/row-column-lists.ts
 @@ -13,6 +13,16 @@ export const RUN_COLUMNS = [
@@ -5137,7 +5138,7 @@ index f6306ca3..35b03c06 100644
    'completed_at'
  ] as const satisfies readonly (keyof TaskRow)[]
 diff --git a/src/main/runtime/orchestration/db/runs/run-create.ts b/src/main/runtime/orchestration/db/runs/run-create.ts
-index 0e482e82..392283e6 100644
+index 0e482e8234..392283e61d 100644
 --- a/src/main/runtime/orchestration/db/runs/run-create.ts
 +++ b/src/main/runtime/orchestration/db/runs/run-create.ts
 @@ -12,6 +12,10 @@ export function createRun(
@@ -5176,7 +5177,7 @@ index 0e482e82..392283e6 100644
      const address = mailboxAddressOf(coordinator)
      if (address !== null) {
 diff --git a/src/main/runtime/orchestration/db/schema/create-core-tables-sql.ts b/src/main/runtime/orchestration/db/schema/create-core-tables-sql.ts
-index 523eae51..b8991a63 100644
+index 3294d5a620..bcb5aeff3d 100644
 --- a/src/main/runtime/orchestration/db/schema/create-core-tables-sql.ts
 +++ b/src/main/runtime/orchestration/db/schema/create-core-tables-sql.ts
 @@ -16,6 +16,21 @@ CREATE TABLE IF NOT EXISTS runs (
@@ -5202,7 +5203,7 @@ index 523eae51..b8991a63 100644
    updated_at            TEXT NOT NULL DEFAULT (datetime('now'))
  );
 diff --git a/src/main/runtime/orchestration/db/schema/create-graph-tables-sql.ts b/src/main/runtime/orchestration/db/schema/create-graph-tables-sql.ts
-index 0be57654..551cc7f2 100644
+index 0be57654eb..551cc7f2a5 100644
 --- a/src/main/runtime/orchestration/db/schema/create-graph-tables-sql.ts
 +++ b/src/main/runtime/orchestration/db/schema/create-graph-tables-sql.ts
 @@ -134,6 +134,16 @@ CREATE TABLE IF NOT EXISTS tasks (
@@ -5283,7 +5284,7 @@ index 0be57654..551cc7f2 100644
  }
 diff --git a/src/main/runtime/orchestration/db/schema/migrate-v47.test.ts b/src/main/runtime/orchestration/db/schema/migrate-v47.test.ts
 new file mode 100644
-index 00000000..185528ad
+index 0000000000..185528adef
 --- /dev/null
 +++ b/src/main/runtime/orchestration/db/schema/migrate-v47.test.ts
 @@ -0,0 +1,101 @@
@@ -5390,7 +5391,7 @@ index 00000000..185528ad
 +})
 diff --git a/src/main/runtime/orchestration/db/schema/migrate-v47.ts b/src/main/runtime/orchestration/db/schema/migrate-v47.ts
 new file mode 100644
-index 00000000..20c55cf0
+index 0000000000..20c55cf081
 --- /dev/null
 +++ b/src/main/runtime/orchestration/db/schema/migrate-v47.ts
 @@ -0,0 +1,82 @@
@@ -5477,7 +5478,7 @@ index 00000000..20c55cf0
 +  }
 +}
 diff --git a/src/main/runtime/orchestration/db/schema/migrate.ts b/src/main/runtime/orchestration/db/schema/migrate.ts
-index e1ef08be..a077484d 100644
+index e1ef08be23..a077484df4 100644
 --- a/src/main/runtime/orchestration/db/schema/migrate.ts
 +++ b/src/main/runtime/orchestration/db/schema/migrate.ts
 @@ -17,6 +17,7 @@ import { migrateV43 } from './migrate-v43'
@@ -5497,7 +5498,7 @@ index e1ef08be..a077484d 100644
      // Recreate derived objects after table rebuilds; existing views would prevent RENAME.
      this.db.exec(DERIVED_DELIVERY_SCHEMA_SQL)
 diff --git a/src/main/runtime/orchestration/db/tasks/task-store.ts b/src/main/runtime/orchestration/db/tasks/task-store.ts
-index 3a2e8928..8be24a8e 100644
+index 3a2e892862..8be24a8ef5 100644
 --- a/src/main/runtime/orchestration/db/tasks/task-store.ts
 +++ b/src/main/runtime/orchestration/db/tasks/task-store.ts
 @@ -20,6 +20,12 @@ export function createTask(
@@ -5549,7 +5550,7 @@ index 3a2e8928..8be24a8e 100644
    return this.db.prepare(`SELECT ${TASK_COLUMN_LIST} FROM tasks WHERE id = ?`).get(id) as TaskRow
  }
 diff --git a/src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-outcome.ts b/src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-outcome.ts
-index b5dc0ffa..4702166d 100644
+index b5dc0ffaba..4702166d12 100644
 --- a/src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-outcome.ts
 +++ b/src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-outcome.ts
 @@ -5,6 +5,7 @@ import { transitionLifecycleWithDb } from '../lifecycle-transition'
@@ -5576,7 +5577,7 @@ index b5dc0ffa..4702166d 100644
      return this.getWorkerDispatch(dispatchId) as WorkerDispatchRow
    } catch (error) {
 diff --git a/src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-start.ts b/src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-start.ts
-index a3384223..2d921403 100644
+index a3384223f9..2d921403d6 100644
 --- a/src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-start.ts
 +++ b/src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-start.ts
 @@ -9,6 +9,8 @@ import { recordedCreatorIdentity, type DispatchCreator } from '../dispatch-depth
@@ -5613,7 +5614,7 @@ index a3384223..2d921403 100644
      return {
 diff --git a/src/main/runtime/orchestration/legacy-contract-rows.ts b/src/main/runtime/orchestration/legacy-contract-rows.ts
 new file mode 100644
-index 00000000..d4f0ccae
+index 0000000000..d4f0ccae77
 --- /dev/null
 +++ b/src/main/runtime/orchestration/legacy-contract-rows.ts
 @@ -0,0 +1,39 @@
@@ -5657,7 +5658,7 @@ index 00000000..d4f0ccae
 +  acknowledged_at: string | null
 +}
 diff --git a/src/main/runtime/orchestration/lifecycle-reconciliation.ts b/src/main/runtime/orchestration/lifecycle-reconciliation.ts
-index f8190c28..1d960a77 100644
+index f8190c2884..1d960a77d2 100644
 --- a/src/main/runtime/orchestration/lifecycle-reconciliation.ts
 +++ b/src/main/runtime/orchestration/lifecycle-reconciliation.ts
 @@ -260,6 +260,17 @@ function reconcileWorkerDoneMessage(
@@ -5690,10 +5691,10 @@ index f8190c28..1d960a77 100644
      filesModified,
      reportPath: typeof payload.reportPath === 'string' ? payload.reportPath : null,
 diff --git a/src/main/runtime/orchestration/preamble.ts b/src/main/runtime/orchestration/preamble.ts
-index 4c60abc3..0b284f36 100644
+index 48e7821ede..393b0c8432 100644
 --- a/src/main/runtime/orchestration/preamble.ts
 +++ b/src/main/runtime/orchestration/preamble.ts
-@@ -89,10 +89,11 @@ ${
+@@ -94,10 +94,11 @@ ${
  
    # Finish: send exactly once. --body is three sentences: what you did, what
    # you found, what is left. Use --outcome failed if the work is not done;
@@ -5710,7 +5711,7 @@ index 4c60abc3..0b284f36 100644
  
  ${postDoneInstructions}`
 diff --git a/src/main/runtime/orchestration/types.ts b/src/main/runtime/orchestration/types.ts
-index 321aa554..9b8e9abb 100644
+index 321aa55409..9b8e9abbf3 100644
 --- a/src/main/runtime/orchestration/types.ts
 +++ b/src/main/runtime/orchestration/types.ts
 @@ -41,6 +41,17 @@ export type GateStatus = 'pending' | 'resolved' | 'timeout'
@@ -5832,7 +5833,7 @@ index 321aa554..9b8e9abb 100644
    id: string
    run_id: string
 diff --git a/src/main/runtime/rpc/methods/orchestration-structured-worker-start-failure.test.ts b/src/main/runtime/rpc/methods/orchestration-structured-worker-start-failure.test.ts
-index cbe328b5..eb58cda0 100644
+index d0096c711a..d06ee9ad29 100644
 --- a/src/main/runtime/rpc/methods/orchestration-structured-worker-start-failure.test.ts
 +++ b/src/main/runtime/rpc/methods/orchestration-structured-worker-start-failure.test.ts
 @@ -163,6 +163,15 @@ describe('a structured worker-start that fails after the session exists', () =>
@@ -5852,10 +5853,10 @@ index cbe328b5..eb58cda0 100644
          completed_at: null
        },
 diff --git a/src/main/runtime/rpc/methods/orchestration.ts b/src/main/runtime/rpc/methods/orchestration.ts
-index e749f49c..742bbdb4 100644
+index fda3043dda..196c3cab59 100644
 --- a/src/main/runtime/rpc/methods/orchestration.ts
 +++ b/src/main/runtime/rpc/methods/orchestration.ts
-@@ -11,6 +11,7 @@ import { ORCHESTRATION_ASK_METHODS } from './orchestration/messaging/ask-methods
+@@ -12,6 +12,7 @@ import { ORCHESTRATION_ASK_METHODS } from './orchestration/messaging/ask-methods
  import { ORCHESTRATION_GATE_METHODS } from './orchestration/gates/gates'
  import { ORCHESTRATION_RESET_METHODS } from './orchestration/runs/reset-methods'
  import { ORCHESTRATION_CALLER_METHODS } from './orchestration/caller-show'
@@ -5863,7 +5864,7 @@ index e749f49c..742bbdb4 100644
  
  // Every orchestration method reads the authority restored at startup.
  export const ORCHESTRATION_METHODS = requiringOrcadFeature('orchestration', [
-@@ -25,5 +26,6 @@ export const ORCHESTRATION_METHODS = requiringOrcadFeature('orchestration', [
+@@ -27,5 +28,6 @@ export const ORCHESTRATION_METHODS = requiringOrcadFeature('orchestration', [
    ...ORCHESTRATION_ASK_METHODS,
    ...ORCHESTRATION_GATE_METHODS,
    ...ORCHESTRATION_RESET_METHODS,
@@ -5873,7 +5874,7 @@ index e749f49c..742bbdb4 100644
  ])
 diff --git a/src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.test.ts b/src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.test.ts
 new file mode 100644
-index 00000000..e2052e27
+index 0000000000..e2052e2732
 --- /dev/null
 +++ b/src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.test.ts
 @@ -0,0 +1,101 @@
@@ -5980,7 +5981,7 @@ index 00000000..e2052e27
 +})
 diff --git a/src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.ts b/src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.ts
 new file mode 100644
-index 00000000..00013c07
+index 0000000000..00013c0721
 --- /dev/null
 +++ b/src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.ts
 @@ -0,0 +1,208 @@
@@ -6194,7 +6195,7 @@ index 00000000..00013c07
 +export type { RunRow }
 diff --git a/src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-methods.ts b/src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-methods.ts
 new file mode 100644
-index 00000000..d25fb94d
+index 0000000000..d25fb94de7
 --- /dev/null
 +++ b/src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-methods.ts
 @@ -0,0 +1,207 @@
@@ -6406,7 +6407,7 @@ index 00000000..d25fb94d
 +  })
 +]
 diff --git a/src/main/runtime/rpc/methods/orchestration/gates/gates.ts b/src/main/runtime/rpc/methods/orchestration/gates/gates.ts
-index d2262fac..5bf8f046 100644
+index d2262fac8f..5bf8f04620 100644
 --- a/src/main/runtime/rpc/methods/orchestration/gates/gates.ts
 +++ b/src/main/runtime/rpc/methods/orchestration/gates/gates.ts
 @@ -153,6 +153,11 @@ export const ORCHESTRATION_GATE_METHODS = [
@@ -6422,10 +6423,10 @@ index d2262fac..5bf8f046 100644
      }
    }),
 diff --git a/src/main/runtime/rpc/methods/orchestration/messaging/check-methods.ts b/src/main/runtime/rpc/methods/orchestration/messaging/check-methods.ts
-index b65a8de6..2905a856 100644
+index 811145b723..647cdb0c25 100644
 --- a/src/main/runtime/rpc/methods/orchestration/messaging/check-methods.ts
 +++ b/src/main/runtime/rpc/methods/orchestration/messaging/check-methods.ts
-@@ -60,6 +60,12 @@ export const ORCHESTRATION_CHECK_METHODS = [
+@@ -68,6 +68,12 @@ export const ORCHESTRATION_CHECK_METHODS = [
            orchestrationCompatibilityEvidence,
            recordMutationReceipt
          })
@@ -6435,11 +6436,11 @@ index b65a8de6..2905a856 100644
 +            .then(({ triggerAutomaticRun }) => triggerAutomaticRun(runtime, boundRun.id))
 +            .catch((error: unknown) => console.warn('[automatic-run] trigger failed', error))
 +        }
-         return consumingCheck && !(params.ack && !params.wait)
-           ? withRunCheckNext(runtime, result)
-           : result
+         return releasing(
+           consumingCheck && !(params.ack && !params.wait)
+             ? await withRunCheckNext(runtime, result)
 diff --git a/src/main/runtime/rpc/methods/orchestration/messaging/message-methods.ts b/src/main/runtime/rpc/methods/orchestration/messaging/message-methods.ts
-index b54a32e1..df9c65aa 100644
+index b54a32e1f9..df9c65aad2 100644
 --- a/src/main/runtime/rpc/methods/orchestration/messaging/message-methods.ts
 +++ b/src/main/runtime/rpc/methods/orchestration/messaging/message-methods.ts
 @@ -17,6 +17,7 @@ import { resolveReplyRecipient } from './recipient-routing'
@@ -6466,7 +6467,7 @@ index b54a32e1..df9c65aa 100644
          runId: run.id,
          legacyReadOnly: run.legacy === 1,
 diff --git a/src/main/runtime/rpc/methods/orchestration/messaging/send-point-to-point.ts b/src/main/runtime/rpc/methods/orchestration/messaging/send-point-to-point.ts
-index 4aad430f..5e5090a7 100644
+index 4aad430f0a..5e5090a7b0 100644
 --- a/src/main/runtime/rpc/methods/orchestration/messaging/send-point-to-point.ts
 +++ b/src/main/runtime/rpc/methods/orchestration/messaging/send-point-to-point.ts
 @@ -125,10 +125,14 @@ export function sendPointToPointMessage(args: {
@@ -6512,7 +6513,7 @@ index 4aad430f..5e5090a7 100644
  
 diff --git a/src/main/runtime/rpc/methods/orchestration/messaging/task-list-projection.ts b/src/main/runtime/rpc/methods/orchestration/messaging/task-list-projection.ts
 new file mode 100644
-index 00000000..97c67fc3
+index 0000000000..97c67fc3fb
 --- /dev/null
 +++ b/src/main/runtime/rpc/methods/orchestration/messaging/task-list-projection.ts
 @@ -0,0 +1,73 @@
@@ -6590,7 +6591,7 @@ index 00000000..97c67fc3
 +  }
 +}
 diff --git a/src/main/runtime/rpc/methods/orchestration/runs/run-receipt.test.ts b/src/main/runtime/rpc/methods/orchestration/runs/run-receipt.test.ts
-index daccfec3..7d77c3d1 100644
+index daccfec304..7d77c3d19b 100644
 --- a/src/main/runtime/rpc/methods/orchestration/runs/run-receipt.test.ts
 +++ b/src/main/runtime/rpc/methods/orchestration/runs/run-receipt.test.ts
 @@ -14,6 +14,16 @@ const RUN_ROW: RunRow = {
@@ -6636,10 +6637,10 @@ index daccfec3..7d77c3d1 100644
      expect(exposed).not.toHaveProperty('home_database')
      expect(exposed).not.toHaveProperty('coordinator_pane_key')
 diff --git a/src/main/runtime/rpc/methods/orchestration/runs/runs.ts b/src/main/runtime/rpc/methods/orchestration/runs/runs.ts
-index 44b09c06..ab89a234 100644
+index 117e375fca..954a538772 100644
 --- a/src/main/runtime/rpc/methods/orchestration/runs/runs.ts
 +++ b/src/main/runtime/rpc/methods/orchestration/runs/runs.ts
-@@ -7,6 +7,7 @@ import type { OrcaRuntimeService } from '../../../../orca-runtime'
+@@ -8,6 +8,7 @@ import type { OrcaRuntimeService } from '../../../../orca-runtime'
  import type { OrchestrationCallerIdentity } from '../../../../orchestration/orchestration-caller-identity'
  import type { RunRow } from '../../../../orchestration/types'
  import { currentDispatchAssigneeRun } from '../messaging/recipient-routing'
@@ -6647,7 +6648,7 @@ index 44b09c06..ab89a234 100644
  import {
    RunCreateParams,
    RunCurrentParams,
-@@ -32,13 +33,21 @@ export function createBoundRun(
+@@ -33,13 +34,21 @@ export function createBoundRun(
    runtime: OrcaRuntimeService,
    caller: OrchestrationCallerIdentity,
    from: string,
@@ -6671,7 +6672,7 @@ index 44b09c06..ab89a234 100644
    })
    // The earlier Run keeps this consumer, so only waiters that plain check now redirects end.
    runtime.cancelMessageWaiters(from)
-@@ -51,14 +60,36 @@ export const ORCHESTRATION_RUN_METHODS = [
+@@ -52,14 +61,36 @@ export const ORCHESTRATION_RUN_METHODS = [
      name: 'orchestration.runCreate',
      permission: 'workspace',
      params: RunCreateParams,
@@ -6711,7 +6712,7 @@ index 44b09c06..ab89a234 100644
    }),
    defineMethod({
 diff --git a/src/main/runtime/rpc/methods/orchestration/worker/local-worker-start.ts b/src/main/runtime/rpc/methods/orchestration/worker/local-worker-start.ts
-index 3f296136..351cbfc5 100644
+index 814b96ed4f..f8e11f66bd 100644
 --- a/src/main/runtime/rpc/methods/orchestration/worker/local-worker-start.ts
 +++ b/src/main/runtime/rpc/methods/orchestration/worker/local-worker-start.ts
 @@ -55,6 +55,8 @@ export async function startLocalWorker(args: {
@@ -6739,7 +6740,7 @@ index 3f296136..351cbfc5 100644
      ? await creationTargetFor(coordinatorWorktreeId)
      : undefined
 diff --git a/src/main/runtime/rpc/methods/worktree-set-method.ts b/src/main/runtime/rpc/methods/worktree-set-method.ts
-index f59c293d..d767d7a6 100644
+index f59c293dd4..d767d7a600 100644
 --- a/src/main/runtime/rpc/methods/worktree-set-method.ts
 +++ b/src/main/runtime/rpc/methods/worktree-set-method.ts
 @@ -53,6 +53,7 @@ export const WORKTREE_SET_METHOD = defineMethod({
@@ -6751,10 +6752,10 @@ index f59c293d..d767d7a6 100644
          params.parentWorktree || params.noParent === true
            ? {
 diff --git a/src/main/runtime/rpc/orchestration-session-caller.test.ts b/src/main/runtime/rpc/orchestration-session-caller.test.ts
-index c446f950..6dd411eb 100644
+index 099e34c165..15864361cd 100644
 --- a/src/main/runtime/rpc/orchestration-session-caller.test.ts
 +++ b/src/main/runtime/rpc/orchestration-session-caller.test.ts
-@@ -66,6 +66,11 @@ const NAMES_NO_RESOLVED_PARTY: Readonly<Record<string, string>> = {
+@@ -68,6 +68,11 @@ const NAMES_NO_RESOLVED_PARTY: Readonly<Record<string, string>> = {
  /** One request per identity-consulting method, valid enough to reach the dispatcher entry. */
  const MINIMAL_PARAMS: Readonly<Record<string, Record<string, unknown>>> = {
    'orchestration.runCreate': { objective: 'o' },
@@ -6766,8 +6767,21 @@ index c446f950..6dd411eb 100644
    'orchestration.runUse': { id: 'run_missing' },
    'orchestration.runCurrent': {},
    'orchestration.check': {},
+@@ -109,9 +114,9 @@ describe('orchestration session callers at the dispatch entry', () => {
+       })
+       .sort()
+ 
+-    // The population: 50 registered methods carrying 36 party-naming fields.
+-    expect(registry.size).toBe(50)
+-    expect(partyNaming).toHaveLength(36)
++    // The population: 55 registered methods carrying 41 party-naming fields.
++    expect(registry.size).toBe(55)
++    expect(partyNaming).toHaveLength(41)
+     expect(partyNaming).toEqual(
+       [
+         ...Object.entries(ORCHESTRATION_CALLER_PARAM).map(
 diff --git a/src/main/runtime/rpc/orchestration-session-caller.ts b/src/main/runtime/rpc/orchestration-session-caller.ts
-index 74350835..8f13f415 100644
+index 7435083596..8f13f41565 100644
 --- a/src/main/runtime/rpc/orchestration-session-caller.ts
 +++ b/src/main/runtime/rpc/orchestration-session-caller.ts
 @@ -35,6 +35,11 @@ type CallerParam = 'from' | 'terminal' | 'callerTerminalHandle'
@@ -6783,10 +6797,10 @@ index 74350835..8f13f415 100644
    'orchestration.runCurrent': 'from',
    'orchestration.check': 'terminal',
 diff --git a/src/main/runtime/runtime-agent-orchestration-projection.ts b/src/main/runtime/runtime-agent-orchestration-projection.ts
-index 819e4071..ab083e4c 100644
+index c4b337dc17..440592f32a 100644
 --- a/src/main/runtime/runtime-agent-orchestration-projection.ts
 +++ b/src/main/runtime/runtime-agent-orchestration-projection.ts
-@@ -289,6 +289,26 @@ export class RuntimeAgentOrchestrationProjection {
+@@ -282,6 +282,26 @@ export class RuntimeAgentOrchestrationProjection {
        ...(parent.paneKey ? { parentPaneKey: parent.paneKey } : {}),
        ...(coordinator.handle ? { coordinatorHandle: coordinator.handle } : {}),
        ...(orchestrationRunId ? { orchestrationRunId } : {}),
@@ -6814,7 +6828,7 @@ index 819e4071..ab083e4c 100644
      }
    }
 diff --git a/src/main/runtime/runtime-orchestration-db.test-fixture.ts b/src/main/runtime/runtime-orchestration-db.test-fixture.ts
-index 3d32548e..004b2546 100644
+index 3d32548ea2..004b254659 100644
 --- a/src/main/runtime/runtime-orchestration-db.test-fixture.ts
 +++ b/src/main/runtime/runtime-orchestration-db.test-fixture.ts
 @@ -71,6 +71,15 @@ export function taskLineageRow(fields: Partial<TaskRuntimeLineageRow>): TaskRunt
@@ -6851,10 +6865,10 @@ index 3d32548e..004b2546 100644
      updated_at: createdAt,
      ...fields
 diff --git a/src/main/runtime/runtime-project-group-controller.ts b/src/main/runtime/runtime-project-group-controller.ts
-index 79385060..4098b7e9 100644
+index b2ae27bfb4..24317bd9d6 100644
 --- a/src/main/runtime/runtime-project-group-controller.ts
 +++ b/src/main/runtime/runtime-project-group-controller.ts
-@@ -63,6 +63,7 @@ type FolderWorkspaceUpdates = Partial<
+@@ -64,6 +64,7 @@ type FolderWorkspaceUpdates = Partial<
      | 'firstAgentMessageRenameError'
      | 'lastActivityAt'
      | 'diffComments'
@@ -6863,16 +6877,15 @@ index 79385060..4098b7e9 100644
  > &
    WorkspaceAttachmentMutation
 diff --git a/src/main/runtime/workspaces/persisted-surfaces/automation-operations.ts b/src/main/runtime/workspaces/persisted-surfaces/automation-operations.ts
-index 1f967c57..3e330c6f 100644
+index 64a37654e2..e70b632296 100644
 --- a/src/main/runtime/workspaces/persisted-surfaces/automation-operations.ts
 +++ b/src/main/runtime/workspaces/persisted-surfaces/automation-operations.ts
-@@ -1,4 +1,5 @@
- import type { AutomationsChangedPayload } from '../../../../shared/runtime-client-events'
+@@ -1,3 +1,4 @@
 +import type { OrcaRuntimeService } from '../../orca-runtime'
  import { getWorkerTerminalAutoReleaseScheduler } from '../../orchestration/worker-terminal-auto-release-scheduler'
  import type { ResolvedWorktree } from '../../runtime-worktree-path-identity'
- import { OrcaRuntimeWithPtyForegroundProcessReads } from '../../client/runtime-client-state'
-@@ -165,6 +166,11 @@ export abstract class OrcaRuntimeWithAutomationOperations extends OrcaRuntimeWit
+ import { OrcaRuntimeWithAutomationApiOperations } from './automation-api-operations'
+@@ -30,6 +31,11 @@ export abstract class OrcaRuntimeWithAutomationOperations extends OrcaRuntimeWit
        // Recover deadlines armed before a restart.
        getWorkerTerminalAutoReleaseScheduler(this).rearm()
        this.continueRestoredWorkerMail(this._orchestrationDb)
@@ -6885,7 +6898,7 @@ index 1f967c57..3e330c6f 100644
      return this._orchestrationDb
    }
 diff --git a/src/preload/api/dashboard-api.ts b/src/preload/api/dashboard-api.ts
-index 813f4ec3..8207bf8e 100644
+index 813f4ec331..8207bf8e8d 100644
 --- a/src/preload/api/dashboard-api.ts
 +++ b/src/preload/api/dashboard-api.ts
 @@ -1,4 +1,9 @@
@@ -6913,7 +6926,7 @@ index 813f4ec3..8207bf8e 100644
  
  export type TerminalPreviewApi = {
 diff --git a/src/preload/api/dashboard-bridge.ts b/src/preload/api/dashboard-bridge.ts
-index 4663b874..123297b9 100644
+index 4663b87459..123297b96d 100644
 --- a/src/preload/api/dashboard-bridge.ts
 +++ b/src/preload/api/dashboard-bridge.ts
 @@ -1,5 +1,6 @@
@@ -6943,7 +6956,7 @@ index 4663b874..123297b9 100644
 +    ipcRenderer.invoke('dashboardPopout:todoActionResult', response)
  } satisfies PreloadApi['dashboard']
 diff --git a/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.test.tsx b/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.test.tsx
-index 79cbe567..b8c9189a 100644
+index 79cbe567a8..b8c9189a06 100644
 --- a/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.test.tsx
 +++ b/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.test.tsx
 @@ -130,7 +130,7 @@ describe('AgentKanbanBoard', () => {
@@ -6968,7 +6981,7 @@ index 79cbe567..b8c9189a 100644
      }
 diff --git a/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.todo.test.tsx b/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.todo.test.tsx
 new file mode 100644
-index 00000000..e89546f7
+index 0000000000..e89546f77f
 --- /dev/null
 +++ b/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.todo.test.tsx
 @@ -0,0 +1,379 @@
@@ -7352,7 +7365,7 @@ index 00000000..e89546f7
 +  })
 +})
 diff --git a/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.tsx b/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.tsx
-index c9b6c1cf..a1cfcfc8 100644
+index 46cde94d62..772ccda1de 100644
 --- a/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.tsx
 +++ b/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.tsx
 @@ -21,6 +21,12 @@ import {
@@ -7387,8 +7400,8 @@ index c9b6c1cf..a1cfcfc8 100644
  function bucketLabel(bucket: DashboardBucket): string {
    switch (bucket) {
      case 'attention':
-@@ -124,6 +142,8 @@ type AgentKanbanBoardProps = {
-   onClose?: () => void
+@@ -125,6 +143,8 @@ type AgentKanbanBoardProps = {
+   onBrowserForeground?: () => void
    /** In-window settings controls; the pop-out renderer has no store to drive them. */
    headerActions?: React.ReactNode
 +  /** In-window hosts mutate the store directly; pop-outs relay to the main window. */
@@ -7396,17 +7409,17 @@ index c9b6c1cf..a1cfcfc8 100644
  }
  
  /** Share snapshot-fed status columns across pop-out and in-window hosts with injected routing and sizing. */
-@@ -133,7 +153,8 @@ export function AgentKanbanBoard({
-   onAckAgent = ackAgentViaPopoutRelay,
+@@ -135,7 +155,8 @@ export function AgentKanbanBoard({
    onRevealAgent = revealAgentViaPopoutRelay,
    onClose,
+   onBrowserForeground,
 -  headerActions
 +  headerActions,
 +  onTodoAction = applyTodoViaPopoutRelay
  }: AgentKanbanBoardProps): React.JSX.Element {
    const visibleBuckets = useMemo(
      () =>
-@@ -152,6 +173,10 @@ export function AgentKanbanBoard({
+@@ -154,6 +175,10 @@ export function AgentKanbanBoard({
      [visibleCards, filters, query]
    )
    const grouped = useMemo(() => groupByBucket(filteredCards), [filteredCards])
@@ -7417,7 +7430,7 @@ index c9b6c1cf..a1cfcfc8 100644
    const hasRelativeTimestamps = useMemo(
      () => snapshot.cards.some((card) => (card.finishedAt ?? card.startedAt) > 0),
      [snapshot.cards]
-@@ -277,6 +302,13 @@ export function AgentKanbanBoard({
+@@ -279,6 +304,13 @@ export function AgentKanbanBoard({
          <div className="scrollbar-sleek flex min-h-0 flex-1 overflow-x-auto p-3">
            {/* Auto margins center the capped board and collapse during horizontal overflow. */}
            <div className="mx-auto flex w-full max-w-[1280px] gap-3">
@@ -7433,7 +7446,7 @@ index c9b6c1cf..a1cfcfc8 100644
                  key={bucket}
 diff --git a/src/renderer/src/components/dashboard-popout/WorkspaceTodoAddForm.tsx b/src/renderer/src/components/dashboard-popout/WorkspaceTodoAddForm.tsx
 new file mode 100644
-index 00000000..70e6dfc3
+index 0000000000..70e6dfc3fa
 --- /dev/null
 +++ b/src/renderer/src/components/dashboard-popout/WorkspaceTodoAddForm.tsx
 @@ -0,0 +1,108 @@
@@ -7547,7 +7560,7 @@ index 00000000..70e6dfc3
 +}
 diff --git a/src/renderer/src/components/dashboard-popout/WorkspaceTodoCard.tsx b/src/renderer/src/components/dashboard-popout/WorkspaceTodoCard.tsx
 new file mode 100644
-index 00000000..4fa02072
+index 0000000000..4fa0207280
 --- /dev/null
 +++ b/src/renderer/src/components/dashboard-popout/WorkspaceTodoCard.tsx
 @@ -0,0 +1,244 @@
@@ -7797,7 +7810,7 @@ index 00000000..4fa02072
 +}
 diff --git a/src/renderer/src/components/dashboard-popout/WorkspaceTodoColumn.tsx b/src/renderer/src/components/dashboard-popout/WorkspaceTodoColumn.tsx
 new file mode 100644
-index 00000000..5d524234
+index 0000000000..5d52423413
 --- /dev/null
 +++ b/src/renderer/src/components/dashboard-popout/WorkspaceTodoColumn.tsx
 @@ -0,0 +1,368 @@
@@ -8171,7 +8184,7 @@ index 00000000..5d524234
 +}
 diff --git a/src/renderer/src/components/dashboard-popout/workspace-todo-filtering.test.ts b/src/renderer/src/components/dashboard-popout/workspace-todo-filtering.test.ts
 new file mode 100644
-index 00000000..39c5b30a
+index 0000000000..39c5b30a5a
 --- /dev/null
 +++ b/src/renderer/src/components/dashboard-popout/workspace-todo-filtering.test.ts
 @@ -0,0 +1,77 @@
@@ -8254,7 +8267,7 @@ index 00000000..39c5b30a
 +})
 diff --git a/src/renderer/src/components/dashboard-popout/workspace-todo-filtering.ts b/src/renderer/src/components/dashboard-popout/workspace-todo-filtering.ts
 new file mode 100644
-index 00000000..13b36663
+index 0000000000..13b36663e1
 --- /dev/null
 +++ b/src/renderer/src/components/dashboard-popout/workspace-todo-filtering.ts
 @@ -0,0 +1,43 @@
@@ -8303,7 +8316,7 @@ index 00000000..13b36663
 +}
 diff --git a/src/renderer/src/components/dashboard-popout/workspace-todo-presentation.ts b/src/renderer/src/components/dashboard-popout/workspace-todo-presentation.ts
 new file mode 100644
-index 00000000..0a86c8c6
+index 0000000000..0a86c8c64d
 --- /dev/null
 +++ b/src/renderer/src/components/dashboard-popout/workspace-todo-presentation.ts
 @@ -0,0 +1,14 @@
@@ -8322,7 +8335,7 @@ index 00000000..0a86c8c6
 +    : `${workspace.worktreeName} · ${workspace.repoName}`
 +}
 diff --git a/src/renderer/src/components/dashboard/AgentDashboardDrawer.tsx b/src/renderer/src/components/dashboard/AgentDashboardDrawer.tsx
-index 0a5f78e8..44520de4 100644
+index 789eee44d3..aecb36adcf 100644
 --- a/src/renderer/src/components/dashboard/AgentDashboardDrawer.tsx
 +++ b/src/renderer/src/components/dashboard/AgentDashboardDrawer.tsx
 @@ -28,7 +28,9 @@ const AGENT_BOARD_ESCAPE_BLOCKING_OVERLAY_SELECTOR = [
@@ -8348,17 +8361,17 @@ index 0a5f78e8..44520de4 100644
    const handleRevealAgent = useCallback(
      (args: AgentRevealArgs) => {
        if (revealDashboardAgent(args)) {
-@@ -72,6 +79,7 @@ function AgentDashboardDrawerBody({
-       containerClassName="h-full w-full bg-transparent"
+@@ -73,6 +80,7 @@ function AgentDashboardDrawerBody({
        onAckAgent={handleAckAgent}
        onRevealAgent={handleRevealAgent}
+       onBrowserForeground={onFocusHandoff}
 +      onTodoAction={handleTodoAction}
        onClose={onClose}
        headerActions={
          <AgentDashboardSettingsMenu
 diff --git a/src/renderer/src/components/dashboard/build-dashboard-snapshot.todos.test.ts b/src/renderer/src/components/dashboard/build-dashboard-snapshot.todos.test.ts
 new file mode 100644
-index 00000000..89838272
+index 0000000000..8983827209
 --- /dev/null
 +++ b/src/renderer/src/components/dashboard/build-dashboard-snapshot.todos.test.ts
 @@ -0,0 +1,91 @@
@@ -8454,7 +8467,7 @@ index 00000000..89838272
 +  })
 +})
 diff --git a/src/renderer/src/components/dashboard/build-dashboard-snapshot.ts b/src/renderer/src/components/dashboard/build-dashboard-snapshot.ts
-index e607b2c2..dd4f2f25 100644
+index e607b2c2fc..dd4f2f25ed 100644
 --- a/src/renderer/src/components/dashboard/build-dashboard-snapshot.ts
 +++ b/src/renderer/src/components/dashboard/build-dashboard-snapshot.ts
 @@ -49,6 +49,8 @@ import { buildDashboardSnapshotFilterOptions } from './dashboard-snapshot-filter
@@ -8503,7 +8516,7 @@ index e607b2c2..dd4f2f25 100644
      filterOptions,
      // Count-only callers offer no launcher; skip host-detection lookups for sidebar rebuilds.
 diff --git a/src/renderer/src/components/dashboard/dashboard-card-labels.ts b/src/renderer/src/components/dashboard/dashboard-card-labels.ts
-index d4ed0e7f..dfedd824 100644
+index d4ed0e7ffb..dfedd8245c 100644
 --- a/src/renderer/src/components/dashboard/dashboard-card-labels.ts
 +++ b/src/renderer/src/components/dashboard/dashboard-card-labels.ts
 @@ -12,7 +12,16 @@ import {
@@ -8525,7 +8538,7 @@ index d4ed0e7f..dfedd824 100644
  
  export function nonEmpty(value: string | undefined): string | undefined {
 diff --git a/src/renderer/src/components/dashboard/useDashboardPopoutBridge.test.tsx b/src/renderer/src/components/dashboard/useDashboardPopoutBridge.test.tsx
-index 7198d257..26b5640f 100644
+index 7198d25779..26b5640feb 100644
 --- a/src/renderer/src/components/dashboard/useDashboardPopoutBridge.test.tsx
 +++ b/src/renderer/src/components/dashboard/useDashboardPopoutBridge.test.tsx
 @@ -11,6 +11,9 @@ const mocks = vi.hoisted(() => ({
@@ -8619,7 +8632,7 @@ index 7198d257..26b5640f 100644
      expect(mocks.offSnapshotRequested).toHaveBeenCalledTimes(1)
    })
 diff --git a/src/renderer/src/components/dashboard/useDashboardPopoutBridge.ts b/src/renderer/src/components/dashboard/useDashboardPopoutBridge.ts
-index 7ed94912..773b8373 100644
+index 7ed949123b..773b8373a0 100644
 --- a/src/renderer/src/components/dashboard/useDashboardPopoutBridge.ts
 +++ b/src/renderer/src/components/dashboard/useDashboardPopoutBridge.ts
 @@ -121,6 +121,31 @@ export function useDashboardPopoutBridge(enabled: boolean): void {
@@ -8656,7 +8669,7 @@ index 7ed94912..773b8373 100644
        return
 diff --git a/src/renderer/src/components/dashboard/workspace-todo-support.ts b/src/renderer/src/components/dashboard/workspace-todo-support.ts
 new file mode 100644
-index 00000000..1bbb85fe
+index 0000000000..1bbb85fee3
 --- /dev/null
 +++ b/src/renderer/src/components/dashboard/workspace-todo-support.ts
 @@ -0,0 +1,42 @@
@@ -8704,7 +8717,7 @@ index 00000000..1bbb85fe
 +}
 diff --git a/src/renderer/src/runtime/workspace-todo-capability.ts b/src/renderer/src/runtime/workspace-todo-capability.ts
 new file mode 100644
-index 00000000..1276d904
+index 0000000000..1276d904e3
 --- /dev/null
 +++ b/src/renderer/src/runtime/workspace-todo-capability.ts
 @@ -0,0 +1,17 @@
@@ -8726,10 +8739,10 @@ index 00000000..1276d904
 +  )
 +}
 diff --git a/src/renderer/src/store/folder-workspaces/folder-workspace-mutations.ts b/src/renderer/src/store/folder-workspaces/folder-workspace-mutations.ts
-index 6b415607..37d86c86 100644
+index 7f6c263d08..1d0a82184b 100644
 --- a/src/renderer/src/store/folder-workspaces/folder-workspace-mutations.ts
 +++ b/src/renderer/src/store/folder-workspaces/folder-workspace-mutations.ts
-@@ -4,6 +4,7 @@ import type { StateCreator } from 'zustand'
+@@ -5,6 +5,7 @@ import type { StateCreator } from 'zustand'
  import type { AppState } from '../types'
  import type { FolderWorkspace } from '../../../../shared/folder-workspace-types'
  import { WORKTREE_LINKED_WORK_ITEM_CONTEXT_RUNTIME_CAPABILITY } from '../../../../shared/protocol-version'
@@ -8737,7 +8750,7 @@ index 6b415607..37d86c86 100644
  import {
    assertRuntimeEnvironmentCapability,
    callRuntimeRpc
-@@ -153,6 +154,9 @@ export function createFolderWorkspaceMutationActions(
+@@ -151,6 +152,9 @@ export function createFolderWorkspaceMutationActions(
        if (target.kind === 'environment' && updates.linkedItems !== undefined) {
          await assertWorkspaceAttachmentWriteCapability(target, updates)
        }
@@ -8748,10 +8761,10 @@ index 6b415607..37d86c86 100644
        if (
          target.kind === 'environment' &&
 diff --git a/src/renderer/src/store/repos/repo-state.ts b/src/renderer/src/store/repos/repo-state.ts
-index 6f2c62a1..1fc1073c 100644
+index 76401d0a32..8a4a7d04df 100644
 --- a/src/renderer/src/store/repos/repo-state.ts
 +++ b/src/renderer/src/store/repos/repo-state.ts
-@@ -87,6 +87,7 @@ export type FolderWorkspaceUpdates = Partial<
+@@ -88,6 +88,7 @@ export type FolderWorkspaceUpdates = Partial<
      | 'firstAgentMessageRenameError'
      | 'lastActivityAt'
      | 'diffComments'
@@ -8760,7 +8773,7 @@ index 6f2c62a1..1fc1073c 100644
  > &
    WorkspaceAttachmentMutation
 diff --git a/src/renderer/src/store/slices/agent-status/agent-status-orchestration-context.ts b/src/renderer/src/store/slices/agent-status/agent-status-orchestration-context.ts
-index cb5acb19..6bfdf672 100644
+index cb5acb191d..6bfdf6727b 100644
 --- a/src/renderer/src/store/slices/agent-status/agent-status-orchestration-context.ts
 +++ b/src/renderer/src/store/slices/agent-status/agent-status-orchestration-context.ts
 @@ -15,6 +15,12 @@ export function orchestrationContextsEqual(
@@ -8777,10 +8790,10 @@ index cb5acb19..6bfdf672 100644
    )
  }
 diff --git a/src/renderer/src/store/slices/worktree-helpers.ts b/src/renderer/src/store/slices/worktree-helpers.ts
-index bd74a4a3..0e29c535 100644
+index bef583025f..e62910ef0a 100644
 --- a/src/renderer/src/store/slices/worktree-helpers.ts
 +++ b/src/renderer/src/store/slices/worktree-helpers.ts
-@@ -30,6 +30,10 @@ import type {
+@@ -31,6 +31,10 @@ import type {
  import type { WorktreeRemovalTarget } from '../../../../shared/worktree/removal'
  import type { TerminalGitHubPRLink } from '../../../../shared/terminal-github-pr-link-detector'
  import type { ExecutionHostId } from '../../../../shared/execution-host'
@@ -8791,7 +8804,7 @@ index bd74a4a3..0e29c535 100644
  import type { TerminalPaneRecoveryOutcome } from '../../../../shared/terminal-tab-types'
  import type {
    TerminalRecoveryRemountRequest,
-@@ -81,6 +85,8 @@ export type WorktreeMetaUpdateOptions = {
+@@ -82,6 +86,8 @@ export type WorktreeMetaUpdateOptions = {
    shouldApply?: WorktreeMetaUpdateGuard
    /** Skip the automatic review refetch when the caller owns an equivalent refresh. */
    suppressHostedReviewRefresh?: boolean
@@ -8800,7 +8813,7 @@ index bd74a4a3..0e29c535 100644
  }
  export type WorktreeMetaBatchUpdate = {
    worktreeId: string
-@@ -228,6 +234,8 @@ export type WorktreeSlice = {
+@@ -229,6 +235,8 @@ export type WorktreeSlice = {
      }
    ) => Promise<({ ok: true } & ForceDeleteWorktreeBranchResult) | { ok: false; error: string }>
    clearWorktreeDeleteState: (worktreeId: string, executionHostId?: ExecutionHostId) => void
@@ -8810,7 +8823,7 @@ index bd74a4a3..0e29c535 100644
     *  the user is waiting on should read the result and say what went wrong. */
    updateWorktreeMeta: (
 diff --git a/src/renderer/src/store/slices/worktrees.ts b/src/renderer/src/store/slices/worktrees.ts
-index cfb4f4e7..efe4b642 100644
+index cfb4f4e750..efe4b642ee 100644
 --- a/src/renderer/src/store/slices/worktrees.ts
 +++ b/src/renderer/src/store/slices/worktrees.ts
 @@ -32,6 +32,7 @@ import {
@@ -8830,10 +8843,10 @@ index cfb4f4e7..efe4b642 100644
    ensureHostedReviewPushTarget: createEnsureHostedReviewPushTarget(set, get),
    updateWorktreesMeta: guardUpdateWorktreesMetaHostStatus(createUpdateWorktreesMeta(set, get), get),
 diff --git a/src/renderer/src/store/slices/worktrees/listing/detected-worktree-meta.ts b/src/renderer/src/store/slices/worktrees/listing/detected-worktree-meta.ts
-index 4c40ef1d..ac1ff130 100644
+index fbf68b9519..2d2609d904 100644
 --- a/src/renderer/src/store/slices/worktrees/listing/detected-worktree-meta.ts
 +++ b/src/renderer/src/store/slices/worktrees/listing/detected-worktree-meta.ts
-@@ -160,7 +160,8 @@ export function getFolderWorkspaceMetaUpdates(
+@@ -190,7 +190,8 @@ export function getFolderWorkspaceMetaUpdates(
          'linkedItems',
          'linkedItemsBase',
          'linkedItemsSelectionChanged',
@@ -8844,7 +8857,7 @@ index 4c40ef1d..ac1ff130 100644
      )
        .filter((field) => updates[field] !== undefined)
 diff --git a/src/renderer/src/store/slices/worktrees/metadata/update-worktree-meta.ts b/src/renderer/src/store/slices/worktrees/metadata/update-worktree-meta.ts
-index 63fa7a13..5415d430 100644
+index bc9a80a6cc..20cc39fa7d 100644
 --- a/src/renderer/src/store/slices/worktrees/metadata/update-worktree-meta.ts
 +++ b/src/renderer/src/store/slices/worktrees/metadata/update-worktree-meta.ts
 @@ -172,8 +172,9 @@ export function createUpdateWorktreeMeta(
@@ -8861,7 +8874,7 @@ index 63fa7a13..5415d430 100644
        if (
 diff --git a/src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.test.ts b/src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.test.ts
 new file mode 100644
-index 00000000..a0e0d8b3
+index 0000000000..a0e0d8b366
 --- /dev/null
 +++ b/src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.test.ts
 @@ -0,0 +1,103 @@
@@ -8970,7 +8983,7 @@ index 00000000..a0e0d8b3
 +})
 diff --git a/src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.ts b/src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.ts
 new file mode 100644
-index 00000000..cca782b5
+index 0000000000..cca782b5ed
 --- /dev/null
 +++ b/src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.ts
 @@ -0,0 +1,237 @@
@@ -9212,7 +9225,7 @@ index 00000000..cca782b5
 +  }
 +}
 diff --git a/src/renderer/src/store/slices/worktrees/metadata/worktree-meta-persist.ts b/src/renderer/src/store/slices/worktrees/metadata/worktree-meta-persist.ts
-index bf1683af..c145876c 100644
+index bf1683af86..c145876c40 100644
 --- a/src/renderer/src/store/slices/worktrees/metadata/worktree-meta-persist.ts
 +++ b/src/renderer/src/store/slices/worktrees/metadata/worktree-meta-persist.ts
 @@ -13,6 +13,7 @@ import {
@@ -9234,7 +9247,7 @@ index bf1683af..c145876c 100644
      await assertRuntimeEnvironmentCapability(
        target.environmentId,
 diff --git a/src/shared/agent-status-types.ts b/src/shared/agent-status-types.ts
-index fd8a36c6..c7206758 100644
+index fd8a36c6ec..c720675803 100644
 --- a/src/shared/agent-status-types.ts
 +++ b/src/shared/agent-status-types.ts
 @@ -66,6 +66,13 @@ export type AgentStatusOrchestrationContext = {
@@ -9252,7 +9265,7 @@ index fd8a36c6..c7206758 100644
    attention?: OrchestrationFleetAttention
  }
 diff --git a/src/shared/dashboard-snapshot.ts b/src/shared/dashboard-snapshot.ts
-index 78d2fd0f..52e8ea99 100644
+index 78d2fd0f85..52e8ea99c8 100644
 --- a/src/shared/dashboard-snapshot.ts
 +++ b/src/shared/dashboard-snapshot.ts
 @@ -3,6 +3,7 @@ import type { AgentType, AgentWorkingMode } from './agent-status-types'
@@ -9285,7 +9298,7 @@ index 78d2fd0f..52e8ea99 100644
    /** Store-derived filters keep zero-card projects/statuses selectable; optional for older preloads. */
    filterOptions?: DashboardFilterOptions
 diff --git a/src/shared/folder-workspace-types.ts b/src/shared/folder-workspace-types.ts
-index cd1beca7..a66ceafa 100644
+index cd1beca7df..a66ceafaf3 100644
 --- a/src/shared/folder-workspace-types.ts
 +++ b/src/shared/folder-workspace-types.ts
 @@ -5,6 +5,7 @@ import type { DiffComment } from './diff-comment-types'
@@ -9306,7 +9319,7 @@ index cd1beca7..a66ceafa 100644
  
  export type FolderWorkspaceLinkedTask = WorkspaceLinkedItem
 diff --git a/src/shared/folder-workspace-worktree.test.ts b/src/shared/folder-workspace-worktree.test.ts
-index 311ba738..c129506e 100644
+index 311ba738a5..c129506ed5 100644
 --- a/src/shared/folder-workspace-worktree.test.ts
 +++ b/src/shared/folder-workspace-worktree.test.ts
 @@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
@@ -9332,7 +9345,7 @@ index 311ba738..c129506e 100644
 +  })
  })
 diff --git a/src/shared/folder-workspace-worktree.ts b/src/shared/folder-workspace-worktree.ts
-index 25d5d453..f743d462 100644
+index 9cc0bfd070..a99f249f29 100644
 --- a/src/shared/folder-workspace-worktree.ts
 +++ b/src/shared/folder-workspace-worktree.ts
 @@ -10,6 +10,7 @@ import { composeWorktreeHostIdentity } from './worktree/host-qualified-identity'
@@ -9343,7 +9356,7 @@ index 25d5d453..f743d462 100644
  
  /** Folder Worktrees borrow repoId for their project group; it is never null, so absence cannot detect a non-Git workspace.
   * Keep prefix creation/recognition together to avoid drift. */
-@@ -103,6 +104,9 @@ export function folderWorkspaceToWorktree(folderWorkspace: FolderWorkspace): Wor
+@@ -140,6 +141,9 @@ export function folderWorkspaceToWorktree(folderWorkspace: FolderWorkspace): Wor
      firstAgentMessageRenameError: folderWorkspace.firstAgentMessageRenameError,
      workspaceStatus: folderWorkspace.workspaceStatus,
      diffComments: folderWorkspace.diffComments,
@@ -9354,7 +9367,7 @@ index 25d5d453..f743d462 100644
      head: '',
      branch: '',
 diff --git a/src/shared/folder-workspaces.ts b/src/shared/folder-workspaces.ts
-index 3df1a1de..05b25fd8 100644
+index 3df1a1de22..05b25fd8f9 100644
 --- a/src/shared/folder-workspaces.ts
 +++ b/src/shared/folder-workspaces.ts
 @@ -8,6 +8,7 @@ import { normalizeWorkspaceCreatorProvenance } from './workspace-creator-provena
@@ -9375,7 +9388,7 @@ index 3df1a1de..05b25fd8 100644
    }
 diff --git a/src/shared/orchestration-workflow.ts b/src/shared/orchestration-workflow.ts
 new file mode 100644
-index 00000000..6715714e
+index 0000000000..6715714ea6
 --- /dev/null
 +++ b/src/shared/orchestration-workflow.ts
 @@ -0,0 +1,216 @@
@@ -9596,7 +9609,7 @@ index 00000000..6715714e
 +  }
 +}
 diff --git a/src/shared/rpc-contract/folder-workspace-params.ts b/src/shared/rpc-contract/folder-workspace-params.ts
-index 57128672..3251b4b2 100644
+index 57128672c6..3251b4b2e0 100644
 --- a/src/shared/rpc-contract/folder-workspace-params.ts
 +++ b/src/shared/rpc-contract/folder-workspace-params.ts
 @@ -6,6 +6,7 @@ import { isWorkspaceLinkedItemSourceContextMatch } from '../workspace-linked-ite
@@ -9619,7 +9632,7 @@ index 57128672..3251b4b2 100644
  })
 diff --git a/src/shared/rpc-contract/orchestration-automatic-run-params.ts b/src/shared/rpc-contract/orchestration-automatic-run-params.ts
 new file mode 100644
-index 00000000..975f6fce
+index 0000000000..975f6fce79
 --- /dev/null
 +++ b/src/shared/rpc-contract/orchestration-automatic-run-params.ts
 @@ -0,0 +1,26 @@
@@ -9650,7 +9663,7 @@ index 00000000..975f6fce
 +  from: OptionalString
 +})
 diff --git a/src/shared/rpc-contract/orchestration-runs-params.ts b/src/shared/rpc-contract/orchestration-runs-params.ts
-index 66ff0387..b3b63222 100644
+index 66ff03879a..b3b63222ce 100644
 --- a/src/shared/rpc-contract/orchestration-runs-params.ts
 +++ b/src/shared/rpc-contract/orchestration-runs-params.ts
 @@ -4,7 +4,10 @@ import { ORCHESTRATION_RUN_PAGE_LIMIT } from '../orchestration-run-pagination'
@@ -9666,10 +9679,10 @@ index 66ff0387..b3b63222 100644
  
  export const RunUseParams = z.object({
 diff --git a/src/shared/rpc-contract/rpc-params-catalog.generated.ts b/src/shared/rpc-contract/rpc-params-catalog.generated.ts
-index f15561ea..dc56f245 100644
+index 4e2cf0063c..17a39585fa 100644
 --- a/src/shared/rpc-contract/rpc-params-catalog.generated.ts
 +++ b/src/shared/rpc-contract/rpc-params-catalog.generated.ts
-@@ -446,6 +446,12 @@ import {
+@@ -456,6 +456,12 @@ import {
    OrcadMigrationCatalogReferenceParams,
    OrcadMigrationCommitCatalogParams
  } from './orcad-migration-params'
@@ -9682,7 +9695,7 @@ index f15561ea..dc56f245 100644
  import {
    FederationDispatchParams,
    FederationFleetSnapshotParams,
-@@ -1291,10 +1297,14 @@ export const RPC_PARAMS_BY_METHOD = {
+@@ -1312,10 +1318,14 @@ export const RPC_PARAMS_BY_METHOD = {
    'orchestration.requestShow': RequestShowParams,
    'orchestration.reset': ResetParams,
    'orchestration.run': RunParams,
@@ -9697,7 +9710,7 @@ index f15561ea..dc56f245 100644
    'orchestration.runStop': RunStopParams,
    'orchestration.runUse': RunUseParams,
    'orchestration.sessionAddress': SessionAddressParams,
-@@ -1312,6 +1322,7 @@ export const RPC_PARAMS_BY_METHOD = {
+@@ -1333,6 +1343,7 @@ export const RPC_PARAMS_BY_METHOD = {
    'orchestration.workerStart': WorkerStartParams,
    'orchestration.workerStop': WorkerDispatchParamsOfOrchestrationWorkerStopParams,
    'orchestration.workerTerminalUserInput': OrchestrationWorkerSubjectParams,
@@ -9706,7 +9719,7 @@ index f15561ea..dc56f245 100644
    'pairing.getEndpoints': PairingGetEndpointsParamsSchema,
    'pairing.provisionRelay': PairingProvisionRelayParamsSchema,
 diff --git a/src/shared/rpc-contract/worktree-params.ts b/src/shared/rpc-contract/worktree-params.ts
-index f85e3a4e..29149713 100644
+index f85e3a4ea2..291497137f 100644
 --- a/src/shared/rpc-contract/worktree-params.ts
 +++ b/src/shared/rpc-contract/worktree-params.ts
 @@ -16,6 +16,7 @@ import { WorkspaceAttachmentsSchema } from '../workspace-attachment-schema'
@@ -9727,7 +9740,7 @@ index f85e3a4e..29149713 100644
  }).superRefine((params, ctx) => {
 diff --git a/src/shared/workspace-todo-schema.ts b/src/shared/workspace-todo-schema.ts
 new file mode 100644
-index 00000000..9d96fc34
+index 0000000000..9d96fc3460
 --- /dev/null
 +++ b/src/shared/workspace-todo-schema.ts
 @@ -0,0 +1,13 @@
@@ -9746,7 +9759,7 @@ index 00000000..9d96fc34
 +export const WorkspaceTodosSchema = z.array(WorkspaceTodoSchema).max(WORKSPACE_TODO_MAX_ITEMS)
 diff --git a/src/shared/workspace-todo.test.ts b/src/shared/workspace-todo.test.ts
 new file mode 100644
-index 00000000..1f6c909b
+index 0000000000..1f6c909bbf
 --- /dev/null
 +++ b/src/shared/workspace-todo.test.ts
 @@ -0,0 +1,102 @@
@@ -9854,7 +9867,7 @@ index 00000000..1f6c909b
 +})
 diff --git a/src/shared/workspace-todo.ts b/src/shared/workspace-todo.ts
 new file mode 100644
-index 00000000..0853d146
+index 0000000000..0853d14638
 --- /dev/null
 +++ b/src/shared/workspace-todo.ts
 @@ -0,0 +1,286 @@
@@ -10145,7 +10158,7 @@ index 00000000..0853d146
 +  }
 +}
 diff --git a/src/shared/worktree-runtime-capabilities.ts b/src/shared/worktree-runtime-capabilities.ts
-index deca1d3a..97fc26b0 100644
+index deca1d3aad..97fc26b095 100644
 --- a/src/shared/worktree-runtime-capabilities.ts
 +++ b/src/shared/worktree-runtime-capabilities.ts
 @@ -42,6 +42,8 @@ export const WORKTREE_VISIBILITY_SOURCE_DEFAULTS_RUNTIME_CAPABILITY =
@@ -10166,7 +10179,7 @@ index deca1d3a..97fc26b0 100644
 +  WORKSPACE_TODO_RUNTIME_CAPABILITY
  ] as const
 diff --git a/src/shared/worktree/meta-types.ts b/src/shared/worktree/meta-types.ts
-index 8a13ef54..2306c48c 100644
+index 8a13ef5472..2306c48cc6 100644
 --- a/src/shared/worktree/meta-types.ts
 +++ b/src/shared/worktree/meta-types.ts
 @@ -15,6 +15,7 @@ import type { OrcaWorkspaceLayout } from '../global-settings-types'
@@ -10185,7 +10198,7 @@ index 8a13ef54..2306c48c 100644
 +  todos?: WorkspaceTodo[]
  }
 diff --git a/src/shared/worktree/types.ts b/src/shared/worktree/types.ts
-index fcdd0339..4253b850 100644
+index fcdd03397e..4253b85028 100644
 --- a/src/shared/worktree/types.ts
 +++ b/src/shared/worktree/types.ts
 @@ -9,6 +9,7 @@ import type { BuiltInWorktreeVisibilitySourceId } from '../repo-types'

@@ -2,19 +2,19 @@
 
 Orca'da Codex ve Claude gibi ajanların görevlerini otomatik sıraya koyar. Bir görev bitince sıradaki başlar; bağımsız görevler paralel çalışır.
 
-**Orca v1.4.246 kaynak koduna uygulanan bir yama paketidir.** Bağımsız uygulama veya plugin değildir; kurulumdan sonra derleme gerekir.
+**Orca v1.4.248 kaynak koduna uygulanan bir yama paketidir.** Bağımsız uygulama veya plugin değildir; kurulumdan sonra derleme gerekir.
 
 ## Kurulum
 
 Windows PowerShell'de tek komut:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.1/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.2.0/install.ps1 | iex
 ```
 
 Menüden **Kur (bileşen seçimiyle)** seçin; **Orchestrator** ve **Todo** bileşenlerini ayrı ayrı işaretleyebilirsiniz. Betik paketi GitHub Releases'ten indirir, bütünlüğünü doğrular, önbelleğe alır ve Orca kaynağına uygular.
 
-Gereksinimler: **Python 3.9+**, **Git** ve **Orca v1.4.246** kaynak checkout'u. Checkout otomatik bulunur; yoksa **Kur** işlemi desteklenen sürümü `%USERPROFILE%\orca-dev` konumuna soru sormadan klonlar. Farklı bir checkout için `-Source` verin.
+Gereksinimler: **Python 3.9+**, **Git** ve **Orca v1.4.248** kaynak checkout'u. Checkout otomatik bulunur; yoksa **Kur** işlemi desteklenen sürümü `%USERPROFILE%\orca-dev` konumuna soru sormadan klonlar. Farklı bir checkout için `-Source` verin.
 
 Kurulumdan sonra:
 

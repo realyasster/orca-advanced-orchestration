@@ -1,6 +1,6 @@
 # Orca Advanced Orchestration kullanım rehberi
 
-Bu paket, Orca v1.4.246 kaynak koduna otomatik görev yürütme değişiklikleri uygular. Bağımsız bir uygulama veya plugin değildir; kurulumdan sonra kaynak checkout'un derlenmesi gerekir.
+Bu paket, Orca v1.4.248 kaynak koduna otomatik görev yürütme değişiklikleri uygular. Bağımsız bir uygulama veya plugin değildir; kurulumdan sonra kaynak checkout'un derlenmesi gerekir.
 
 [English](USAGE.en.md) · [README](../README.md) · [Teknik tasarım](DESIGN.md) · [Doğrulama](VALIDATION.md)
 
@@ -9,7 +9,7 @@ Bu paket, Orca v1.4.246 kaynak koduna otomatik görev yürütme değişiklikleri
 Windows PowerShell'de, herhangi bir çalışma dizininden:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.1/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.2.0/install.ps1 | iex
 ```
 
 Menüden **Kur** seçin. Betik:
@@ -44,7 +44,7 @@ Mevcut bir checkout `-Source` ile verilebilir. Verilmezse araç konumu kendisi b
 Hiçbiri bulunamazsa **Kur** işlemi desteklenen sürümü `%USERPROFILE%\orca-dev` konumuna soru sormadan klonlar:
 
 ```powershell
-git -c core.autocrlf=false clone --branch v1.4.246 --depth 1 https://github.com/stablyai/orca.git <yol>
+git -c core.autocrlf=false clone --branch v1.4.248 --depth 1 https://github.com/stablyai/orca.git <yol>
 ```
 
 Klonlama başarısız olursa yarım kalan dizin silinir. Klonlanan `HEAD`, `bundle-manifest.json` içindeki `upstream.baseCommit` değilse araç otomatik `reset`/`checkout` yapmaz; açık hata verir.
@@ -99,10 +99,10 @@ Kurulum menüsünde numaraya basarak bileşenleri açıp kapatabilirsiniz. Enter
 
 ```powershell
 .\install.ps1 -Action install -Source C:\orca-dev
-.\install.ps1 -Action install -Source C:\orca-dev -Version 1.1.1 -DryRun
+.\install.ps1 -Action install -Source C:\orca-dev -Version 1.2.0 -DryRun
 .\install.ps1 -Action install -Source C:\orca-dev -Pack todo
 .\install.ps1 -Action update -Source C:\orca-dev
-.\install.ps1 -Action update -Source C:\orca-dev -Version 1.1.1 -DryRun
+.\install.ps1 -Action update -Source C:\orca-dev -Version 1.2.0 -DryRun
 .\install.ps1 -Action status -Source C:\orca-dev
 .\install.ps1 -Action verify
 .\install.ps1 -Action uninstall -Source C:\orca-dev
@@ -259,8 +259,8 @@ python scripts/build_release.py --output dist
 Çıktılar:
 
 ```text
-dist/orca-advanced-orchestration-1.1.1.zip
-dist/orca-advanced-orchestration-1.1.1.zip.sha256
+dist/orca-advanced-orchestration-1.2.0.zip
+dist/orca-advanced-orchestration-1.2.0.zip.sha256
 ```
 
 Arşiv yalnızca şunları içerir: `install.ps1`, `bundle-manifest.json`, `LICENSE`, yönetim Python modülleri, patch, örnek ve 133 değişiklik anlık görüntüsü. Testler, `orca-source/`, `.git`, README ve geliştirme dosyaları dışarıdadır. ZIP deterministik üretilir.
@@ -300,4 +300,4 @@ git apply ../orca-advanced-orchestration/patches/automatic-orchestration.patch
 
 ## Lisans ve kaynak
 
-Çalışma, Orca v1.4.246 çekirdeğine dayanır. Paket içindeki Orca kaynakları ve uyarlamaları [MIT lisansı](../LICENSE) kapsamındadır; upstream telif bildirimi korunmuştur. Bu depo resmi Orca projesiyle bağlılık veya onay iddiası taşımaz.
+Çalışma, Orca v1.4.248 çekirdeğine dayanır. Paket içindeki Orca kaynakları ve uyarlamaları [MIT lisansı](../LICENSE) kapsamındadır; upstream telif bildirimi korunmuştur. Bu depo resmi Orca projesiyle bağlılık veya onay iddiası taşımaz.

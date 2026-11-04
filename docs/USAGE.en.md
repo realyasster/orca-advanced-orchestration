@@ -1,6 +1,6 @@
 # Orca Advanced Orchestration usage guide
 
-This package applies automatic task orchestration changes to the Orca v1.4.246 source code. It is not a standalone application or plugin; the source checkout must be built after installation.
+This package applies automatic task orchestration changes to the Orca v1.4.248 source code. It is not a standalone application or plugin; the source checkout must be built after installation.
 
 [Türkçe](USAGE.md) · [README](../README.en.md) · [Design](DESIGN.md) · [Validation](VALIDATION.md)
 
@@ -9,7 +9,7 @@ This package applies automatic task orchestration changes to the Orca v1.4.246 s
 From any working directory in Windows PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.1/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.2.0/install.ps1 | iex
 ```
 
 Choose **Install** in the menu. The script:
@@ -44,7 +44,7 @@ Pass an existing checkout with `-Source`. Otherwise the tool locates one itself,
 When nothing is found, **Install** clones the supported version into `%USERPROFILE%\orca-dev` without asking for a path:
 
 ```powershell
-git -c core.autocrlf=false clone --branch v1.4.246 --depth 1 https://github.com/stablyai/orca.git <path>
+git -c core.autocrlf=false clone --branch v1.4.248 --depth 1 https://github.com/stablyai/orca.git <path>
 ```
 
 A failed clone removes the partial destination. If the cloned `HEAD` is not `upstream.baseCommit`, the tool refuses with a clear error; it never runs `git reset` or `git checkout` automatically.
@@ -99,10 +99,10 @@ In the install menu, press a number to toggle a component. Enter installs the se
 
 ```powershell
 .\install.ps1 -Action install -Source C:\orca-dev
-.\install.ps1 -Action install -Source C:\orca-dev -Version 1.1.1 -DryRun
+.\install.ps1 -Action install -Source C:\orca-dev -Version 1.2.0 -DryRun
 .\install.ps1 -Action install -Source C:\orca-dev -Pack todo
 .\install.ps1 -Action update -Source C:\orca-dev
-.\install.ps1 -Action update -Source C:\orca-dev -Version 1.1.1 -DryRun
+.\install.ps1 -Action update -Source C:\orca-dev -Version 1.2.0 -DryRun
 .\install.ps1 -Action status -Source C:\orca-dev
 .\install.ps1 -Action verify
 .\install.ps1 -Action uninstall -Source C:\orca-dev
@@ -259,8 +259,8 @@ python scripts/build_release.py --output dist
 Outputs:
 
 ```text
-dist/orca-advanced-orchestration-1.1.1.zip
-dist/orca-advanced-orchestration-1.1.1.zip.sha256
+dist/orca-advanced-orchestration-1.2.0.zip
+dist/orca-advanced-orchestration-1.2.0.zip.sha256
 ```
 
 The archive contains only `install.ps1`, `bundle-manifest.json`, `LICENSE`, the management Python modules, the patch, the example, and the 133 change snapshots. Tests, `orca-source/`, `.git`, README, and development files are excluded. The ZIP is deterministic.
@@ -298,4 +298,4 @@ The `HEAD` must equal the base commit. Manual application provides no backup, jo
 
 ## License and source
 
-Based on Orca v1.4.246. Bundled Orca sources and adaptations are covered by the [MIT license](../LICENSE); upstream copyright notices are retained. This repository claims no affiliation with or endorsement by the upstream Orca project.
+Based on Orca v1.4.248. Bundled Orca sources and adaptations are covered by the [MIT license](../LICENSE); upstream copyright notices are retained. This repository claims no affiliation with or endorsement by the upstream Orca project.

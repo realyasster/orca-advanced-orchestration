@@ -140,6 +140,7 @@ type AgentKanbanBoardProps = {
   onRevealAgent?: (args: AgentRevealArgs) => void
   /** In-window hosts provide a close control; pop-outs use native window controls. */
   onClose?: () => void
+  onBrowserForeground?: () => void
   /** In-window settings controls; the pop-out renderer has no store to drive them. */
   headerActions?: React.ReactNode
   /** In-window hosts mutate the store directly; pop-outs relay to the main window. */
@@ -153,6 +154,7 @@ export function AgentKanbanBoard({
   onAckAgent = ackAgentViaPopoutRelay,
   onRevealAgent = revealAgentViaPopoutRelay,
   onClose,
+  onBrowserForeground,
   headerActions,
   onTodoAction = applyTodoViaPopoutRelay
 }: AgentKanbanBoardProps): React.JSX.Element {
@@ -325,6 +327,7 @@ export function AgentKanbanBoard({
           card={dialogCard}
           onOpenChange={handleDialogOpenChange}
           onReveal={onRevealAgent}
+          onBrowserForeground={onBrowserForeground}
         />
       </div>
     </TooltipProvider>

@@ -2,21 +2,42 @@
 
 ## Kaynak referansları
 
-- Orca tabanı: `55ccff19ad4cd8ba28b6f3d2be798c1e626a2c2c` (v1.4.246).
-- Uygulama referansı: yerel kaynak deposundaki `efab515b6c4e882a3f887266507614b1d29a89e4` commit'i. Bu commit'in tam kaynak geçmişi bu değişiklik paketinde yayımlanmaz.
-- Paket sürümü: `bundle-manifest.json` içindeki `package.version` (`1.1.1`).
+- Orca tabanı: `965978bc78bf03a6a43187c1ed28fcffe0e01bb5` (v1.4.248).
+- Uygulama referansı: yerel kaynak deposundaki `967737fa6e809b6245e947fb6bcd18a3e8ca5f9c` commit'i. Bu commit'in tam kaynak geçmişi bu değişiklik paketinde yayımlanmaz.
+- Paket sürümü: `bundle-manifest.json` içindeki `package.version` (`1.2.0`).
 - Makineyle okunabilir yollar ve SHA-256 değerleri: [`bundle-manifest.json`](../bundle-manifest.json).
 
 ## Çalıştırılan odaklı Orca testleri
 
-**7 dosya, 48 test: geçti.** Testler değişikliklerin bulunduğu tam Orca checkout'unda çalıştırıldı. Paket klasörü tek başına Node/Orca projesi değildir.
+**20 dosya, 229 test: geçti.** Testler değişikliklerin bulunduğu tam Orca v1.4.248 checkout'unda Windows, Node 26.7.0 ve pnpm 12.16.1 ile çalıştırıldı. `pnpm typecheck` 16.379 + 4.044 + 19.954 + 38 + 11.954 dosyada hata vermedi. Paket klasörü tek başına Node/Orca projesi değildir.
 
-Todo sütunu için **14 dosya, 178 test** geçti; orkestrasyon regresyonuyla birlikte toplam **226 Orca testi**. Todo testleri kalıcılık, filtreleme, kart/form davranışı, ana pencere/popout senkronu ve yetenek desteğini kapsar.
+Todo ve orkestrasyon testleri kalıcılık, filtreleme, kart/form davranışı, ana pencere/popout senkronu, yetenek desteği, otomatik yürütme, workflow uygulama ve CLI davranışını kapsar.
 
 Patch uygulanmış checkout içinde yeniden çalıştırmak için:
 
 ```sh
-pnpm test src/main/runtime/orchestration/automatic-run/automatic-run-executor.test.ts src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.test.ts src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.test.ts src/main/runtime/orchestration/db/automatic-runs/workflow-apply.test.ts src/main/runtime/orchestration/db/schema/migrate-v47.test.ts src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.test.ts src/cli/handlers/orchestration-run-cli.test.ts --maxWorkers=2
+pnpm exec vitest run --config config/vitest.config.ts \
+  src/cli/handlers/orchestration-run-cli.test.ts \
+  src/main/ipc/dashboard-popout.test.ts \
+  src/main/persistence/tracking-repos/persistence-worktree-meta-and-folder-workspaces.test.ts \
+  src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.test.ts \
+  src/main/runtime/orchestration/automatic-run/automatic-run-executor.test.ts \
+  src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.test.ts \
+  src/main/runtime/orchestration/db/automatic-runs/workflow-apply.test.ts \
+  src/main/runtime/orchestration/db/schema/migrate-v47.test.ts \
+  src/main/runtime/rpc/methods/orchestration-structured-worker-start-failure.test.ts \
+  src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.test.ts \
+  src/main/runtime/rpc/methods/orchestration/runs/run-receipt.test.ts \
+  src/main/runtime/rpc/orchestration-session-caller.test.ts \
+  src/renderer/src/components/dashboard-popout/AgentKanbanBoard.test.tsx \
+  src/renderer/src/components/dashboard-popout/AgentKanbanBoard.todo.test.tsx \
+  src/renderer/src/components/dashboard-popout/workspace-todo-filtering.test.ts \
+  src/renderer/src/components/dashboard/build-dashboard-snapshot.todos.test.ts \
+  src/renderer/src/components/dashboard/useDashboardPopoutBridge.test.tsx \
+  src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.test.ts \
+  src/shared/folder-workspace-worktree.test.ts \
+  src/shared/workspace-todo.test.ts \
+  --maxWorkers=2
 ```
 
 ## Installer testleri

@@ -1,3 +1,4 @@
+import { attachCrewMutationNotifications } from '../crew/crew-mutation-notifications'
 import { attachAttemptObservationStore } from './attempt-observation-store'
 import { attachAutomaticRunActivityStore } from './automatic-runs/automatic-run-activity-store'
 import { attachAutomaticRunStore } from './automatic-runs/automatic-run-store'
@@ -37,7 +38,7 @@ import { attachMessageInbox } from './messages/message-inbox'
 import { attachAutomaticMessageRouting } from './messages/automatic-message-routing'
 import { attachMessageInsert } from './messages/message-insert'
 import { attachRoleMailboxDelivery } from './messages/role-mailbox-delivery'
-import { attachStructuredPointerOperationStore } from './messages/structured-pointer-operation-store'
+import { attachStructuredMailSendStore } from './messages/structured-mail-send-store'
 import { attachMutationReceiptStore } from './mutation-receipts/mutation-receipt-store'
 import { attachLifecycleTransition } from './lifecycle-transition'
 import { attachQuestionThreads } from './questions/question-threads'
@@ -103,7 +104,7 @@ export function attachOrchestrationDbMethods(ctor: { prototype: object }): void 
   attachMessageInsert(ctor)
   attachAutomaticMessageRouting(ctor)
   attachRoleMailboxDelivery(ctor)
-  attachStructuredPointerOperationStore(ctor)
+  attachStructuredMailSendStore(ctor)
   attachMessageInbox(ctor)
   attachMailboxPointerEnterState(ctor)
   attachDirectMailboxRouting(ctor)
@@ -144,4 +145,5 @@ export function attachOrchestrationDbMethods(ctor: { prototype: object }): void 
   attachDecisionGateStore(ctor)
   attachCoordinatorRunStore(ctor)
   attachOrchestrationReset(ctor)
+  attachCrewMutationNotifications(ctor)
 }
