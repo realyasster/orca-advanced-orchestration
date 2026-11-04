@@ -14,7 +14,7 @@ irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1
 
 Menüden **Kur (bileşen seçimiyle)** seçin; **Orchestrator** ve **Todo** bileşenlerini ayrı ayrı işaretleyebilirsiniz. Betik paketi GitHub Releases'ten indirir, bütünlüğünü doğrular, önbelleğe alır ve Orca kaynağına uygular.
 
-Gereksinimler: **Python 3.9+**, **Git** ve **Orca v1.4.246** kaynak checkout'u. Checkout yoksa menü desteklenen sürümü klonlamayı önerir.
+Gereksinimler: **Python 3.9+**, **Git** ve **Orca v1.4.246** kaynak checkout'u. Checkout otomatik bulunur; yoksa **Kur** işlemi desteklenen sürümü `%USERPROFILE%\orca-dev` konumuna soru sormadan klonlar. Farklı bir checkout için `-Source` verin.
 
 Kurulumdan sonra:
 
@@ -30,10 +30,12 @@ pnpm build
 
 ```text
 Kur (bileşen seçimiyle) · Güncelle · Kaldır · Durum ve sürümler
-Doğrula · İşlem provası · Orca kaynak yolunu değiştir · Çıkış
+Doğrula · İşlem provası · Orca kaynak yolunu değiştir · Dil değiştir (Türkçe/English) · Çıkış
 ```
 
-Kaynak yolu kalıcı olarak kaydedilir. Güncelleme aynı sürümdeyse no-op çalışır; hata veya kesintide önceki kurulu sürüm geri getirilir.
+İlk menü açılışında dil sorulur (`Dil / Language [1] Turkce [2] English`); seçim `config.json` içinde saklanır. Menüdeki **Dil değiştir** maddesiyle veya tek çalıştırmalık `-Lang tr|en` ile değiştirilebilir.
+
+Kaynak yolu kalıcı olarak kaydedilir; geçici olarak erişilemeyen kayıtlı yol silinmez, o çalıştırmada yok sayılır. Güncelleme aynı sürümdeyse no-op çalışır; hata veya kesintide önceki kurulu sürüm geri getirilir.
 
 ## Komut satırı
 
@@ -46,7 +48,7 @@ Kaynak yolu kalıcı olarak kaydedilir. Güncelleme aynı sürümdeyse no-op ça
 .\install.ps1 -Action install -Source C:\orca-dev -Pack todo
 ```
 
-`-Pack` tek veya virgüllü birden çok bileşen seçer; verilmezse tüm pack'ler kurulur. `-DryRun` işlem provası yapar, `-Version` sürüm seçer, `-NoPause` otomasyon için beklemesiz çalışır.
+`-Pack` tek veya virgüllü birden çok bileşen seçer; verilmezse tüm pack'ler kurulur. `-DryRun` işlem provası yapar, `-Version` sürüm seçer, `-Lang tr|en` arayüz dilini seçer, `-NoPause` otomasyon için beklemesiz çalışır.
 
 ## Ne yapar?
 

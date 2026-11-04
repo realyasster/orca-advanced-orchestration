@@ -690,6 +690,7 @@
       "id": "orchestration",
       "label": "Orchestrator",
       "description": "Otomatik orkestrasyon, CLI/RPC, veritabani ve karar kapilari.",
+      "descriptionEn": "Automatic orchestration, CLI/RPC, database, and decision gates.",
       "files": [
         "README.md",
         "README.tr.md",
@@ -779,6 +780,7 @@
       "id": "todo",
       "label": "Todo",
       "description": "Ajan panosunun soluna kalici Todo sutunu.",
+      "descriptionEn": "A persistent Todo column on the left of the agent board.",
       "files": [
         "src/main/ipc/dashboard-payload-validation.ts",
         "src/main/ipc/dashboard-popout.test.ts",

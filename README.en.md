@@ -22,7 +22,7 @@ irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1
 
 Choose **Install (select components)** in the menu and toggle **Orchestrator** and **Todo** independently. The script downloads only the versioned ZIP required for installation from GitHub Releases, verifies its SHA-256 checksum and every bundle hash, and caches it by version under `%LOCALAPPDATA%\OrcaAdvancedOrchestration`. It never downloads the full repository, Git history, tests, or development files.
 
-Requirements: **Python 3.9+** and **Git**. If no Orca source checkout exists, the menu can clone the upstream version supported by the package. If the cloned `HEAD` differs from the package's required base commit, the tool refuses with a clear error and never runs `git reset` or `git checkout` automatically.
+Requirements: **Python 3.9+** and **Git**. The Orca source checkout is located automatically; when none exists, **Install** clones the supported version into `%USERPROFILE%\orca-dev` without asking for a path. Pass `-Source` to use a different checkout. If the cloned `HEAD` differs from the package's required base commit, the tool refuses with a clear error and never runs `git reset` or `git checkout` automatically.
 
 This repository is not a standalone application or plugin: it **modifies the Orca v1.4.246 source code**. After installation the source is patched, but the new behavior is not active until you build it:
 
@@ -32,7 +32,9 @@ pnpm install --frozen-lockfile
 pnpm build
 ```
 
-Menu: **Install (select components)**, **Update**, **Uninstall**, **Status and versions**, **Verify**, **Operation rehearsal**, **Change Orca source path**, **Exit**. The source path is persisted.
+Menu: **Install (select components)**, **Update**, **Uninstall**, **Status and versions**, **Verify**, **Operation rehearsal**, **Change Orca source path**, **Change language**, **Exit**. The source path is persisted.
+
+The first menu start asks for the interface language (`Dil / Language [1] Turkce [2] English`) and saves it in `config.json`; non-menu actions never prompt for it. Change it later with **Change language** or per run with `-Lang tr|en`. A persisted source path that is temporarily unavailable is kept and ignored for that run.
 
 Non-interactive use:
 
@@ -46,7 +48,7 @@ Non-interactive use:
 .\install.ps1 -Action install -Source C:\orca-dev -Pack todo
 ```
 
-`-Pack` selects one or more comma-separated components; omitting it installs every pack. Without `-Version`, the latest stable GitHub Release is resolved once per action. `-DryRun` rehearses install, update, or uninstall without changing files. Under `irm | iex` the script never calls `exit` on the caller's shell.
+`-Pack` selects one or more comma-separated components; omitting it installs every pack. Without `-Version`, the latest stable GitHub Release is resolved once per action. `-DryRun` rehearses install, update, or uninstall without changing files. `-Lang tr|en` selects the interface language for that run. Under `irm | iex` the script never calls `exit` on the caller's shell.
 
 ## Update, rollback, and uninstall
 

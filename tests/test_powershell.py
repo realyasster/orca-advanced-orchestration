@@ -13,7 +13,15 @@ import tempfile
 import threading
 import unittest
 
-from helpers import REPO_ROOT, build_fixture, make_version_bundle, snapshot_worktree
+from helpers import (
+    REPO_ROOT,
+    build_fixture,
+    make_version_bundle,
+    read_manifest,
+    run_git,
+    snapshot_worktree,
+    write_manifest,
+)
 
 POWERSHELL = shutil.which("pwsh") or shutil.which("powershell")
 
@@ -23,11 +31,19 @@ def prepare_package(fixture) -> None:
     shutil.copy2(REPO_ROOT / "install.ps1", fixture.bundle / "install.ps1")
 
 
-def run_powershell(arguments, cwd: Path, local_app_data: Path, path_prefix: Path | None = None):
+def run_powershell(
+    arguments,
+    cwd: Path,
+    local_app_data: Path,
+    path_prefix: Path | None = None,
+    extra_env: dict | None = None,
+):
     env = os.environ.copy()
     env["LOCALAPPDATA"] = str(local_app_data)
     if path_prefix is not None:
         env["PATH"] = str(path_prefix) + os.pathsep + env.get("PATH", "")
+    if extra_env:
+        env.update(extra_env)
     return subprocess.run(
         [POWERSHELL, "-NoProfile", "-ExecutionPolicy", "Bypass", *arguments],
         cwd=str(cwd),
@@ -175,6 +191,264 @@ class PowerShellBootstrapTests(unittest.TestCase):
         )
         self.assertEqual(second.returncode, 0, second.stdout + second.stderr)
         self.assertIn(str(self.fx.source), second.stdout)
+
+    def make_isolated_bundle(self):
+        isolated = self.root / "isolated"
+        bundle = isolated / "bundle"
+        shutil.copytree(self.fx.bundle, bundle)
+        shutil.copytree(REPO_ROOT / "scripts", bundle / "scripts", dirs_exist_ok=True)
+        shutil.copy2(REPO_ROOT / "install.ps1", bundle / "install.ps1")
+        cwd = isolated / "cwd"
+        cwd.mkdir(parents=True)
+        return bundle, cwd
+
+    def test_missing_source_is_cloned_automatically(self) -> None:
+        bundle, cwd = self.make_isolated_bundle()
+        manifest = read_manifest(bundle)
+        manifest["upstream"]["repository"] = str(self.fx.source)
+        write_manifest(bundle, manifest)
+        run_git(self.fx.source, "tag", "-f", "vtest", self.fx.base_commit)
+
+        home = self.root / "home"
+        home.mkdir()
+        extra_env = {"USERPROFILE": str(home), "HOME": str(home)}
+
+        install = run_powershell(
+            [
+                "-File",
+                str(REPO_ROOT / "install.ps1"),
+                "-Action",
+                "install",
+                "-RepoRoot",
+                str(bundle),
+                "-NoPause",
+            ],
+            cwd,
+            self.local_app_data,
+            extra_env=extra_env,
+        )
+        self.assertEqual(install.returncode, 0, install.stdout + install.stderr)
+        self.assertIn("otomatik klonlanacak", install.stdout)
+        cloned = home / "orca-dev"
+        self.assertTrue((cloned / "src" / "app.ts").is_file(), install.stdout)
+        self.assertIn("Installation: installed", install.stdout)
+
+        config = json.loads(
+            (self.local_app_data / "OrcaAdvancedOrchestration" / "config.json").read_text(
+                encoding="utf-8-sig"
+            )
+        )
+        self.assertEqual(config["source"], str(cloned))
+
+        status = run_powershell(
+            [
+                "-File",
+                str(REPO_ROOT / "install.ps1"),
+                "-Action",
+                "status",
+                "-RepoRoot",
+                str(bundle),
+                "-NoPause",
+            ],
+            cwd,
+            self.local_app_data,
+            extra_env=extra_env,
+        )
+        self.assertEqual(status.returncode, 0, status.stdout + status.stderr)
+        self.assertIn(str(cloned), status.stdout)
+        self.assertIn("Package: 1.0.0", status.stdout)
+
+    def test_existing_source_is_discovered_automatically(self) -> None:
+        bundle, cwd = self.make_isolated_bundle()
+        home = self.root / "home"
+        checkout = home / "src" / "my-orca"
+        checkout.mkdir(parents=True)
+        (checkout / "package.json").write_text(
+            '{"name": "orca", "version": "1.4.246"}\n', encoding="utf-8"
+        )
+        run_git(checkout, "init", "-q")
+        run_git(checkout, "config", "user.email", "installer-test@example.invalid")
+        run_git(checkout, "config", "user.name", "Installer Test")
+        run_git(checkout, "add", "-A")
+        run_git(checkout, "commit", "-qm", "source")
+        extra_env = {"USERPROFILE": str(home), "HOME": str(home)}
+
+        status = run_powershell(
+            [
+                "-File",
+                str(REPO_ROOT / "install.ps1"),
+                "-Action",
+                "status",
+                "-RepoRoot",
+                str(bundle),
+                "-NoPause",
+            ],
+            cwd,
+            self.local_app_data,
+            extra_env=extra_env,
+        )
+        self.assertEqual(status.returncode, 0, status.stdout + status.stderr)
+        self.assertIn("otomatik bulundu", status.stdout)
+        self.assertIn(str(checkout), status.stdout)
+        self.assertIn("Installation: not installed", status.stdout)
+
+        config = json.loads(
+            (self.local_app_data / "OrcaAdvancedOrchestration" / "config.json").read_text(
+                encoding="utf-8-sig"
+            )
+        )
+        self.assertEqual(config["source"], str(checkout))
+
+    def write_config(self, payload: dict) -> Path:
+        config = self.local_app_data / "OrcaAdvancedOrchestration" / "config.json"
+        config.parent.mkdir(parents=True, exist_ok=True)
+        config.write_text(json.dumps(payload), encoding="utf-8")
+        return config
+
+    def run_status(self, bundle, cwd, extra_env=None, extra_args=()):
+        return run_powershell(
+            [
+                "-File",
+                str(REPO_ROOT / "install.ps1"),
+                "-Action",
+                "status",
+                "-RepoRoot",
+                str(bundle),
+                "-NoPause",
+                *extra_args,
+            ],
+            cwd,
+            self.local_app_data,
+            extra_env=extra_env,
+        )
+
+    def test_invalid_explicit_source_does_not_fall_back(self) -> None:
+        bundle, cwd = self.make_isolated_bundle()
+        home = self.root / "home"
+        discoverable = home / "src" / "my-orca"
+        discoverable.mkdir(parents=True)
+        (discoverable / "package.json").write_text('{"name": "orca"}\n', encoding="utf-8")
+        run_git(discoverable, "init", "-q")
+        run_git(discoverable, "config", "user.email", "installer-test@example.invalid")
+        run_git(discoverable, "config", "user.name", "Installer Test")
+        run_git(discoverable, "add", "-A")
+        run_git(discoverable, "commit", "-qm", "source")
+        extra_env = {"USERPROFILE": str(home), "HOME": str(home)}
+
+        missing = self.root / "typo"
+        install = run_powershell(
+            [
+                "-File",
+                str(REPO_ROOT / "install.ps1"),
+                "-Action",
+                "install",
+                "-RepoRoot",
+                str(bundle),
+                "-Source",
+                str(missing),
+                "-NoPause",
+            ],
+            cwd,
+            self.local_app_data,
+            extra_env=extra_env,
+        )
+        self.assertNotEqual(install.returncode, 0, install.stdout + install.stderr)
+        self.assertIn("-Source yolu bulunamadi", install.stdout)
+        self.assertNotIn("otomatik bulundu", install.stdout)
+        self.assertNotIn("Installation: installed", install.stdout)
+        self.assertFalse((home / "orca-dev").exists())
+        self.assertFalse((discoverable / "src" / "app.ts").exists())
+        config = self.local_app_data / "OrcaAdvancedOrchestration" / "config.json"
+        self.assertFalse(
+            config.is_file() and "source" in json.loads(config.read_text(encoding="utf-8-sig")),
+            install.stdout,
+        )
+
+        plain = self.root / "plain"
+        plain.mkdir()
+        status = self.run_status(bundle, cwd, extra_env, ("-Source", str(plain)))
+        self.assertNotEqual(status.returncode, 0, status.stdout + status.stderr)
+        self.assertIn("-Source yolu bir Orca Git checkout koku degil", status.stdout)
+
+    def test_configured_language_is_used(self) -> None:
+        self.write_config({"lang": "en"})
+        status = self.run_status(self.fx.bundle, self.outside, None, ("-Source", str(self.fx.source)))
+        self.assertEqual(status.returncode, 0, status.stdout + status.stderr)
+        self.assertIn("Versions", status.stdout)
+        self.assertNotIn("Surumler", status.stdout)
+        config = json.loads(
+            (self.local_app_data / "OrcaAdvancedOrchestration" / "config.json").read_text(
+                encoding="utf-8-sig"
+            )
+        )
+        self.assertEqual(config["lang"], "en")
+
+    def test_lang_flag_uses_english_without_persisting(self) -> None:
+        status = self.run_status(
+            self.fx.bundle, self.outside, None, ("-Source", str(self.fx.source), "-Lang", "en")
+        )
+        self.assertEqual(status.returncode, 0, status.stdout + status.stderr)
+        self.assertIn("Versions", status.stdout)
+        self.assertNotIn("Surumler", status.stdout)
+        config = json.loads(
+            (self.local_app_data / "OrcaAdvancedOrchestration" / "config.json").read_text(
+                encoding="utf-8-sig"
+            )
+        )
+        self.assertNotIn("lang", config)
+
+    def test_unavailable_saved_source_is_kept_in_config(self) -> None:
+        missing = self.root / "gone"
+        self.write_config({"source": str(missing), "lang": "en"})
+        home = self.root / "home"
+        checkout = home / "src" / "my-orca"
+        checkout.mkdir(parents=True)
+        (checkout / "package.json").write_text('{"name": "orca"}\n', encoding="utf-8")
+        run_git(checkout, "init", "-q")
+        run_git(checkout, "config", "user.email", "installer-test@example.invalid")
+        run_git(checkout, "config", "user.name", "Installer Test")
+        run_git(checkout, "add", "-A")
+        run_git(checkout, "commit", "-qm", "source")
+        status = self.run_status(
+            self.fx.bundle, self.outside, {"USERPROFILE": str(home), "HOME": str(home)}
+        )
+        self.assertEqual(status.returncode, 0, status.stdout + status.stderr)
+        self.assertIn("ignoring it for this run", status.stdout)
+        self.assertIn("Found Orca source automatically", status.stdout)
+        config = json.loads(
+            (self.local_app_data / "OrcaAdvancedOrchestration" / "config.json").read_text(
+                encoding="utf-8-sig"
+            )
+        )
+        self.assertEqual(config["source"], str(missing))
+        self.assertEqual(config["lang"], "en")
+
+    def test_multiple_discovered_sources_warn_and_pick_first(self) -> None:
+        bundle, cwd = self.make_isolated_bundle()
+        home = self.root / "home"
+        for name in ("a-orca", "b-orca"):
+            checkout = home / "src" / name
+            checkout.mkdir(parents=True)
+            (checkout / "package.json").write_text('{"name": "orca"}\n', encoding="utf-8")
+            run_git(checkout, "init", "-q")
+            run_git(checkout, "config", "user.email", "installer-test@example.invalid")
+            run_git(checkout, "config", "user.name", "Installer Test")
+            run_git(checkout, "add", "-A")
+            run_git(checkout, "commit", "-qm", "source")
+        extra_env = {"USERPROFILE": str(home), "HOME": str(home)}
+
+        status = self.run_status(bundle, cwd, extra_env)
+        self.assertEqual(status.returncode, 0, status.stdout + status.stderr)
+        self.assertIn("Birden fazla Orca kaynagi", status.stdout)
+        self.assertIn("uyusmuyor", status.stdout)
+        self.assertNotIn("Secim [Enter=1]", status.stdout)
+        config = json.loads(
+            (self.local_app_data / "OrcaAdvancedOrchestration" / "config.json").read_text(
+                encoding="utf-8-sig"
+            )
+        )
+        self.assertIn(config["source"], {str(home / "src" / "a-orca"), str(home / "src" / "b-orca")})
+        self.assertIn(config["source"], status.stdout)
 
     def test_local_update_same_version_different_content_reaches_python_check(self) -> None:
         install = run_powershell(

@@ -34,20 +34,25 @@ Tam repo, Git geçmişi, testler veya geliştirme dosyaları indirilmez.
 
 ### Orca kaynak checkout'u
 
-Mevcut bir checkout `-Source` ile verilebilir veya menüde sorulur. Verilmezse şu sıra denenir:
+Mevcut bir checkout `-Source` ile verilebilir. Verilmezse araç konumu kendisi bulur; sıra:
 
 1. Kayıtlı kaynak yolu (`config.json`).
-2. Yerel paket deposunun yanındaki `orca-dev`.
-3. Çalışma dizinindeki `orca-dev`.
-4. `%USERPROFILE%\orca-dev`.
+2. Yerel paket deposunun yanında, çalışma dizininde ve üst dizininde `orca-dev` / `orca`.
+3. `%USERPROFILE%` altındaki yaygın geliştirme konumları (`orca-dev`, `dev\orca`, `projects\orca`, `source\repos\orca` vb.) ve `C:\orca`, `C:\dev\orca` gibi sürücü kökleri.
+4. `%USERPROFILE%` ve bilinen geliştirme köklerinin bir alt dizinindeki, `package.json` adı `orca` olan veya `origin` uzak adresi `stablyai/orca` olan Git checkout'u.
 
-Yoksa menü yol sorar ve desteklenen sürümü şu komutla klonlamayı önerir:
+Hiçbiri bulunamazsa **Kur** işlemi desteklenen sürümü `%USERPROFILE%\orca-dev` konumuna soru sormadan klonlar:
 
 ```powershell
 git -c core.autocrlf=false clone --branch v1.4.246 --depth 1 https://github.com/stablyai/orca.git <yol>
 ```
 
-Klonlanan `HEAD`, `bundle-manifest.json` içindeki `upstream.baseCommit` değilse araç otomatik `reset`/`checkout` yapmaz; açık hata verir.
+Klonlama başarısız olursa yarım kalan dizin silinir. Klonlanan `HEAD`, `bundle-manifest.json` içindeki `upstream.baseCommit` değilse araç otomatik `reset`/`checkout` yapmaz; açık hata verir.
+
+- **`-Source` açıkça verilirse** yalnızca o yol kullanılır. Yol yoksa veya checkout değilse araç hemen hata verir; otomatik bulma veya klonlamaya düşmez.
+- **Kayıtlı yol geçici olarak erişilemezse** (`config.json`) ayar silinmez; yol o çalıştırmada yok sayılır ve otomatik bulma denenir.
+- **Birden fazla aday bulunursa** etkileşimli menüde numarayla seçim sorulur; etkileşimsiz çalıştırmada ilk aday kullanılır ve uyarı yazılır. Seçilen checkout'un `HEAD` değeri paketin taban commit'iyle uyuşmuyorsa uyarı verilir.
+- **Güncelle** ve **Kaldır** otomatik klonlama yapmaz ve yol sormaz; kaynak bulunamazsa `-Source` isteyen net hata verir. **Durum** kaynak yokken yalnızca paket ve önbellek bilgisini gösterir.
 
 ## Menü
 
@@ -59,6 +64,7 @@ Klonlanan `HEAD`, `bundle-manifest.json` içindeki `upstream.baseCommit` değils
   5) Doğrula
   6) İşlem provası (dry-run)
   7) Orca kaynak yolunu değiştir
+  8) Dil değiştir (Türkçe/English)
   0) Çıkış
 ```
 
@@ -69,6 +75,7 @@ Klonlanan `HEAD`, `bundle-manifest.json` içindeki `upstream.baseCommit` değils
 - **Doğrula**: Paket hash'lerini ve varsa kurulum/yedek kaydını doğrular.
 - **İşlem provası**: Kurulum, güncelleme veya kaldırmayı `--dry-run` ile gösterir; hiçbir dosya değişmez.
 - **Orca kaynak yolunu değiştir**: Yeni yolu doğrular ve kalıcı kaydeder. İptal edilirse önceki yol korunur.
+- **Dil değiştir**: Arayüzü Türkçe veya English yapar ve seçimi `config.json` içinde saklar. İlk menü açılışında dil sorulur; `-Lang tr|en` yalnızca o çalıştırma için geçerlidir.
 
 `irm | iex` altında betik çağıranın shell'ini `exit` ile kapatmaz. `-File` ile çalıştırıldığında işlem kodu döndürür.
 
@@ -104,6 +111,7 @@ Kurulum menüsünde numaraya basarak bileşenleri açıp kapatabilirsiniz. Enter
 - `-Version` verilmezse GitHub Releases'teki son kararlı sürüm bir kez çözümlenir.
 - `-Source` verilmezse kayıtlı yol ve bilinen konumlar denenir; bulunamazsa etkileşimsiz modda açık hata verilir.
 - `-RepoRoot` yerel paket deposunu belirtir; bu seçenek indirmeyi atlar.
+- `-Lang tr|en` arayüz dilini belirler; kayıtlı dil ayarını değiştirmez.
 - `-NoPause` işlem sonu beklemesini kapatır.
 - `-DryRun` yalnızca install, update ve uninstall ile anlamlıdır.
 

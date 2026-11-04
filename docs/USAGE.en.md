@@ -34,20 +34,25 @@ It never downloads the full repository, Git history, tests, or development files
 
 ### Orca source checkout
 
-Pass an existing checkout with `-Source` or let the menu prompt for it. Without it, these locations are tried:
+Pass an existing checkout with `-Source`. Otherwise the tool locates one itself, in this order:
 
 1. The persisted source path in `config.json`.
-2. `orca-dev` beside the local package directory.
-3. `orca-dev` in the current directory.
-4. `%USERPROFILE%\orca-dev`.
+2. `orca-dev` / `orca` beside the local package directory, in the current directory, and in its parent.
+3. Common development locations under `%USERPROFILE%` (`orca-dev`, `dev\orca`, `projects\orca`, `source\repos\orca`, ...) and drive roots such as `C:\orca` and `C:\dev\orca`.
+4. A Git checkout one level below `%USERPROFILE%` or a known development root whose `package.json` name is `orca` or whose `origin` remote is `stablyai/orca`.
 
-If none exists, the menu prompts for a path and offers to clone the supported version:
+When nothing is found, **Install** clones the supported version into `%USERPROFILE%\orca-dev` without asking for a path:
 
 ```powershell
 git -c core.autocrlf=false clone --branch v1.4.246 --depth 1 https://github.com/stablyai/orca.git <path>
 ```
 
-If the cloned `HEAD` is not `upstream.baseCommit`, the tool refuses with a clear error; it never runs `git reset` or `git checkout` automatically.
+A failed clone removes the partial destination. If the cloned `HEAD` is not `upstream.baseCommit`, the tool refuses with a clear error; it never runs `git reset` or `git checkout` automatically.
+
+- **An explicit `-Source` is authoritative**: an invalid path fails immediately; discovery and auto-clone are not attempted.
+- **A saved path that is temporarily unavailable** (`config.json`) is kept; it is ignored for that run and discovery continues.
+- **Multiple candidates** prompt for a numbered choice in the interactive menu; non-interactive runs use the first one and print a warning. The selected checkout's `HEAD` is compared with the package base commit and a warning is printed on mismatch.
+- **Update** and **Uninstall** never clone and never prompt for a path; without a source they fail with a clear `-Source` hint. **Status** reports package and cache information when no source exists.
 
 ## Menu
 
@@ -59,6 +64,7 @@ If the cloned `HEAD` is not `upstream.baseCommit`, the tool refuses with a clear
   5) Verify
   6) Operation rehearsal (dry-run)
   7) Change Orca source path
+  8) Change language (Turkce/English)
   0) Exit
 ```
 
@@ -69,6 +75,7 @@ If the cloned `HEAD` is not `upstream.baseCommit`, the tool refuses with a clear
 - **Verify**: verifies package hashes and, when present, the installation record and backup.
 - **Operation rehearsal**: runs install, update, or uninstall with `--dry-run`; no file changes.
 - **Change Orca source path**: validates and persists the new path. Cancellation keeps the previous path.
+- **Change language**: switches the interface between Turkce and English and saves the choice in `config.json`. The first menu start asks for the language; `-Lang tr|en` applies to that run only.
 
 Under `irm | iex` the script never calls `exit` on the caller's shell. With `-File` it returns an exit code.
 
@@ -104,6 +111,7 @@ In the install menu, press a number to toggle a component. Enter installs the se
 - Without `-Version`, the latest stable GitHub Release is resolved once per action.
 - Without `-Source`, the persisted path and known locations are tried; non-interactive mode fails clearly if none exists.
 - `-RepoRoot` selects a local package directory and skips downloads.
+- `-Lang tr|en` selects the interface language without changing the saved language setting.
 - `-NoPause` disables the end-of-action wait.
 - `-DryRun` is meaningful only for install, update, and uninstall.
 
