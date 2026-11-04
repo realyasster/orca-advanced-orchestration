@@ -86,7 +86,7 @@ python -m unittest discover -s tests -v
 - `[scriptblock]::Create(...)` ile çalıştırmada betiğin çağıran shell'i kapatmaması ve sonraki komutun çalışması.
 - Yerel HTTP sunucusundan gerçek `irm ... | iex` çalıştırmasının menüyü açması, `0` ile temiz çıkması ve çağıran shell'de sonraki komutun çalışması.
 
-Canlı `https://raw.githubusercontent.com/.../main/install.ps1` URL'sinden `irm` indirmesi **henüz yayımlanmış bir GitHub Release olmadığı ve ağ testi yapılmadığı için çalıştırılmadı**. Aynı `irm ... | iex` hattı yerel HTTP sunucusundan doğrulandı; indirme/önbellek yolu ayrıca önceden doldurulmuş önbellekle test edildi. Canlı GitHub Release indirmesi ve yayın workflow'unun gerçek çalışması doğrulanmadı.
+Canlı `https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.0/install.ps1` URL'sinden `irm` indirmesi doğrulandı: GitHub Releases'ten `1.1.0` arşivi indirildi, checksum ve **135 dosya** hash'i geçti, paket önbelleğe alındı. Aynı hat yerel HTTP sunucusundan da çalıştırıldı.
 
 ## Paket kontrolleri
 
@@ -109,7 +109,6 @@ Bu yayımlama için uygulama kodu yeniden düzenlenmedi; mevcut sonuç açıkça
 
 Tam CI, bütün uygulama derlemesi/paketlemesi, canlı çok ajanlı uçtan uca senaryo, gerçek üretim token tasarrufu ve diğer Orca sürümlerine uygulanabilirlik bu kayıtların kapsamı dışındadır.
 
-- Gerçek GitHub Release yayımlanmadı; `irm` canlı indirmesi ve Actions yayın adımı çalıştırılmadı.
 - Installer gerçek kullanıcı checkout'unda veya kurulu uygulamada denenmedi; testler geçici Git depoları kullanır.
 - Gerçek bir Orca derlemesi (`pnpm install`, `pnpm build`) bu doğrulamada çalıştırılmadı.
 - macOS/Linux PowerShell davranışı ve izin dalları Windows kadar kapsamlı doğrulanmadı.
