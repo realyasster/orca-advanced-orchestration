@@ -15,6 +15,7 @@ import tempfile
 import unittest
 
 from helpers import (
+    DOCS_BASE,
     REPO_ROOT,
     build_fixture,
     clean_git_env,
@@ -27,7 +28,7 @@ from helpers import (
 )
 
 from orca_install import cli, installer, uninstaller
-from orca_install.bundle import patch_affected_paths
+from orca_install.bundle import filter_patch_paths, load_bundle, patch_affected_paths
 from orca_install.errors import (
     BundleError,
     InstallationError,
@@ -93,6 +94,148 @@ class InstallationTestCase(unittest.TestCase):
         self.assertEqual(snapshot_worktree(self.source), before)
         self.fx.assert_worktree_matches_base(self)
         self.assertEqual(self.status().outcome, "uninstalled")
+
+    def test_installs_and_uninstalls_only_the_selected_pack(self) -> None:
+        manifest = read_manifest(self.bundle)
+        alpha = ["src/app.ts", "src/new.ts"]
+        manifest["packs"] = [
+            {"id": "alpha", "label": "Alpha", "description": "First pack", "files": alpha},
+            {
+                "id": "beta",
+                "label": "Beta",
+                "description": "Second pack",
+                "files": [
+                    item["upstreamPath"]
+                    for item in manifest["files"]
+                    if item["upstreamPath"] not in alpha
+                ],
+            },
+        ]
+        write_manifest(self.bundle, manifest)
+
+        result = installer.install(self.bundle, self.source, packs=["alpha"])
+        self.assertEqual(result.outcome, "installed")
+        self.assertEqual(result.packs, ["alpha"])
+        self.assertEqual(result.updated, 1)
+        self.assertEqual(result.added, 1)
+        self.assertEqual(self.fx.read("src/app.ts"), installer_patched_app())
+        self.assertTrue(self.fx.path("src/new.ts").is_file())
+        self.assertFalse(self.fx.path("newdir/created/file.txt").exists())
+        self.assertEqual(self.fx.read("docs/readme.md"), DOCS_BASE.encode())
+
+        report = self.status()
+        self.assertEqual(report.record.packs, ["alpha"])
+        self.assertIn("Packs: alpha", report.render())
+
+        # Omitting --pack keeps the installed selection instead of switching to all.
+        already = installer.install(self.bundle, self.source)
+        self.assertEqual(already.outcome, "already-installed")
+        self.assertEqual(already.packs, ["alpha"])
+        dry = installer.install(self.bundle, self.source, dry_run=True)
+        self.assertEqual(dry.outcome, "already-installed")
+        self.assertEqual(dry.packs, ["alpha"])
+
+        with self.assertRaises(InstallationError):
+            installer.install(self.bundle, self.source, packs=["beta"])
+
+        result = self.uninstall()
+        self.assertEqual(result.restored, 1)
+        self.assertEqual(result.removed, 1)
+        self.fx.assert_worktree_matches_base(self)
+
+    def test_pack_validation_rejects_unknown_or_incomplete_packs(self) -> None:
+        manifest = read_manifest(self.bundle)
+        manifest["packs"] = [
+            {
+                "id": "all",
+                "label": "All",
+                "description": "All files",
+                "files": [item["upstreamPath"] for item in manifest["files"]],
+            }
+        ]
+        write_manifest(self.bundle, manifest)
+        with self.assertRaises(BundleError):
+            installer.install(self.bundle, self.source, packs=["missing"])
+
+        manifest["packs"][0]["files"] = manifest["packs"][0]["files"][:-1]
+        write_manifest(self.bundle, manifest)
+        with self.assertRaises(BundleError):
+            installer.install(self.bundle, self.source, packs=["all"])
+
+    def test_filter_patch_paths_is_byte_safe_and_uses_old_and_new_paths(self) -> None:
+        payload = b"\x0c\x85\xe2\x80\xa8 literal content\n"
+        patch = (
+            b"diff --git a/keep.txt b/keep.txt\n"
+            b"--- a/keep.txt\n"
+            b"+++ b/keep.txt\n"
+            b"@@ -1 +1 @@\n"
+            b"-old\n"
+            b"+new\n"
+            b"diff --git a/old.txt b/new.txt\n"
+            b"--- a/old.txt\n"
+            b"+++ b/new.txt\n"
+            b"@@ -1 +1 @@\n"
+            b"-before\n"
+            + payload
+        )
+
+        by_new = filter_patch_paths(patch, ["new.txt"])
+        self.assertIn(b"diff --git a/old.txt b/new.txt", by_new)
+        self.assertNotIn(b"diff --git a/keep.txt b/keep.txt", by_new)
+        self.assertIn(payload, by_new)
+
+        by_old = filter_patch_paths(patch, ["old.txt"])
+        self.assertIn(b"diff --git a/old.txt b/new.txt", by_old)
+        self.assertIn(payload, by_old)
+
+        crlf = (
+            b"diff --git a/one.txt b/one.txt\r\n"
+            b"--- a/one.txt\r\n"
+            b"+++ b/one.txt\r\n"
+            b"@@ -1 +1 @@\r\n"
+            b"-old\r\n"
+            b"+new\r\n"
+            b"\\ No newline at end of file\r\n"
+        )
+        self.assertEqual(filter_patch_paths(crlf, ["one.txt"]), crlf)
+
+    def test_pack_dependencies_are_resolved_and_cycles_rejected(self) -> None:
+        manifest = read_manifest(self.bundle)
+        alpha = ["src/app.ts", "src/new.ts"]
+        beta = [
+            item["upstreamPath"]
+            for item in manifest["files"]
+            if item["upstreamPath"] not in alpha
+        ]
+        manifest["packs"] = [
+            {
+                "id": "alpha",
+                "label": "Alpha",
+                "description": "Base pack",
+                "files": alpha,
+            },
+            {
+                "id": "beta",
+                "label": "Beta",
+                "description": "Dependent pack",
+                "files": beta,
+                "requires": ["alpha"],
+            },
+        ]
+        write_manifest(self.bundle, manifest)
+
+        result = installer.install(self.bundle, self.source, dry_run=True, packs=["beta"])
+        self.assertEqual(result.packs, ["alpha", "beta"])
+        self.assertEqual(result.updated + result.added, 7)
+
+        bundle = load_bundle(self.bundle)
+        with self.assertRaises(BundleError):
+            bundle.resolve_selected_paths([])
+
+        manifest["packs"][0]["requires"] = ["beta"]
+        write_manifest(self.bundle, manifest)
+        with self.assertRaises(BundleError):
+            load_bundle(self.bundle)
 
     def test_new_directories_are_removed_only_when_empty(self) -> None:
         self.install_ok()
@@ -744,6 +887,45 @@ class InstallationTestCase(unittest.TestCase):
             self.assertIn("Installation: not installed", stdout.getvalue())
         self.assertEqual(stderr.getvalue(), "")
 
+    def test_cli_pack_selection(self) -> None:
+        manifest = read_manifest(self.bundle)
+        alpha = ["src/app.ts", "src/new.ts"]
+        manifest["packs"] = [
+            {"id": "alpha", "label": "Alpha", "description": "First pack", "files": alpha},
+            {
+                "id": "beta",
+                "label": "Beta",
+                "description": "Second pack",
+                "files": [
+                    item["upstreamPath"]
+                    for item in manifest["files"]
+                    if item["upstreamPath"] not in alpha
+                ],
+            },
+        ]
+        write_manifest(self.bundle, manifest)
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with mock.patch("sys.stdout", stdout), mock.patch("sys.stderr", stderr):
+            code = cli.main(
+                ["install", "--source", str(self.source), "--pack", "alpha"],
+                bundle_root=self.bundle,
+            )
+            self.assertEqual(code, 0)
+            self.assertIn("Packs: alpha", stdout.getvalue())
+            self.assertIn("Files: 2 (1 updated, 1 added)", stdout.getvalue())
+            cli.main(["uninstall", "--source", str(self.source)], bundle_root=self.bundle)
+        self.assertEqual(stderr.getvalue(), "")
+
+    def test_cli_rejects_empty_pack_selection(self) -> None:
+        stderr = io.StringIO()
+        with mock.patch("sys.stderr", stderr), self.assertRaises(SystemExit) as raised:
+            cli.main(
+                ["install", "--source", str(self.source), "--pack", ","],
+                bundle_root=self.bundle,
+            )
+        self.assertEqual(raised.exception.code, 2)
+        self.assertIn("--pack requires", stderr.getvalue())
+
     def test_cli_reports_errors_with_exit_code(self) -> None:
         stdout, stderr = io.StringIO(), io.StringIO()
         with mock.patch("sys.stdout", stdout), mock.patch("sys.stderr", stderr):
@@ -790,7 +972,9 @@ class InstallationTestCase(unittest.TestCase):
             timeout=120,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("Verified 79 files", result.stdout)
+        manifest = json.loads((REPO_ROOT / "bundle-manifest.json").read_text(encoding="utf-8"))
+        expected = len(manifest["files"]) + 2
+        self.assertIn(f"Verified {expected} files", result.stdout)
 
     def test_readme_local_links_resolve(self) -> None:
         for readme in ("README.md", "README.en.md", "docs/DESIGN.md", "docs/VALIDATION.md"):

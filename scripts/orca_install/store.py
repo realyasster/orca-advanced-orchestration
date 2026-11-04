@@ -203,6 +203,7 @@ class Installation:
     created_directories: List[str]
     files: List[FileRecord]
     progress: Progress
+    packs: List[str] = field(default_factory=list)
     completed_at: Optional[str] = None
 
     def to_dict(self) -> Dict:
@@ -222,6 +223,7 @@ class Installation:
                 "implementationCommit": self.package_implementation_commit,
                 "fingerprint": self.package_fingerprint,
                 "fileCount": len(self.files),
+                "packs": list(self.packs),
             },
             "backup": {
                 "path": self.backup_path,
@@ -272,6 +274,13 @@ class Installation:
         implementation = package.get("implementationCommit")
         _require(implementation is None or isinstance(implementation, str),
                  "Installation record package.implementationCommit is invalid")
+        raw_packs = package.get("packs", [])
+        _require(
+            isinstance(raw_packs, list) and all(isinstance(item, str) and item for item in raw_packs),
+            "Installation record package.packs is invalid",
+        )
+        _require(len(set(raw_packs)) == len(raw_packs),
+                 "Installation record package.packs lists a pack more than once")
         return cls(
             installation_id=installation_id,
             status=status,
@@ -289,6 +298,7 @@ class Installation:
             created_directories=created_dirs,
             files=files,
             progress=Progress.from_dict(data.get("progress")),
+            packs=list(raw_packs),
             completed_at=completed_at,
         )
 

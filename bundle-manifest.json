@@ -8,13 +8,33 @@
   "implementationCommit": "efab515b6c4e882a3f887266507614b1d29a89e4",
   "patch": {
     "path": "patches/automatic-orchestration.patch",
-    "sha256": "24ffbef5405b40bb62ba9500fc6c8cd7c2985292686228ebaa3f1b32c1ba3aad"
+    "sha256": "e25a1bcf55fb0f14ecccbba8294fba6ec1ebe7ba47f7f06eeca3e5e78fa4bd4d"
   },
   "example": {
     "path": "examples/workflow.json",
     "sha256": "5dbbe8d42e27c69b5204f9fcd4e5b7bfb98de76cd3fa4c94aa38a6b402419047"
   },
   "files": [
+    {
+      "upstreamPath": "README.md",
+      "snapshotPath": "changes/README.md",
+      "sha256": "628d0a8ec9d7c2d04648af3248603d36d1b0cec087bce9b0bcd7f0d582ba7a38"
+    },
+    {
+      "upstreamPath": "README.tr.md",
+      "snapshotPath": "changes/README.tr.md",
+      "sha256": "b96ba2f8500245faffd030cba9d636322d68a90764b50213bb475c458a018631"
+    },
+    {
+      "upstreamPath": "README.upstream.md",
+      "snapshotPath": "changes/README.upstream.md",
+      "sha256": "0dc724d7ba88deff2dbe92c7c6128d222a5609e24fcaf983351b16a57a84f992"
+    },
+    {
+      "upstreamPath": "examples/automatic-orchestration/workflow.json",
+      "snapshotPath": "changes/examples/automatic-orchestration/workflow.json",
+      "sha256": "5dbbe8d42e27c69b5204f9fcd4e5b7bfb98de76cd3fa4c94aa38a6b402419047"
+    },
     {
       "upstreamPath": "skill-guides/orchestration.md",
       "snapshotPath": "changes/skill-guides/orchestration.md",
@@ -79,6 +99,56 @@
       "upstreamPath": "src/cli/specs/orchestration.ts",
       "snapshotPath": "changes/src/cli/specs/orchestration.ts",
       "sha256": "4b68f3a08c364c9a8957e990c42bfd3d2348e61c002e575e5462869d0cb576da"
+    },
+    {
+      "upstreamPath": "src/main/ipc/dashboard-payload-validation.ts",
+      "snapshotPath": "changes/src/main/ipc/dashboard-payload-validation.ts",
+      "sha256": "4a4dfb2a90cb789616d895cf1139980a46a307fd8a1ab6a75292e4398d3780b4"
+    },
+    {
+      "upstreamPath": "src/main/ipc/dashboard-popout.test.ts",
+      "snapshotPath": "changes/src/main/ipc/dashboard-popout.test.ts",
+      "sha256": "85edbde05ee9a7f3d149662513568ef7f4b50a82055d17e2e47cfeea36bbd70d"
+    },
+    {
+      "upstreamPath": "src/main/ipc/dashboard-popout.ts",
+      "snapshotPath": "changes/src/main/ipc/dashboard-popout.ts",
+      "sha256": "4df722d5539133a6d76cca1853a83ac16a659949de7a701eb204287f28dc6426"
+    },
+    {
+      "upstreamPath": "src/main/ipc/dashboard-workspace-payload-validation.ts",
+      "snapshotPath": "changes/src/main/ipc/dashboard-workspace-payload-validation.ts",
+      "sha256": "ed5cb253f22cb599a7bb3a80b76b186d912f00f0b9a9ca31c3e22aa4c6a4ef01"
+    },
+    {
+      "upstreamPath": "src/main/ipc/repos/repo-ipc-arg-schemas.ts",
+      "snapshotPath": "changes/src/main/ipc/repos/repo-ipc-arg-schemas.ts",
+      "sha256": "bb9e74f2d6c31b24529bdd1bd6e9323b99b26631c025615d5f8e96299c20d311"
+    },
+    {
+      "upstreamPath": "src/main/ipc/worktree-metadata-merge.ts",
+      "snapshotPath": "changes/src/main/ipc/worktree-metadata-merge.ts",
+      "sha256": "6fa15b47b6d585fd0d6c6ce209eef299fafc2a93c0ded79a11ee9de4dacee1b5"
+    },
+    {
+      "upstreamPath": "src/main/ipc/worktrees/folder-workspace-model.ts",
+      "snapshotPath": "changes/src/main/ipc/worktrees/folder-workspace-model.ts",
+      "sha256": "93e954ba195adf2db989eaad3d40b03dec0f7fa954867708806c393d1e488a73"
+    },
+    {
+      "upstreamPath": "src/main/persistence/loading-store/worktree-meta-write-normalization.ts",
+      "snapshotPath": "changes/src/main/persistence/loading-store/worktree-meta-write-normalization.ts",
+      "sha256": "3da121237ca78e03b7dcac3b804116f2fcd152da909f6f5a50923f120ad77301"
+    },
+    {
+      "upstreamPath": "src/main/persistence/restoring-sessions/folder-workspace-operations.ts",
+      "snapshotPath": "changes/src/main/persistence/restoring-sessions/folder-workspace-operations.ts",
+      "sha256": "ac90c445492f08c1f61f6af5baa530f6145b9c9a9f69b520cbd6b385ae6755e8"
+    },
+    {
+      "upstreamPath": "src/main/persistence/tracking-repos/persistence-worktree-meta-and-folder-workspaces.test.ts",
+      "snapshotPath": "changes/src/main/persistence/tracking-repos/persistence-worktree-meta-and-folder-workspaces.test.ts",
+      "sha256": "f6b719b1fda817f6fcee2654f393881c5af4164f067387455bb65535b1154287"
     },
     {
       "upstreamPath": "src/main/runtime/orchestration/automatic-run-types.ts",
@@ -341,6 +411,11 @@
       "sha256": "9486c038ebf9b6350a6778af1415e45d3c545aca548709b99eb61ceb53e49a5b"
     },
     {
+      "upstreamPath": "src/main/runtime/rpc/methods/worktree-set-method.ts",
+      "snapshotPath": "changes/src/main/runtime/rpc/methods/worktree-set-method.ts",
+      "sha256": "a7de307351b23cb8ff91bf7f7f916377a3c83ef6fd577b68686d5960e494c159"
+    },
+    {
       "upstreamPath": "src/main/runtime/rpc/orchestration-session-caller.test.ts",
       "snapshotPath": "changes/src/main/runtime/rpc/orchestration-session-caller.test.ts",
       "sha256": "3645ae21ce23ecb4cf83890ef9937c8afc89c97764014d4f133fa64ba752be7f"
@@ -361,9 +436,84 @@
       "sha256": "5e525136bec5a488e1ac1499aa65146caec2cacc5b1d3cb2ae4d1e9c0bf0f2f1"
     },
     {
+      "upstreamPath": "src/main/runtime/runtime-project-group-controller.ts",
+      "snapshotPath": "changes/src/main/runtime/runtime-project-group-controller.ts",
+      "sha256": "66536b1dc1a947e846a4d1fde343a94db099dd7589ab7ce2a0203189d0b4ed9e"
+    },
+    {
       "upstreamPath": "src/main/runtime/workspaces/persisted-surfaces/automation-operations.ts",
       "snapshotPath": "changes/src/main/runtime/workspaces/persisted-surfaces/automation-operations.ts",
       "sha256": "9443601ddc3bdffa713a73dc601b5821790ad4becce02dcd6b67621b38402051"
+    },
+    {
+      "upstreamPath": "src/preload/api/dashboard-api.ts",
+      "snapshotPath": "changes/src/preload/api/dashboard-api.ts",
+      "sha256": "b71c8673e453f87fce0664d2efba8002d822061680bdfcc90ff70eb993e42eda"
+    },
+    {
+      "upstreamPath": "src/preload/api/dashboard-bridge.ts",
+      "snapshotPath": "changes/src/preload/api/dashboard-bridge.ts",
+      "sha256": "257138e41f9040f73ed0b8ef1bfc94a4b4a899387e84055c88bd4d8cfb89886a"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard-popout/AgentKanbanBoard.test.tsx",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.test.tsx",
+      "sha256": "f15b7f9c2ab261939cf34c8a6a34ca2941e8cf639f6d80434880160eeba3d316"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard-popout/AgentKanbanBoard.todo.test.tsx",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.todo.test.tsx",
+      "sha256": "23fb075c36fe11fb25b296d2c35260a3ed55f5d92f88571cff5bf9746a032b8f"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard-popout/AgentKanbanBoard.tsx",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard-popout/AgentKanbanBoard.tsx",
+      "sha256": "dcde360de1b108f81e24d58bf3088abc44c63bd22c5898e7998cf4bd2691f540"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard-popout/WorkspaceTodoAddForm.tsx",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard-popout/WorkspaceTodoAddForm.tsx",
+      "sha256": "9940e3814c13ca5aa2bc0f0b6748f144b993b05629da7b396bd13da1e78ab2d9"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard-popout/WorkspaceTodoCard.tsx",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard-popout/WorkspaceTodoCard.tsx",
+      "sha256": "0ed92eae60bd5c57a3ae0d09f5e713df30dcdd339524e0ebdf7ff2ea6eea2689"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard-popout/WorkspaceTodoColumn.tsx",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard-popout/WorkspaceTodoColumn.tsx",
+      "sha256": "7273258f2ad39279bbb4f3e3affcead7b1bac9e62a761bf0ac92832c0c753232"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard-popout/workspace-todo-filtering.test.ts",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard-popout/workspace-todo-filtering.test.ts",
+      "sha256": "879f6f989c23ac3028acc59d9c1cf5b80d1063a78a076bd9b2c75c9357b8980e"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard-popout/workspace-todo-filtering.ts",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard-popout/workspace-todo-filtering.ts",
+      "sha256": "d20a5f9d48229c9754ddf538fe9089f038b718f3dcdfd3fbd2e86cb164bbb7c2"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard-popout/workspace-todo-presentation.ts",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard-popout/workspace-todo-presentation.ts",
+      "sha256": "5000bec43792c642efb2397ecf55f4f1e0b20a90d00c0a1a11d80432f41b9e9c"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard/AgentDashboardDrawer.tsx",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard/AgentDashboardDrawer.tsx",
+      "sha256": "2b6e1ca9c6e0dafea54952c88f16aba9bf044be6eee98c6c9462a799448d8ca2"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard/build-dashboard-snapshot.todos.test.ts",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard/build-dashboard-snapshot.todos.test.ts",
+      "sha256": "c1f8ed0106a4415cc9c8bd3027a6c3420ac5f05bca121b4ee9231784d3a602a6"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard/build-dashboard-snapshot.ts",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard/build-dashboard-snapshot.ts",
+      "sha256": "d1c9dc742504cd7c743f3b5e66006f7aba6c58aa5c469e56ed8f0f642255ea81"
     },
     {
       "upstreamPath": "src/renderer/src/components/dashboard/dashboard-card-labels.ts",
@@ -371,9 +521,74 @@
       "sha256": "f508e828183e41e3e3bd8b0d4c91a7924785bdad0a3b024dc1705b5e8cf6dc78"
     },
     {
+      "upstreamPath": "src/renderer/src/components/dashboard/useDashboardPopoutBridge.test.tsx",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard/useDashboardPopoutBridge.test.tsx",
+      "sha256": "308eaeea1af27303e061ca2b394b488c24519c34761cb6b66cd6e73d459f7983"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard/useDashboardPopoutBridge.ts",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard/useDashboardPopoutBridge.ts",
+      "sha256": "88de413dd26cee8750a0cf614c8388bfc5c92c13ce3b386c99b6395bf49da801"
+    },
+    {
+      "upstreamPath": "src/renderer/src/components/dashboard/workspace-todo-support.ts",
+      "snapshotPath": "changes/src/renderer/src/components/dashboard/workspace-todo-support.ts",
+      "sha256": "4333c6577392714f7370f6ab0322da7a72aa70be513bc465987a0bbf8f7783af"
+    },
+    {
+      "upstreamPath": "src/renderer/src/runtime/workspace-todo-capability.ts",
+      "snapshotPath": "changes/src/renderer/src/runtime/workspace-todo-capability.ts",
+      "sha256": "b9184a230f48f0ea1db2a21a25d3742eb26a32bc4a66477a569b7ab43b775787"
+    },
+    {
+      "upstreamPath": "src/renderer/src/store/folder-workspaces/folder-workspace-mutations.ts",
+      "snapshotPath": "changes/src/renderer/src/store/folder-workspaces/folder-workspace-mutations.ts",
+      "sha256": "8058db1d26acace8171062c008ea7241c20fe48587585e2a2154e67b4e814f64"
+    },
+    {
+      "upstreamPath": "src/renderer/src/store/repos/repo-state.ts",
+      "snapshotPath": "changes/src/renderer/src/store/repos/repo-state.ts",
+      "sha256": "dfd6e2f04f8ad46297c90bf2498b08af9da64e3a768a27a1b21acf5c9456ccac"
+    },
+    {
       "upstreamPath": "src/renderer/src/store/slices/agent-status/agent-status-orchestration-context.ts",
       "snapshotPath": "changes/src/renderer/src/store/slices/agent-status/agent-status-orchestration-context.ts",
       "sha256": "020cb69129b8f47d99b678c81b13a455a877ef4a980dd33f7d464609f0d875e6"
+    },
+    {
+      "upstreamPath": "src/renderer/src/store/slices/worktree-helpers.ts",
+      "snapshotPath": "changes/src/renderer/src/store/slices/worktree-helpers.ts",
+      "sha256": "9c4b78276b481e8f3598da55117367ed8a4cb05b35d1590e2520f989704585b7"
+    },
+    {
+      "upstreamPath": "src/renderer/src/store/slices/worktrees.ts",
+      "snapshotPath": "changes/src/renderer/src/store/slices/worktrees.ts",
+      "sha256": "b2126c57b3f0e4f14f9d736e39149fd42752c56808bcaeeadb7b613e715cb9a9"
+    },
+    {
+      "upstreamPath": "src/renderer/src/store/slices/worktrees/listing/detected-worktree-meta.ts",
+      "snapshotPath": "changes/src/renderer/src/store/slices/worktrees/listing/detected-worktree-meta.ts",
+      "sha256": "a5109cf4b176f5b581a2dd23d3e8f5df72cb5be5403a4443c8e78a13d75f9031"
+    },
+    {
+      "upstreamPath": "src/renderer/src/store/slices/worktrees/metadata/update-worktree-meta.ts",
+      "snapshotPath": "changes/src/renderer/src/store/slices/worktrees/metadata/update-worktree-meta.ts",
+      "sha256": "999bcfbcc42f41fe40f6716a17cf9f10eeaaa271f4816e60704913cb9c7ec7eb"
+    },
+    {
+      "upstreamPath": "src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.test.ts",
+      "snapshotPath": "changes/src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.test.ts",
+      "sha256": "646ac63270b964b5fff17450615d75ff110ab523daf24f00c358e5f7345e79eb"
+    },
+    {
+      "upstreamPath": "src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.ts",
+      "snapshotPath": "changes/src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.ts",
+      "sha256": "a0c2702f27b04a28b57653d94a84ad71ed5c486ecdbe593502f9453f9fc11032"
+    },
+    {
+      "upstreamPath": "src/renderer/src/store/slices/worktrees/metadata/worktree-meta-persist.ts",
+      "snapshotPath": "changes/src/renderer/src/store/slices/worktrees/metadata/worktree-meta-persist.ts",
+      "sha256": "27cb7da898f00a7405e1cba23ca26d85fa19a7badd1202ab4318239fa32a6af5"
     },
     {
       "upstreamPath": "src/shared/agent-status-types.ts",
@@ -381,9 +596,39 @@
       "sha256": "d466f82638ed0c0a46d5965026b9a4ea789b6584e9ad67f62e49d4999bc0a25c"
     },
     {
+      "upstreamPath": "src/shared/dashboard-snapshot.ts",
+      "snapshotPath": "changes/src/shared/dashboard-snapshot.ts",
+      "sha256": "e683d73eab4286c6161eec8613927cd5dbe56440505654b202f9e6242a85919d"
+    },
+    {
+      "upstreamPath": "src/shared/folder-workspace-types.ts",
+      "snapshotPath": "changes/src/shared/folder-workspace-types.ts",
+      "sha256": "6539ab3ccb68455bf0c5626a7729c03eaec36aa4960b73c3bfad75994a6ab2a2"
+    },
+    {
+      "upstreamPath": "src/shared/folder-workspace-worktree.test.ts",
+      "snapshotPath": "changes/src/shared/folder-workspace-worktree.test.ts",
+      "sha256": "0098c734bccd1907c6cb4fd6c13baa328a6efebfc65ed3288726cf3cda142ac1"
+    },
+    {
+      "upstreamPath": "src/shared/folder-workspace-worktree.ts",
+      "snapshotPath": "changes/src/shared/folder-workspace-worktree.ts",
+      "sha256": "18167c457bf1c39e90b42f23e9f897515873b117c57bd29fd6dc5ed39e82aed8"
+    },
+    {
+      "upstreamPath": "src/shared/folder-workspaces.ts",
+      "snapshotPath": "changes/src/shared/folder-workspaces.ts",
+      "sha256": "3b8e825618842785ca813dbfaac2317a6ccbc8e4252f2ddd18770f9eda850bc4"
+    },
+    {
       "upstreamPath": "src/shared/orchestration-workflow.ts",
       "snapshotPath": "changes/src/shared/orchestration-workflow.ts",
       "sha256": "96ac5f54aad8307db61b1d8e19f62351e94d7c5bed7d8842418b6a213e6a0b47"
+    },
+    {
+      "upstreamPath": "src/shared/rpc-contract/folder-workspace-params.ts",
+      "snapshotPath": "changes/src/shared/rpc-contract/folder-workspace-params.ts",
+      "sha256": "22137511090000fac8bce7db01f0404e9e8e2ebe72deb2a86f860be6eccf7162"
     },
     {
       "upstreamPath": "src/shared/rpc-contract/orchestration-automatic-run-params.ts",
@@ -399,6 +644,212 @@
       "upstreamPath": "src/shared/rpc-contract/rpc-params-catalog.generated.ts",
       "snapshotPath": "changes/src/shared/rpc-contract/rpc-params-catalog.generated.ts",
       "sha256": "c704df311255d9f1d19ea84db505604cc8b43998f7467290bef7b63f8a86cd0d"
+    },
+    {
+      "upstreamPath": "src/shared/rpc-contract/worktree-params.ts",
+      "snapshotPath": "changes/src/shared/rpc-contract/worktree-params.ts",
+      "sha256": "c9d32ef056c1034656f8c9edffcfd9fc240a976740c25f860b444c8ad3dd4073"
+    },
+    {
+      "upstreamPath": "src/shared/workspace-todo-schema.ts",
+      "snapshotPath": "changes/src/shared/workspace-todo-schema.ts",
+      "sha256": "6fbb848d091d22b25d158e58e42d39101882be7766a5926b25c29ff9254d63db"
+    },
+    {
+      "upstreamPath": "src/shared/workspace-todo.test.ts",
+      "snapshotPath": "changes/src/shared/workspace-todo.test.ts",
+      "sha256": "005f1a704327b813c1e2e8bf4245447b19a33224d0e7e30d4d5e617642945bc1"
+    },
+    {
+      "upstreamPath": "src/shared/workspace-todo.ts",
+      "snapshotPath": "changes/src/shared/workspace-todo.ts",
+      "sha256": "2e1acbe212495938ba373b3563f7f4710ec38d3b4fe3f6fe5efdf808340ee7ea"
+    },
+    {
+      "upstreamPath": "src/shared/worktree-runtime-capabilities.ts",
+      "snapshotPath": "changes/src/shared/worktree-runtime-capabilities.ts",
+      "sha256": "c7a8def801cdf7192b622cf1840165177c6369383b15db98abe13d2c029cbfdb"
+    },
+    {
+      "upstreamPath": "src/shared/worktree/meta-types.ts",
+      "snapshotPath": "changes/src/shared/worktree/meta-types.ts",
+      "sha256": "4f273abcbe35de668aa4435c9f7582ba7af2cf261cad16b19ecfcdb9f0b8692c"
+    },
+    {
+      "upstreamPath": "src/shared/worktree/types.ts",
+      "snapshotPath": "changes/src/shared/worktree/types.ts",
+      "sha256": "8b04819b3008c595e330cd1ad3e940daf77c6fc269d2e6f93785aa8433f8e620"
     }
-  ]
+  ],
+  "packs": [
+    {
+      "id": "orchestration",
+      "label": "Orchestrator",
+      "description": "Otomatik orkestrasyon, CLI/RPC, veritabani ve karar kapilari.",
+      "files": [
+        "README.md",
+        "README.tr.md",
+        "README.upstream.md",
+        "examples/automatic-orchestration/workflow.json",
+        "skill-guides/orchestration.md",
+        "skill-guides/orchestration/references/coordinator-loop.md",
+        "src/cli/bundled-skill-guides.ts",
+        "src/cli/flag-help-text.ts",
+        "src/cli/handler-group-manifest.ts",
+        "src/cli/handlers/orchestration-run-cli.test.ts",
+        "src/cli/handlers/orchestration.ts",
+        "src/cli/handlers/orchestration/automatic-run-handlers.ts",
+        "src/cli/handlers/orchestration/message-payload.ts",
+        "src/cli/handlers/orchestration/run-handlers.ts",
+        "src/cli/handlers/orchestration/task-agent-views.ts",
+        "src/cli/handlers/orchestration/task-handlers.ts",
+        "src/cli/specs/orchestration.ts",
+        "src/main/runtime/orchestration/automatic-run-types.ts",
+        "src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.test.ts",
+        "src/main/runtime/orchestration/automatic-run/automatic-run-event-failure.ts",
+        "src/main/runtime/orchestration/automatic-run/automatic-run-executor.test.ts",
+        "src/main/runtime/orchestration/automatic-run/automatic-run-executor.ts",
+        "src/main/runtime/orchestration/automatic-run/automatic-run-launch.ts",
+        "src/main/runtime/orchestration/automatic-run/automatic-run-review.ts",
+        "src/main/runtime/orchestration/automatic-run/automatic-run-settlement.ts",
+        "src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.test.ts",
+        "src/main/runtime/orchestration/automatic-run/automatic-run-task-brief.ts",
+        "src/main/runtime/orchestration/automatic-run/automatic-run-workspace.ts",
+        "src/main/runtime/orchestration/db/attach-orchestration-db-methods.ts",
+        "src/main/runtime/orchestration/db/automatic-runs/automatic-report-delivery.ts",
+        "src/main/runtime/orchestration/db/automatic-runs/automatic-run-activity-store.ts",
+        "src/main/runtime/orchestration/db/automatic-runs/automatic-run-store.ts",
+        "src/main/runtime/orchestration/db/automatic-runs/workflow-apply.test.ts",
+        "src/main/runtime/orchestration/db/automatic-runs/workflow-apply.ts",
+        "src/main/runtime/orchestration/db/contract-constants.ts",
+        "src/main/runtime/orchestration/db/decision-gates/decision-gate-store.ts",
+        "src/main/runtime/orchestration/db/dispatch-context/dispatch-completion.ts",
+        "src/main/runtime/orchestration/db/dispatch-context/worker-report-settlement.ts",
+        "src/main/runtime/orchestration/db/messages/automatic-message-routing.ts",
+        "src/main/runtime/orchestration/db/messages/message-inbox.ts",
+        "src/main/runtime/orchestration/db/orchestration-db-methods.ts",
+        "src/main/runtime/orchestration/db/reset/orchestration-reset.ts",
+        "src/main/runtime/orchestration/db/row-column-lists.ts",
+        "src/main/runtime/orchestration/db/runs/run-create.ts",
+        "src/main/runtime/orchestration/db/schema/create-core-tables-sql.ts",
+        "src/main/runtime/orchestration/db/schema/create-graph-tables-sql.ts",
+        "src/main/runtime/orchestration/db/schema/migrate-v47.test.ts",
+        "src/main/runtime/orchestration/db/schema/migrate-v47.ts",
+        "src/main/runtime/orchestration/db/schema/migrate.ts",
+        "src/main/runtime/orchestration/db/tasks/task-store.ts",
+        "src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-outcome.ts",
+        "src/main/runtime/orchestration/db/worker-dispatch/worker-dispatch-start.ts",
+        "src/main/runtime/orchestration/legacy-contract-rows.ts",
+        "src/main/runtime/orchestration/lifecycle-reconciliation.ts",
+        "src/main/runtime/orchestration/preamble.ts",
+        "src/main/runtime/orchestration/types.ts",
+        "src/main/runtime/rpc/methods/orchestration-structured-worker-start-failure.test.ts",
+        "src/main/runtime/rpc/methods/orchestration.ts",
+        "src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.test.ts",
+        "src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-host.ts",
+        "src/main/runtime/rpc/methods/orchestration/automatic/automatic-run-methods.ts",
+        "src/main/runtime/rpc/methods/orchestration/gates/gates.ts",
+        "src/main/runtime/rpc/methods/orchestration/messaging/check-methods.ts",
+        "src/main/runtime/rpc/methods/orchestration/messaging/message-methods.ts",
+        "src/main/runtime/rpc/methods/orchestration/messaging/send-point-to-point.ts",
+        "src/main/runtime/rpc/methods/orchestration/messaging/task-list-projection.ts",
+        "src/main/runtime/rpc/methods/orchestration/runs/run-receipt.test.ts",
+        "src/main/runtime/rpc/methods/orchestration/runs/runs.ts",
+        "src/main/runtime/rpc/methods/orchestration/worker/local-worker-start.ts",
+        "src/main/runtime/rpc/orchestration-session-caller.test.ts",
+        "src/main/runtime/rpc/orchestration-session-caller.ts",
+        "src/main/runtime/runtime-agent-orchestration-projection.ts",
+        "src/main/runtime/runtime-orchestration-db.test-fixture.ts",
+        "src/main/runtime/workspaces/persisted-surfaces/automation-operations.ts",
+        "src/renderer/src/components/dashboard/dashboard-card-labels.ts",
+        "src/renderer/src/store/slices/agent-status/agent-status-orchestration-context.ts",
+        "src/shared/agent-status-types.ts",
+        "src/shared/orchestration-workflow.ts",
+        "src/shared/rpc-contract/orchestration-automatic-run-params.ts",
+        "src/shared/rpc-contract/orchestration-runs-params.ts",
+        "src/shared/rpc-contract/rpc-params-catalog.generated.ts"
+      ],
+      "requires": []
+    },
+    {
+      "id": "todo",
+      "label": "Todo",
+      "description": "Ajan panosunun soluna kalici Todo sutunu.",
+      "files": [
+        "src/main/ipc/dashboard-payload-validation.ts",
+        "src/main/ipc/dashboard-popout.test.ts",
+        "src/main/ipc/dashboard-popout.ts",
+        "src/main/ipc/dashboard-workspace-payload-validation.ts",
+        "src/main/ipc/repos/repo-ipc-arg-schemas.ts",
+        "src/main/ipc/worktree-metadata-merge.ts",
+        "src/main/ipc/worktrees/folder-workspace-model.ts",
+        "src/main/persistence/loading-store/worktree-meta-write-normalization.ts",
+        "src/main/persistence/restoring-sessions/folder-workspace-operations.ts",
+        "src/main/persistence/tracking-repos/persistence-worktree-meta-and-folder-workspaces.test.ts",
+        "src/main/runtime/rpc/methods/worktree-set-method.ts",
+        "src/main/runtime/runtime-project-group-controller.ts",
+        "src/preload/api/dashboard-api.ts",
+        "src/preload/api/dashboard-bridge.ts",
+        "src/renderer/src/components/dashboard-popout/AgentKanbanBoard.test.tsx",
+        "src/renderer/src/components/dashboard-popout/AgentKanbanBoard.todo.test.tsx",
+        "src/renderer/src/components/dashboard-popout/AgentKanbanBoard.tsx",
+        "src/renderer/src/components/dashboard-popout/WorkspaceTodoAddForm.tsx",
+        "src/renderer/src/components/dashboard-popout/WorkspaceTodoCard.tsx",
+        "src/renderer/src/components/dashboard-popout/WorkspaceTodoColumn.tsx",
+        "src/renderer/src/components/dashboard-popout/workspace-todo-filtering.test.ts",
+        "src/renderer/src/components/dashboard-popout/workspace-todo-filtering.ts",
+        "src/renderer/src/components/dashboard-popout/workspace-todo-presentation.ts",
+        "src/renderer/src/components/dashboard/AgentDashboardDrawer.tsx",
+        "src/renderer/src/components/dashboard/build-dashboard-snapshot.todos.test.ts",
+        "src/renderer/src/components/dashboard/build-dashboard-snapshot.ts",
+        "src/renderer/src/components/dashboard/useDashboardPopoutBridge.test.tsx",
+        "src/renderer/src/components/dashboard/useDashboardPopoutBridge.ts",
+        "src/renderer/src/components/dashboard/workspace-todo-support.ts",
+        "src/renderer/src/runtime/workspace-todo-capability.ts",
+        "src/renderer/src/store/folder-workspaces/folder-workspace-mutations.ts",
+        "src/renderer/src/store/repos/repo-state.ts",
+        "src/renderer/src/store/slices/worktree-helpers.ts",
+        "src/renderer/src/store/slices/worktrees.ts",
+        "src/renderer/src/store/slices/worktrees/listing/detected-worktree-meta.ts",
+        "src/renderer/src/store/slices/worktrees/metadata/update-worktree-meta.ts",
+        "src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.test.ts",
+        "src/renderer/src/store/slices/worktrees/metadata/workspace-todo-actions.ts",
+        "src/renderer/src/store/slices/worktrees/metadata/worktree-meta-persist.ts",
+        "src/shared/dashboard-snapshot.ts",
+        "src/shared/folder-workspace-types.ts",
+        "src/shared/folder-workspace-worktree.test.ts",
+        "src/shared/folder-workspace-worktree.ts",
+        "src/shared/folder-workspaces.ts",
+        "src/shared/rpc-contract/folder-workspace-params.ts",
+        "src/shared/rpc-contract/worktree-params.ts",
+        "src/shared/workspace-todo-schema.ts",
+        "src/shared/workspace-todo.test.ts",
+        "src/shared/workspace-todo.ts",
+        "src/shared/worktree-runtime-capabilities.ts",
+        "src/shared/worktree/meta-types.ts",
+        "src/shared/worktree/types.ts"
+      ],
+      "requires": []
+    }
+  ],
+  "bootstrap": {
+    "scripts\\manage_installation.py": "4446b5ca2443388e7e865ab1ac2dddd46899cd0e1178688e47c87ba32628719f",
+    "scripts\\orca_install\\__init__.py": "6299f1b5252ff9047c1d788544dd31e83b72f31064bd6470832efb6a27c727a0",
+    "scripts\\orca_install\\archive.py": "0a454917e07259048dfd7bbd3cda17523c42cf46a1398a3c46ddb8f6f2e61592",
+    "scripts\\orca_install\\backup.py": "ba5fbc976b418170e5a993c85871cdab53cfea812eadeb8617faf8beee78f0f0",
+    "scripts\\orca_install\\bundle.py": "956fc7a9277971c0385258e079e2cc517cf84310bf6aada55c9a8d01d50217fe",
+    "scripts\\orca_install\\cli.py": "286fcd4c3e4f45eafd514a085939cc7c2c21adf78b8dc77f81aac5e8415c79f1",
+    "scripts\\orca_install\\errors.py": "423e917adc11a98c0b2f88cf7396de2cc41ac954e08debd8ff490258190ef220",
+    "scripts\\orca_install\\gitutil.py": "df1acc4bc1fd08018950e18b82f26f65a56edc3d5b230456457f8598829f119c",
+    "scripts\\orca_install\\installer.py": "d35cefb70a0a3f82ebd2eb1bdaa30187a1978ddd0847866b02e3c9fbd436f03d",
+    "scripts\\orca_install\\lock.py": "1c5b7a3eb404875adfcf68c1cd52d101004d1457333faf2fb90efae1f6c6feaf",
+    "scripts\\orca_install\\paths.py": "6912d6bfb8979087373da2fc0e397c1e2a0c4787665ae4881bdd1efc83659210",
+    "scripts\\orca_install\\planner.py": "0adf684d792fdee6168efa7825f1c3a035156c538b18715120ae9ca9ae25344a",
+    "scripts\\orca_install\\recovery.py": "179ef0fce759b3ebd016fa90ba7f1f580ef3ac35e40e6d2f5fccdd27551cf00f",
+    "scripts\\orca_install\\status.py": "9c013d3e784843eb7b4a09d77f5f4c82e6e76dd3e3d8a0e145c6d058c81853c1",
+    "scripts\\orca_install\\store.py": "b0816d39b514f3c87c2ac532fba209f555e8b98976d2b2a774210f8deb4e3c67",
+    "scripts\\orca_install\\uninstaller.py": "aacfe065492adac8e768d1f79442fcbbdacacd2207496c87433a0bdbb6e769dc",
+    "scripts\\verify_bundle.py": "1efe7b2c54562a0af36a23d90ab71e459b83d8ba93a9928267930f126998538b",
+    "install.ps1": "ff82b1c3afd07b9912eb95d76b86481bf197eef869da452b6863828691f54513"
+  }
 }

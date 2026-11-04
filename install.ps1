@@ -7,6 +7,11 @@ param(
     [string]$Source,
     [switch]$DryRun,
     [string]$RepoRoot,
+    [string[]]$Pack,
+    [string]$BundleRef = 'v1.4.246-todo.1',
+    [string]$BundleUrl = '',
+    [string]$BundleManifestSha256 = '03e19fce94a5c2c7f64eae251ed09452a12790cbcad953c4be57dade62af2fc3',
+    [string]$BundleArchiveSha256 = '',
     [switch]$NoPause
 )
 
@@ -19,6 +24,7 @@ $script:ResolvedRepoRoot = $null
 $script:ResolvedSource = $null
 $script:RequestedSource = $Source
 $script:Python = $null
+$script:BootstrapTempRoot = $null
 
 function Write-Warn {
     param([string]$Message)
@@ -39,6 +45,121 @@ function Test-RepoRoot {
     $manifest = Join-Path $Path 'bundle-manifest.json'
     return (Test-Path -LiteralPath $manage -PathType Leaf) -and
         (Test-Path -LiteralPath $manifest -PathType Leaf)
+}
+
+function Resolve-BundleArchiveUrl {
+    if ($BundleUrl) {
+        return $BundleUrl
+    }
+    # Preserve TLS 1.3 when supported; older Windows PowerShell needs TLS 1.2 added.
+    [Net.ServicePointManager]::SecurityProtocol =
+        [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+    if ($BundleRef -match '^[0-9a-f]{40}$') {
+        return "https://codeload.github.com/realyasster/orca-advanced-orchestration/zip/$BundleRef"
+    }
+    try {
+        $api = "https://api.github.com/repos/realyasster/orca-advanced-orchestration/commits/$BundleRef"
+        $response = Invoke-RestMethod -UseBasicParsing -Headers @{
+            'User-Agent' = 'orca-advanced-orchestration-installer'
+        } -Uri $api
+        $commit = [string]$response.sha
+        if ($commit -notmatch '^[0-9a-f]{40}$') {
+            throw "GitHub commit kimliği geçersiz: $commit"
+        }
+        return "https://github.com/realyasster/orca-advanced-orchestration/archive/$commit.zip"
+    }
+    catch {
+        $status = 0
+        try { $status = [int]$_.Exception.Response.StatusCode } catch { $status = 0 }
+        if ($status -eq 403 -or $status -eq 429) {
+            Write-Warn "GitHub API sınırına takıldı; '$BundleRef' referansı doğrudan arşivden indirilecek."
+            return "https://codeload.github.com/realyasster/orca-advanced-orchestration/zip/$BundleRef"
+        }
+        throw "Paket referansı '$BundleRef' sabit commit'e çözümlenemedi. -BundleUrl ve -BundleManifestSha256 ile açık bir arşiv verin. Ayrıntı: $($_.Exception.Message)"
+    }
+}
+
+function Install-BundleArchive {
+    if ($script:ResolvedRepoRoot) {
+        return
+    }
+    $url = Resolve-BundleArchiveUrl
+    $temp = Join-Path ([System.IO.Path]::GetTempPath()) ("orca-ao-bundle-" + [guid]::NewGuid().ToString('N'))
+    $script:BootstrapTempRoot = $temp
+    New-Item -ItemType Directory -Path $temp -Force | Out-Null
+    $archive = Join-Path $temp 'bundle.zip'
+    Write-Host "Paket deposu yerelde yok; indiriliyor: $url" -ForegroundColor DarkGray
+    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $archive
+    if ($BundleArchiveSha256) {
+        $archiveActual = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($archiveActual -ne $BundleArchiveSha256.ToLowerInvariant()) {
+            throw "Paket arşivi hash'i eşleşmedi. Beklenen: $BundleArchiveSha256, gelen: $archiveActual"
+        }
+    }
+    Expand-Archive -LiteralPath $archive -DestinationPath $temp -Force
+    $candidate = $null
+    if (Test-RepoRoot $temp) {
+        $candidate = Get-Item -LiteralPath $temp
+    }
+    else {
+        $candidate = Get-ChildItem -LiteralPath $temp -Directory |
+            Where-Object { Test-RepoRoot $_.FullName } |
+            Select-Object -First 1
+    }
+    if ($null -eq $candidate) {
+        throw "İndirilen arşivde bundle-manifest.json bulunamadı: $url"
+    }
+    if (-not $BundleManifestSha256) {
+        throw 'Bootstrap için -BundleManifestSha256 zorunludur.'
+    }
+    $manifestFile = Join-Path $candidate.FullName 'bundle-manifest.json'
+    $actual = (Get-FileHash -LiteralPath $manifestFile -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($actual -ne $BundleManifestSha256.ToLowerInvariant()) {
+        throw "Paket manifest hash'i eşleşmedi. Beklenen: $BundleManifestSha256, gelen: $actual"
+    }
+    $manifestData = Get-Content -LiteralPath $manifestFile -Raw | ConvertFrom-Json
+    $bootstrapHashes = $manifestData.bootstrap
+    if ($null -eq $bootstrapHashes) {
+        throw 'İndirilen manifest bootstrap script hash listesini içermiyor.'
+    }
+    foreach ($property in $bootstrapHashes.PSObject.Properties) {
+        $relative = $property.Name -replace '/', [System.IO.Path]::DirectorySeparatorChar
+        $scriptFile = Join-Path $candidate.FullName $relative
+        if (-not (Test-Path -LiteralPath $scriptFile -PathType Leaf)) {
+            throw "Bootstrap dosyası eksik: $($property.Name)"
+        }
+        if ($property.Name -eq 'install.ps1') {
+            # The manifest hash line is self-referential; normalize it before hashing.
+            $text = [System.Text.Encoding]::UTF8.GetString([System.IO.File]::ReadAllBytes($scriptFile))
+            if ($text.Length -gt 0 -and [int][char]$text[0] -eq 0xFEFF) {
+                $text = $text.Substring(1)
+            }
+            $normalized = [regex]::Replace(
+                $text,
+                "(BundleManifestSha256 = ')[0-9a-f]{64}(')",
+                ('${1}' + ('0' * 64) + '${2}')
+            )
+            $sha = [System.Security.Cryptography.SHA256]::Create()
+            try {
+                $scriptActual = (
+                    [System.BitConverter]::ToString(
+                        $sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($normalized))
+                    ) -replace '-', ''
+                ).ToLowerInvariant()
+            }
+            finally {
+                $sha.Dispose()
+            }
+        }
+        else {
+            $scriptActual = (Get-FileHash -LiteralPath $scriptFile -Algorithm SHA256).Hash.ToLowerInvariant()
+        }
+        $scriptExpected = ([string]$property.Value).ToLowerInvariant()
+        if ($scriptActual -ne $scriptExpected) {
+            throw "Bootstrap dosyası hash'i eşleşmedi: $($property.Name)"
+        }
+    }
+    $script:ResolvedRepoRoot = (Resolve-Path -LiteralPath $candidate.FullName).Path
 }
 
 function Resolve-RepoRoot {
@@ -62,6 +183,10 @@ function Resolve-RepoRoot {
         }
     }
 
+    if (-not $RepoRoot) {
+        Install-BundleArchive
+        return $script:ResolvedRepoRoot
+    }
     throw "Paket deposu bulunamadı. Bu script'i depo kökünden çalıştırın: cd orca-advanced-orchestration"
 }
 
@@ -169,11 +294,100 @@ function Resolve-Source {
     }
 }
 
+function Get-PackCatalog {
+    $repo = Resolve-RepoRoot
+    $manifestPath = Join-Path $repo 'bundle-manifest.json'
+    $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+    return @($manifest.packs)
+}
+
+function Select-Packs {
+    $packs = @(Get-PackCatalog)
+    if ($packs.Count -eq 0) {
+        return @()
+    }
+    $selected = @{}
+    foreach ($pack in $packs) {
+        $selected[$pack.id] = $true
+    }
+    while ($true) {
+        Write-Host ''
+        Write-Host 'Kurulacak bileşenler:' -ForegroundColor Cyan
+        for ($index = 0; $index -lt $packs.Count; $index++) {
+            $pack = $packs[$index]
+            $mark = ' '
+            if ($selected[$pack.id]) {
+                $mark = 'x'
+            }
+            Write-Host ("  [{0}] {1}) {2}" -f $mark, ($index + 1), $pack.label)
+            Write-Host ("       {0}" -f $pack.description) -ForegroundColor DarkGray
+        }
+        Write-Host ''
+        $answer = Read-Host 'Seçim [Enter=kur, A=tümü, N=hiçbiri, Q=iptal]'
+        if ($null -eq $answer) {
+            throw 'İşlem iptal edildi.'
+        }
+        $answer = $answer.Trim()
+        if ($answer -eq '') {
+            $chosen = @($packs | Where-Object { $selected[$_.id] } | ForEach-Object { $_.id })
+            if ($chosen.Count -eq 0) {
+                Write-Warn 'En az bir bileşen seçin.'
+                continue
+            }
+            return $chosen
+        }
+        if ($answer -match '^(a|all|tümü|tumu)$') {
+            foreach ($pack in $packs) { $selected[$pack.id] = $true }
+            continue
+        }
+        if ($answer -match '^(n|none|hiçbiri|hicbiri)$') {
+            foreach ($pack in $packs) { $selected[$pack.id] = $false }
+            continue
+        }
+        if ($answer -match '^(q|quit|çık|çıkış|cikis)$') {
+            throw 'İşlem iptal edildi.'
+        }
+        $number = 0
+        if ([int]::TryParse($answer, [ref]$number) -and $number -ge 1 -and $number -le $packs.Count) {
+            $pack = $packs[$number - 1]
+            $selected[$pack.id] = -not $selected[$pack.id]
+            continue
+        }
+        Write-Warn "Geçersiz seçim: $answer"
+    }
+}
+
+function Expand-PackValues {
+    param([string[]]$Values)
+    return @(
+        $Values |
+            ForEach-Object { $_ -split ',' } |
+            ForEach-Object { $_.Trim() } |
+            Where-Object { $_ }
+    )
+}
+
 function Invoke-InstallAction {
-    param([switch]$DryRun)
+    param(
+        [switch]$DryRun,
+        [switch]$SelectPacks
+    )
     Assert-Git
     $source = Resolve-Source
     $arguments = @('install', '--source', $source)
+    $chosenPacks = @()
+    if ($Pack) {
+        $chosenPacks = Expand-PackValues -Values $Pack
+    }
+    elseif ($SelectPacks -and -not $NoPause -and -not [Console]::IsInputRedirected) {
+        $chosenPacks = @(Select-Packs)
+    }
+    elseif ($SelectPacks) {
+        Write-Warn 'Bileşen seçimi atlandı (etkileşimsiz oturum); tüm pack''ler kurulacak.'
+    }
+    foreach ($packId in $chosenPacks) {
+        $arguments += @('--pack', $packId)
+    }
     if ($DryRun) {
         $arguments += '--dry-run'
     }
@@ -242,10 +456,10 @@ function Show-Menu {
         Write-Host "Paket: $(Resolve-RepoRoot)"
         Write-Host "Orca:  $sourceLabel"
         Write-Host ''
-        Write-Host '  1) Kur'
+        Write-Host '  1) Kur (bileşen seçimiyle)'
         Write-Host '  2) Durum'
         Write-Host '  3) Kaldır'
-        Write-Host '  4) Kurulum provası (dry-run)'
+        Write-Host '  4) Kurulum provası (bileşen seçimiyle)'
         Write-Host '  5) Kaldırma provası (dry-run)'
         Write-Host '  6) Paketi doğrula'
         Write-Host '  7) Orca kaynak yolunu değiştir'
@@ -264,7 +478,7 @@ function Show-Menu {
         $code = 0
         try {
             switch ($choice) {
-                '1' { $code = Invoke-InstallAction }
+                '1' { $code = Invoke-InstallAction -SelectPacks }
                 '2' { $code = Invoke-StatusAction }
                 '3' {
                     if (Confirm-Uninstall) {
@@ -275,7 +489,7 @@ function Show-Menu {
                         $code = 0
                     }
                 }
-                '4' { $code = Invoke-InstallAction -DryRun }
+                '4' { $code = Invoke-InstallAction -DryRun -SelectPacks }
                 '5' { $code = Invoke-UninstallAction -DryRun }
                 '6' { $code = Invoke-VerifyAction }
                 '7' {
@@ -345,6 +559,9 @@ catch {
 }
 
 $exitCode = [int]$exitCode
+if ($script:BootstrapTempRoot -and (Test-Path -LiteralPath $script:BootstrapTempRoot)) {
+    Remove-Item -LiteralPath $script:BootstrapTempRoot -Recurse -Force -ErrorAction SilentlyContinue
+}
 if ($script:ScriptPath) {
     exit $exitCode
 }

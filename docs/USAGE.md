@@ -45,9 +45,9 @@ Uygulama (Codex)
 | [`install.ps1`](../install.ps1) | Windows için etkileşimli PowerShell kurulum menüsü |
 | [`scripts/orca_install/`](../scripts/orca_install/) | Aracın paket doğrulama, kilit, günlük, yedek ve geri yükleme modülleri |
 | [`patches/automatic-orchestration.patch`](../patches/automatic-orchestration.patch) | Upstream tabana uygulanacak gerçek değişiklikler |
-| [`changes/`](../changes/) | Değişen veya eklenen 77 dosyanın uygulama sonrası halleri; özgün yollar korunur |
+| [`changes/`](../changes/) | Değişen veya eklenen 133 dosyanın uygulama sonrası halleri; özgün yollar korunur |
 | [`examples/workflow.json`](../examples/workflow.json) | Uygulama → paralel test ve inceleme örneği |
-| [`bundle-manifest.json`](../bundle-manifest.json) | Taban commit, kaynak commit, dosya listesi ve SHA-256 değerleri |
+| [`bundle-manifest.json`](../bundle-manifest.json) | Taban commit, kaynak commit, pack listesi, dosya listesi ve SHA-256 değerleri |
 | [`scripts/verify_bundle.py`](../scripts/verify_bundle.py) | Paket bütünlüğü kontrolü |
 | [`tests/`](../tests/) | Python standart kütüphanesiyle çalışan installer testleri |
 
@@ -74,7 +74,7 @@ Komutlar iki klonun aynı üst klasörde olduğunu varsayar. `--source` mutlaka 
 
 ### PowerShell menüsü (Windows)
 
-Depo ve `orca-dev` checkout'u hazır olduktan sonra tek komutla menüyü açabilirsiniz:
+Orca `orca-dev` checkout'u hazır olduktan sonra tek komutla menüyü açabilirsiniz (paket deposu yerelde yoksa betik geçici indirir):
 
 ```powershell
 cd orca-advanced-orchestration
@@ -84,10 +84,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 Menüden seçim yapın:
 
 ```text
-  1) Kur
+  1) Kur (bileşen seçimiyle)
   2) Durum
   3) Kaldır
-  4) Kurulum provası (dry-run)
+  4) Kurulum provası (bileşen seçimiyle)
   5) Kaldırma provası (dry-run)
   6) Paketi doğrula
   7) Orca kaynak yolunu değiştir
@@ -96,37 +96,59 @@ Menüden seçim yapın:
 
 Menüde `3) Kaldır` işlem başlamadan önce onay ister; onaylanmazsa hiçbir şey yapılmaz. Doğrudan `-Action uninstall` çağrısı onay sormaz. `7) Orca kaynak yolunu değiştir` seçeneğinde işlem iptal edilirse önceki kaynak yolu korunur.
 
-`install.ps1` yalnızca mevcut Python aracını çağırır. Depoyu veya Orca checkout'unu **klonlamaz**; ikisinin de önceden hazır olması gerekir. `-Source` verilmezse önce `..\orca-dev` aranır, bulunamazsa yol sorulur.
+`install.ps1` yalnızca mevcut Python aracını çağırır. Orca checkout'unu **klonlamaz**. Paket deposu yerelde yoksa `-BundleUrl` adresinden (varsayılan GitHub `main` arşivi) geçici bir kopya indirir. `-Source` verilmezse önce `..\orca-dev` aranır, bulunamazsa yol sorulur.
 
 Doğrudan eylem seçmek için:
 
 ```powershell
 .\install.ps1 -Action install -Source ..\orca-dev
-.\install.ps1 -Action install -Source ..\orca-dev -DryRun
+.\install.ps1 -Action install -Source ..\orca-dev -Pack todo
+.\install.ps1 -Action install -Source ..\orca-dev -Pack orchestration,todo -DryRun
 .\install.ps1 -Action status -Source ..\orca-dev
 .\install.ps1 -Action uninstall -Source ..\orca-dev
 .\install.ps1 -Action verify
 ```
 
-`-NoPause` otomasyon için işlem sonu beklemesini kapatır; depo kökü otomatik bulunamazsa `-RepoRoot` ile belirtin.
+`-NoPause` otomasyon için işlem sonu beklemesini kapatır; depo kökü otomatik bulunamazsa `-RepoRoot` ile belirtin. Doğrudan `-Action install` çağrısında `-Pack` verilmezse bileşen sorusu sorulmaz, tüm pack’ler kurulur. Menüde ise bileşen seçimi sorulur; `-NoPause` veya yönlendirilmiş girdi durumunda seçim atlanıp tüm pack’ler kullanılır.
 
-Depo kökündeyken `irm ... | iex` de aynı menüyü açar; depo dışından çalıştırılırsa script depoyu bulamaz:
+`irm ... | iex` aynı menüyü açar. Paket deposu yerelde yoksa betik arşivi geçici olarak indirir; işlem sonunda geçici kopya silinir:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.4.246-todo.1/install.ps1 | iex
 ```
 
-`iex` uzaktan indirilen betiği doğrudan çalıştırır; URL'yi ve betiği önce inceleyin.
+`iex` uzaktan indirilen betiği doğrudan çalıştırır; URL'yi ve betiği önce inceleyin. Bootstrap, `-BundleRef` (varsayılan `v1.4.246-todo.1`) değerini GitHub API ile **sabit commit SHA’sına** çözümler, o commit'in arşivini indirir, `bundle-manifest.json` SHA-256 değerini ve manifestteki **bootstrap script hash listesini** doğrular. Yerel bir arşiv veya farklı sürüm için `-BundleRef`, `-BundleUrl`, `-BundleManifestSha256` ve isteğe bağlı tam zip doğrulaması için `-BundleArchiveSha256` kullanılabilir. Release tag’i yayımlanmadan varsayılan bootstrap çalışmaz; geçici olarak `-BundleRef main` verilebilir.
+
+### Bileşen seçimi
+
+Paket iki bağımsız bileşen içerir:
+
+| Pack | İçerik |
+| --- | --- |
+| `orchestration` | Otomatik orkestrasyon, CLI/RPC, veritabanı ve karar kapıları |
+| `todo` | Ajan panosunun solundaki kalıcı Todo sütunu |
+
+Kurulum menüsünde bileşenler işaretli bir liste olarak gelir: numaraya basarak seçimi değiştirin, **Enter** ile kurun, `A` tümünü, `N` hiçbirini seçer, `Q` iptal eder. Varsayılan ikisi de seçilidir.
+
+Doğrudan seçim:
+
+```sh
+python scripts/manage_installation.py install --source ../orca-dev --pack todo
+python scripts/manage_installation.py install --source ../orca-dev --pack orchestration
+python scripts/manage_installation.py install --source ../orca-dev --pack todo,orchestration
+```
+
+`--pack` verilmezse tüm bileşenler kurulur. Seçim kurulum kaydına yazılır ve `status` çıktısında görünür. Kurulu pakette seçimi değiştirmek için önce `uninstall`, sonra yeni seçimle `install` çalıştırın.
 
 Önce yapılacakları görmek için:
 
 ```sh
-python scripts/manage_installation.py install --source ../orca-dev --dry-run
+python scripts/manage_installation.py install --source ../orca-dev --pack todo --dry-run
 ```
 
 Kurulumda araç sırasıyla:
 
-1. `bundle-manifest.json` içindeki patch, örnek ve 77 dosyanın SHA-256 değerlerini doğrular.
+1. `bundle-manifest.json` içindeki patch, örnek ve 133 dosyanın SHA-256 değerlerini; toplam 135 paket dosyasını doğrular.
 2. Hedefin Git checkout'unu, taban commit'i, yönetilen yolları ve symlink/junction durumunu kontrol eder.
 3. Patch'i, mevcut etkilenen dosyaların geçici kopyaları üzerinde uygular. Patch ile uyumlu yerel düzenlemeler korunur; uygulanamayan patch hedefi değiştirmeden durur.
 4. Yönetilen mevcut dosyaların **ham baytlarını ve izinlerini** Git veri dizini altında yedekler, yedek hash'lerini doğrular ve kalıcı bir JSON günlük yazar.
@@ -243,6 +265,10 @@ node config/scripts/orca-dev.mjs orchestration run-start --id "<run_id>" --json
 
 Koordinatör akışı başlattıktan sonra turunu bitirir; sıradaki işi başlatmak için sorgulama döngüsü çalıştırmaz. İnceleme, soru, başarısızlık veya son rapor gerektiğinde yeniden devreye girer.
 
+## Pano Todo sütunu
+
+Ajan panosunun en solundaki **Todo** sütunu, ajanlardan bağımsız elle işler içindir. **Ekle** ile tek satır metin ve çalışma alanı seçin; etkin çalışma alanı varsayılan gelir. Enter kaydeder, Escape iptal eder. Karttaki metne tıklayarak yerinde düzenleyin, kutudan tamamlayın; tamamlananlar aynı sütunun altındaki kapalı **Completed** bölümüne geçer ve tekrar açılabilir. Kart menüsünden silinen iş, kısa süre görünen **Undo** ile geri alınabilir. Liste her çalışma alanı için ayrıdır ve yeniden başlatmada korunur; maddeler ajan başlatmaz veya Done sütununa taşınmaz.
+
 ## Kontroller
 
 ```sh
@@ -257,7 +283,7 @@ Duraklatma yeni başlangıçları engeller; çalışan işçiler devam eder. İp
 
 ## Doğrulama durumu
 
-İlgili **7 Orca test dosyasındaki 48 test geçti**; iki dosyada `max-lines` lint hatası kaldı. Installer için **46 Python testi geçti**: temiz/kesintili kurulum, durum, kaldırma, kurtarma arşivi, CRLF, izinler, yedek doğrulama, kilit yarışı, path traversal, symlink/junction, linked worktree, PowerShell menüsü ve gerçek 77 dosyalık patch'in taban ağacına uygulanması.
+Todo ile ilgili **14 Orca test dosyasındaki 178 test** ve otomatik orkestrasyonun **7 dosyadaki 48 regresyon testi** geçti; değişen dosyalarda lint veya TypeScript hatası yok. Installer için **55 Python testi geçti**: temiz/kesintili kurulum, durum, kaldırma, kurtarma arşivi, CRLF, izinler, yedek doğrulama, kilit yarışı, path traversal, symlink/junction, linked worktree, PowerShell menüsü ve gerçek 133 dosyalık patch'in taban ağacına uygulanması.
 
 Tam CI, uygulama paketlemesi ve canlı çok ajanlı uçtan uca çalışma doğrulanmadı. Testler kontrollü işçi host'ları kullanır; gerçek üretim token ölçümü değildir. Gerçek patch fixture testi yerel `orca-source/` checkout'una ihtiyaç duyar ve o yoksa atlanır.
 

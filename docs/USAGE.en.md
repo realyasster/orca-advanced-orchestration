@@ -14,9 +14,9 @@ This repository contains only the orchestration changes, their tests, documentat
 - [`install.ps1`](../install.ps1): interactive PowerShell installation menu for Windows.
 - [`scripts/orca_install/`](../scripts/orca_install/): bundle verification, locking, journal, backup, and restore modules.
 - `patches/automatic-orchestration.patch`: actual changes against Orca v1.4.246.
-- `changes/`: post-change snapshots of the 77 affected source and skill-guide files, preserving upstream paths. Existing files include surrounding upstream code; the patch identifies the changed lines.
+- `changes/`: post-change snapshots of the 133 affected source and skill-guide files, preserving upstream paths. Existing files include surrounding upstream code; the patch identifies the changed lines.
 - `examples/workflow.json`: implementation followed by parallel testing and review.
-- `bundle-manifest.json`: exact base, implementation reference, and SHA-256 hashes.
+- `bundle-manifest.json`: exact base, implementation reference, pack definitions, and SHA-256 hashes.
 - `scripts/verify_bundle.py`: bundle integrity verification.
 - [`tests/`](../tests/): installer tests using only the Python standard library.
 
@@ -43,7 +43,7 @@ This assumes sibling clones. `--source` must point at the Git root of the checko
 
 ### PowerShell menu (Windows)
 
-Once the bundle and an `orca-dev` checkout are ready, open the menu with one command:
+Once an `orca-dev` checkout is ready, open the menu with one command (the script downloads the bundle temporarily when it is not present locally):
 
 ```powershell
 cd orca-advanced-orchestration
@@ -53,10 +53,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 Choose an action:
 
 ```text
-  1) Install
+  1) Install (choose components)
   2) Status
   3) Uninstall
-  4) Install dry-run
+  4) Install dry-run (choose components)
   5) Uninstall dry-run
   6) Verify bundle
   7) Change Orca source path
@@ -65,37 +65,59 @@ Choose an action:
 
 In the menu, `3) Uninstall` asks for confirmation before starting; if declined, nothing changes. Direct `-Action uninstall` does not prompt. If `7) Change Orca source path` is cancelled, the previous source path is kept.
 
-`install.ps1` only wraps the existing Python tool. It does **not** clone the bundle or the Orca checkout; both must already exist. Without `-Source`, it looks for `..\orca-dev` first and then asks for a path.
+`install.ps1` only wraps the existing Python tool. It does **not** clone the Orca checkout. When the bundle repository is absent locally, it downloads a temporary archive from `-BundleUrl` (the GitHub `main` archive by default). Without `-Source`, it looks for `..\orca-dev` first and then asks for a path.
 
 Run a single action directly:
 
 ```powershell
 .\install.ps1 -Action install -Source ..\orca-dev
-.\install.ps1 -Action install -Source ..\orca-dev -DryRun
+.\install.ps1 -Action install -Source ..\orca-dev -Pack todo
+.\install.ps1 -Action install -Source ..\orca-dev -Pack orchestration,todo -DryRun
 .\install.ps1 -Action status -Source ..\orca-dev
 .\install.ps1 -Action uninstall -Source ..\orca-dev
 .\install.ps1 -Action verify
 ```
 
-`-NoPause` skips the wait after an action for automation. Use `-RepoRoot` when the repository root cannot be detected automatically.
+`-NoPause` skips the wait after an action for automation. Use `-RepoRoot` when the repository root cannot be detected automatically. A direct `-Action install` without `-Pack` installs every component without prompting; the menu asks for components, and `-NoPause` or redirected input also skips the prompt in favor of all packs.
 
-Running `irm ... | iex` from the repository root opens the same menu; from any other directory the script cannot locate the bundle:
+`irm ... | iex` opens the same menu. If the bundle repository is not present locally, the script downloads a temporary archive and removes it afterwards:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.4.246-todo.1/install.ps1 | iex
 ```
 
-`iex` executes downloaded code directly; inspect the URL and the script first.
+`iex` executes downloaded code directly; inspect the URL and the script first. The bootstrap resolves `-BundleRef` (default `v1.4.246-todo.1`) to an immutable GitHub commit SHA, downloads that commit's archive, and verifies the SHA-256 of `bundle-manifest.json` plus the **bootstrap script hash list** in that manifest. Use `-BundleRef`, `-BundleUrl`, `-BundleManifestSha256`, and optionally `-BundleArchiveSha256` for a different version, a local archive, or full ZIP verification. The default requires the release tag to exist; `-BundleRef main` is available as a temporary override.
+
+### Component selection
+
+The bundle contains two independent components:
+
+| Pack | Contents |
+| --- | --- |
+| `orchestration` | Event-driven automatic orchestration, CLI/RPC, database, and decision gates |
+| `todo` | Persistent Todo column at the left of the agent board |
+
+The install menu shows a checkbox-style list: press a number to toggle, **Enter** to install, `A` for all, `N` for none, `Q` to cancel. Both are selected by default.
+
+Select directly:
+
+```sh
+python scripts/manage_installation.py install --source ../orca-dev --pack todo
+python scripts/manage_installation.py install --source ../orca-dev --pack orchestration
+python scripts/manage_installation.py install --source ../orca-dev --pack todo,orchestration
+```
+
+Omitting `--pack` installs every component. The selection is written to the installation record and shown by `status`. To change a selection, uninstall first and install again.
 
 Preview actions without changing anything:
 
 ```sh
-python scripts/manage_installation.py install --source ../orca-dev --dry-run
+python scripts/manage_installation.py install --source ../orca-dev --pack todo --dry-run
 ```
 
 During installation the tool:
 
-1. Verifies the patch, example, and all 77 file SHA-256 values in `bundle-manifest.json`.
+1. Verifies the patch, example, and all 133 file SHA-256 values in `bundle-manifest.json`, 135 bundle files in total.
 2. Checks the Git checkout, the supported base commit, every managed path, and symlink/junction safety.
 3. Applies the patch to temporary copies of the affected local files, preserving compatible local edits. If the patch does not apply exactly, it stops without changing the target.
 4. Stores the **raw bytes and permissions** of existing managed files under the checkout's Git data directory, verifies the backup hashes, and writes a durable JSON journal.
@@ -210,11 +232,15 @@ Adjust the example task instructions for your work. Codex and Claude must be ins
 
 Controls are documented in [the usage guide](USAGE.md#kontroller). Use `node config/scripts/orca-dev.mjs` from the patched checkout to target its development runtime; bare `orca` may target an installed build without these changes.
 
+## Board Todo column
+
+The **Todo** column at the far left of the agent board holds manual work items independent of agents. Choose **Add**, type one line, and pick a workspace; the active workspace is the default. Enter saves and Escape cancels. Click a card's text to edit it in place and use the checkbox to complete it. Completed items move into a collapsed **Completed** section at the bottom of the same column and can be reopened. Deleting from the card menu shows a short-lived **Undo** action. Each workspace has its own persistent list; items never launch agents or move into Done.
+
 ## Verification and limitations
 
-**48 focused Orca tests passed across 7 files**, and two `max-lines` lint errors remain. The installer has **46 passing Python tests** covering clean and interrupted installs, status, uninstall, recovery archives, CRLF, permissions, backup validation, lock races, path traversal, symlinks/junctions, linked worktrees, the PowerShell menu, and applying the real 77-file patch to a base tree.
+**178 focused Orca tests across 14 files** and **48 automatic-orchestration regression tests across 7 files** passed, with no lint or TypeScript errors in the changed files. The installer has **55 passing Python tests** covering clean and interrupted installs, status, uninstall, recovery archives, CRLF, permissions, backup validation, lock races, path traversal, symlinks/junctions, linked worktrees, the PowerShell menu, and applying the real 133-file patch to a base tree.
 
-Full CI, packaging, and a live multi-agent end-to-end run were not verified. Tests use controlled worker hosts; they do not measure production token usage. The real-patch fixture test needs a local `orca-source/` checkout and is skipped when absent.
+Full CI, packaging, and a live multi-agent end-to-end run were not verified. Tests use controlled worker hosts; they do not measure production token usage. The real-patch fixture test uses `ORCA_SOURCE_CHECKOUT` (or a local `orca-source/` directory) and is skipped when absent. A real install/status/uninstall roundtrip was run on a temporary worktree at the base commit with `core.autocrlf=false`.
 
 ```sh
 python scripts/verify_bundle.py

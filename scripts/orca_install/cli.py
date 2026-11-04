@@ -49,6 +49,8 @@ def _print_install(result: InstallResult) -> None:
     print("Installation: installed")
     print(f"Installation ID: {result.installation_id}")
     print(f"Backup: {result.backup_path}")
+    if result.packs:
+        print(f"Packs: {', '.join(result.packs)}")
     print(f"Files: {result.updated + result.added} ({result.updated} updated, {result.added} added)")
     _print_list("Local edits preserved", result.preserved_edits)
     for note in result.notes:
@@ -108,6 +110,16 @@ def build_parser() -> argparse.ArgumentParser:
     install_parser.add_argument(
         "--dry-run", action="store_true", help="show planned actions without changing anything"
     )
+    install_parser.add_argument(
+        "--pack",
+        action="append",
+        default=None,
+        metavar="ID",
+        help=(
+            "install only the named pack; repeat or use a comma-separated list. "
+            "Defaults to every pack."
+        ),
+    )
 
     status_parser = subparsers.add_parser(
         "status", help="read-only installation status for a source checkout"
@@ -138,7 +150,22 @@ def main(
     bundle = Path(bundle_root) if bundle_root is not None else _default_bundle_root()
     try:
         if args.command == "install":
-            result = install(bundle, args.source, dry_run=args.dry_run)
+            selected_packs = None
+            if args.pack is not None:
+                selected_packs = [
+                    value.strip()
+                    for entry in args.pack
+                    for value in entry.split(",")
+                    if value.strip()
+                ]
+                if not selected_packs:
+                    parser.error("--pack requires at least one non-empty pack id")
+            result = install(
+                bundle,
+                args.source,
+                dry_run=args.dry_run,
+                packs=selected_packs,
+            )
             _print_install(result)
             return 0
         if args.command == "status":

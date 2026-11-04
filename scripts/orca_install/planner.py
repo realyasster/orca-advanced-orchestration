@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Sequence
 import os
 import stat
 import tempfile
@@ -93,7 +93,11 @@ def _planned_directories(root: Path, files: List[PreparedFile]) -> List[str]:
     return planned
 
 
-def build_install_plan(checkout: Checkout, bundle: Bundle) -> InstallPlan:
+def build_install_plan(
+    checkout: Checkout,
+    bundle: Bundle,
+    selected_paths: Optional[Sequence[str]] = None,
+) -> InstallPlan:
     """Apply the bundle patch to copies of the current local files.
 
     The target checkout is only read here. If the patch does not apply exactly,
@@ -101,12 +105,14 @@ def build_install_plan(checkout: Checkout, bundle: Bundle) -> InstallPlan:
     """
 
     root = checkout.root
+    managed_paths = bundle.resolve_selected_paths(selected_paths)
+    managed_path_set = set(managed_paths)
     prepared: List[PreparedFile] = []
-    temp_name = _patch_temp_name(bundle.patch_paths)
+    temp_name = _patch_temp_name(managed_paths)
     with tempfile.TemporaryDirectory(prefix="orca-ao-apply-") as temp_dir:
         scratch = Path(temp_dir)
         originals = {}
-        for rel in bundle.patch_paths:
+        for rel in managed_paths:
             assert_safe_destination(root, rel)
             target = rel_to_os(root, rel)
             if target.exists():
@@ -117,11 +123,13 @@ def build_install_plan(checkout: Checkout, bundle: Bundle) -> InstallPlan:
                 originals[rel] = None
 
         patch_file = scratch / temp_name
-        patch_file.write_bytes(bundle.patch_bytes)
+        patch_file.write_bytes(bundle.patch_bytes_for_paths(managed_paths))
         apply_patch(patch_file, scratch)
 
         for bundle_file in bundle.files:
             rel = bundle_file.upstream_path
+            if rel not in managed_path_set:
+                continue
             applied_path = rel_to_os(scratch, rel)
             if is_link_or_junction(applied_path) or not applied_path.is_file():
                 raise BundleError(

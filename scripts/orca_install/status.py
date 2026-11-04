@@ -42,6 +42,10 @@ class StatusReport:
             f"implementation {record.package_implementation_commit or 'unknown'}"
         )
         lines.append(f"Package fingerprint: {record.package_fingerprint}")
+        if record.packs:
+            lines.append(f"Packs: {', '.join(record.packs)}")
+        else:
+            lines.append("Packs: all (legacy record)")
         lines.append(f"Backup: {record.backup_path}")
         if record.recovery_archives:
             lines.append("Recovery archives:")

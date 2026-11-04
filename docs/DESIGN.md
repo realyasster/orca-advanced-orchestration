@@ -29,6 +29,20 @@ Bağımsız kollar sorunlu bir kolu beklemek zorunda değildir. Belirsiz başlat
 
 `workflow-apply` beklenen sürümle atomik güncelleme yapar. Başlamış görevler değiştirilemez veya kaldırılamaz. Pause yeni başlangıçları engeller; resume hazır görevleri yeniden değerlendirir. Cancel mevcut kontrollü durdurma yolunu kullanır; doğrulanmamış durma iptal tamamlandı şeklinde raporlanmaz.
 
+## Pano Todo sütunu
+
+Ajan panosunun en solunda, ajan durumlarından bağımsız bir Todo sütunu bulunur. Her Orca çalışma alanı (git worktree veya klasör workspace) kendi listesini tutar; aynı adlı alanlar host-kimlikli çalışma alanı kimliğiyle ayrılır. Maddeler ajan başlatmaz, orkestrasyon görevi oluşturmaz ve Done sütununa taşınmaz.
+
+Model her maddede benzersiz kimlik, çalışma alanı kimliği, metin, oluşturulma/güncellenme zamanı ve isteğe bağlı tamamlanma zamanı taşır. Kalıcılık mevcut çalışma alanı meta verisini genişletir (`WorktreeMeta.todos`, klasör workspace satırında `todos`). Ana pencere ve pop-out aynı snapshot'ı kullanır; pop-out mutasyonları ana pencereye sonuçlu bir IPC turuyla iletilir. Kaydetme başarısızsa metin/taslak korunur ve tamamlanma işareti yalnızca host onayından sonra görünür.
+
+İlk sürüm tek metin ve tamamlanma durumuyla sınırlıdır; öncelik, tarih, sürükleyerek sıralama ve ajana gönderme yoktur. Eski hostlar yeni meta alanını sessizce atabildiği için yazma öncesi `workspace.todo.v1` yeteneği aranır; yetenek yoksa sütun bunu belirtir.
+
+## Paket bileşenleri
+
+Tek değişiklik paketi iki seçilebilir bileşen tanımlar: `orchestration` (81 dosya) ve `todo` (52 dosya). Dosya kümeleri ayrıktır; `bundle-manifest.json` içindeki `packs` tanımları tüm yönetilen dosyaları tam bir kez kapsar. Installer seçilen pack'lerin dosyalarını planlar, kurulum kaydına yazar ve `status` çıktısında gösterir; uninstall yalnızca kurulmuş dosyaları geri alır. Kurulu seçimi değiştirmek için önce uninstall gerekir.
+
+`install.ps1` menüsü bileşenleri işaretli liste olarak sunar; `--pack`/`-Pack` doğrudan seçim sağlar. Paket deposu yerelde yoksa `irm` yolu GitHub arşivini geçici olarak indirir.
+
 ## Sınırlar
 
 Bu paket yerel çekirdek entegrasyonudur. Otomatik merge, yayımlama veya ayrı bir görsel akış editörü eklemez. Tam kod, inceleme ve test akışının gözetimsiz kullanımından önce hedef projede doğrulanması gerekir; özellikle düzeltme sonrasında hangi doğrulamaların tekrarlandığı kontrol edilmelidir.

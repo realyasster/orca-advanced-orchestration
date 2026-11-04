@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Sequence
 import shutil
 
 from .archive import ArchiveEntry, write_recovery_archive
@@ -52,6 +52,7 @@ class InstallResult:
     missing_since_install: List[str] = field(default_factory=list)
     unexpected_paths: List[str] = field(default_factory=list)
     notes: List[str] = field(default_factory=list)
+    packs: List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -93,6 +94,7 @@ def _record_from_plan(
     plan: InstallPlan,
     backup_root: Path,
     backup_manifest: Path,
+    selected_packs: List[str],
 ) -> Installation:
     now = utc_now()
     files = [
@@ -125,6 +127,7 @@ def _record_from_plan(
         created_directories=list(plan.created_directories),
         files=files,
         progress=Progress(phase="writing"),
+        packs=list(selected_packs),
     )
 
 
@@ -400,6 +403,7 @@ def _perform_install(
     store: Store,
     plan: InstallPlan,
     previous: Optional[Installation],
+    selected_packs: List[str],
 ) -> InstallResult:
     installation_id = new_identifier()
     for _ in range(5):
@@ -416,7 +420,13 @@ def _perform_install(
             store, checkout, installation_id, plan, bundle.fingerprint
         )
         record = _record_from_plan(
-            checkout, bundle, installation_id, plan, backup_root, backup_manifest
+            checkout,
+            bundle,
+            installation_id,
+            plan,
+            backup_root,
+            backup_manifest,
+            selected_packs,
         )
         previous_state = store.load()
         history = list(previous_state.history) if previous_state else []
@@ -479,6 +489,7 @@ def _perform_install(
         added=len(plan.added),
         updated=len(plan.updated),
         preserved_edits=list(plan.preserved_edits),
+        packs=list(selected_packs),
     )
 
 
@@ -494,11 +505,25 @@ def _recovery_message(command: str, outcome: str) -> str:
     )
 
 
+def _check_pack_selection(
+    record: Installation, bundle: Bundle, selected_packs: Sequence[str]
+) -> None:
+    # Older records have no pack field; status treats them as "all", so re-install must too.
+    installed = list(record.packs) if record.packs else list(bundle.pack_ids)
+    if sorted(installed) != sorted(selected_packs):
+        raise InstallationError(
+            "This package is already installed with packs "
+            f"[{', '.join(installed) or 'all'}]. Uninstall it first to change "
+            f"the selection to [{', '.join(selected_packs) or 'all'}]."
+        )
+
+
 def _already_installed(
     record: Installation,
     checkout: Checkout,
     bundle: Bundle,
     dry_run: bool,
+    selected_packs: List[str],
 ) -> InstallResult:
     comparison = compare_installed(record, checkout.root)
     notes = []
@@ -514,11 +539,20 @@ def _already_installed(
         missing_since_install=comparison.missing,
         unexpected_paths=comparison.unexpected,
         notes=notes,
+        packs=list(selected_packs),
     )
 
 
-def install(bundle_root: Path | str, source: Path | str, dry_run: bool = False) -> InstallResult:
+def install(
+    bundle_root: Path | str,
+    source: Path | str,
+    dry_run: bool = False,
+    packs: Optional[Sequence[str]] = None,
+) -> InstallResult:
     bundle = load_bundle(bundle_root)
+    explicit_selection = packs is not None
+    selected_packs = bundle.resolve_pack_ids(packs)
+    selected_paths = bundle.paths_for_packs(selected_packs)
     checkout = resolve_checkout(source)
     store = Store(checkout)
 
@@ -546,20 +580,31 @@ def install(bundle_root: Path | str, source: Path | str, dry_run: bool = False) 
                     "A different package version is already installed "
                     f"({record.installation_id}). Uninstall it first."
                 )
-            return _already_installed(record, checkout, bundle, dry_run=True)
+            if explicit_selection:
+                _check_pack_selection(record, bundle, selected_packs)
+            # No --pack means “keep what is installed”; only an explicit selection can conflict.
+            return _already_installed(
+                record,
+                checkout,
+                bundle,
+                dry_run=True,
+                selected_packs=list(record.packs) if record.packs else selected_packs,
+            )
         if checkout.head != bundle.base_commit:
             raise InstallationError(
                 f"Unsupported Orca checkout: HEAD is {checkout.head}, but the bundle "
                 f"requires {bundle.base_commit}. Check out the supported base commit first."
             )
-        plan = build_install_plan(checkout, bundle)
+        plan = build_install_plan(checkout, bundle, selected_paths)
         return InstallResult(
             outcome="dry-run",
             added=len(plan.added),
             updated=len(plan.updated),
             preserved_edits=list(plan.preserved_edits),
+            packs=list(selected_packs),
             notes=[
                 "Dry run: no files, backups, state, or locks were created.",
+                f"Selected packs: {', '.join(selected_packs) or 'all'}",
                 f"Would write {len(plan.files)} managed files "
                 f"({len(plan.updated)} updated, {len(plan.added)} added).",
                 "Would create a verified backup under "
@@ -588,7 +633,15 @@ def install(bundle_root: Path | str, source: Path | str, dry_run: bool = False) 
                     f"({record.installation_id}). Uninstall it first; the first backup "
                     "is never overwritten."
                 )
-            return _already_installed(record, checkout, bundle, dry_run=False)
+            if explicit_selection:
+                _check_pack_selection(record, bundle, selected_packs)
+            return _already_installed(
+                record,
+                checkout,
+                bundle,
+                dry_run=False,
+                selected_packs=list(record.packs) if record.packs else selected_packs,
+            )
 
         checkout = resolve_checkout(source)
         if checkout.head != bundle.base_commit:
@@ -596,5 +649,5 @@ def install(bundle_root: Path | str, source: Path | str, dry_run: bool = False) 
                 f"Unsupported Orca checkout: HEAD is {checkout.head}, but the bundle "
                 f"requires {bundle.base_commit}. Check out the supported base commit first."
             )
-        plan = build_install_plan(checkout, bundle)
-        return _perform_install(bundle, checkout, store, plan, record)
+        plan = build_install_plan(checkout, bundle, selected_paths)
+        return _perform_install(bundle, checkout, store, plan, record, selected_packs)

@@ -33,12 +33,22 @@ class BundleFile:
 
 
 @dataclass(frozen=True)
+class BundlePack:
+    id: str
+    label: str
+    description: str
+    files: Sequence[str]
+    requires: Sequence[str] = ()
+
+
+@dataclass(frozen=True)
 class Bundle:
     root: Path
     manifest: Dict
     patch_bytes: bytes
     example_bytes: bytes
     files: Sequence[BundleFile]
+    packs: Sequence[BundlePack]
     base_commit: str
     implementation_commit: Optional[str]
     fingerprint: str
@@ -46,6 +56,65 @@ class Bundle:
     @property
     def patch_paths(self) -> List[str]:
         return [item.upstream_path for item in self.files]
+
+    @property
+    def pack_ids(self) -> List[str]:
+        return [pack.id for pack in self.packs]
+
+    def resolve_pack_ids(self, requested: Optional[Sequence[str]]) -> List[str]:
+        """Return manifest-ordered pack ids; no packs/selection means the whole bundle."""
+        if not self.packs:
+            if requested:
+                raise BundleError("This bundle does not define selectable packs")
+            return []
+        if not requested:
+            return self.pack_ids
+        wanted = {value.strip() for value in requested if value.strip()}
+        unknown = sorted(wanted - set(self.pack_ids))
+        if unknown:
+            raise BundleError("Unknown pack(s): " + ", ".join(unknown))
+        if not wanted:
+            raise BundleError("Select at least one pack")
+        # Pull in declared dependencies; the loader has already rejected cycles.
+        changed = True
+        while changed:
+            changed = False
+            for pack in self.packs:
+                if pack.id in wanted and not set(pack.requires).issubset(wanted):
+                    wanted.update(pack.requires)
+                    changed = True
+        return [pack_id for pack_id in self.pack_ids if pack_id in wanted]
+
+    def paths_for_packs(self, pack_ids: Sequence[str]) -> List[str]:
+        if not self.packs:
+            return self.patch_paths
+        selected = set(pack_ids)
+        paths = {
+            path
+            for pack in self.packs
+            if pack.id in selected
+            for path in pack.files
+        }
+        return [item.upstream_path for item in self.files if item.upstream_path in paths]
+
+    def resolve_selected_paths(self, selected: Optional[Sequence[str]]) -> List[str]:
+        """Normalize a caller selection: None means all, [] is invalid, unknown paths fail."""
+        if selected is None:
+            return self.patch_paths
+        paths = list(dict.fromkeys(selected))
+        if not paths:
+            raise BundleError("Selected file set must not be empty")
+        unknown = sorted(set(paths) - set(self.patch_paths))
+        if unknown:
+            raise BundleError("Selected file is not in the bundle: " + ", ".join(unknown[:5]))
+        wanted = set(paths)
+        return [path for path in self.patch_paths if path in wanted]
+
+    def patch_bytes_for_paths(self, paths: Sequence[str]) -> bytes:
+        selected = set(paths)
+        if selected == set(self.patch_paths):
+            return self.patch_bytes
+        return filter_patch_paths(self.patch_bytes, selected)
 
 
 def _require_string(value: object, label: str) -> str:
@@ -99,6 +168,54 @@ def _split_git_header(rest: str) -> tuple[str, str]:
     return left[2:], right
 
 
+def _patch_header_paths(header: bytes) -> tuple[Optional[str], Optional[str]]:
+    rest = header[len(b"diff --git ") :].rstrip(b"\r\n")
+    if rest.startswith(b'"'):
+        try:
+            old, new = _split_git_header(rest.decode("utf-8", "surrogateescape"))
+        except BundleError:
+            return None, None
+        return old, new
+    left, marker, right = rest.rpartition(b" b/")
+    if not marker or not left.startswith(b"a/"):
+        return None, None
+    return (
+        left[2:].decode("utf-8", "surrogateescape"),
+        right.decode("utf-8", "surrogateescape"),
+    )
+
+
+def filter_patch_paths(patch_bytes: bytes, paths: Sequence[str]) -> bytes:
+    """Keep complete file diffs byte-for-byte for the selected old or new paths."""
+    selected = set(paths)
+    blocks: List[tuple[set[str], List[bytes]]] = []
+    current: List[bytes] = []
+    current_paths: set[str] = set()
+    for part in patch_bytes.split(b"\n"):
+        if part.startswith(b"diff --git "):
+            if current:
+                blocks.append((current_paths, current))
+            old, new = _patch_header_paths(part)
+            current = [part]
+            current_paths = {path for path in (old, new) if path}
+            continue
+        if current:
+            current.append(part)
+    if current:
+        blocks.append((current_paths, current))
+    kept = [
+        b"\n".join(block)
+        for block_paths, block in blocks
+        if block_paths & selected
+    ]
+    result = b"\n".join(kept)
+    # A selected block that is not last originally lost only its separator; restore it
+    # without rewriting the block bytes (CRLF, blank lines, and "\\ No newline" survive).
+    if result and patch_bytes.endswith(b"\n") and not result.endswith(b"\n"):
+        result += b"\n"
+    return result
+
+
 def patch_affected_paths(patch_bytes: bytes) -> List[str]:
     """Extract the affected paths from a unified Git patch.
 
@@ -141,6 +258,27 @@ def patch_affected_paths(patch_bytes: bytes) -> List[str]:
     return paths
 
 
+def _assert_pack_dependencies_acyclic(packs: Sequence[BundlePack]) -> None:
+    by_id = {pack.id: pack for pack in packs}
+    visiting: set[str] = set()
+    done: set[str] = set()
+
+    def visit(pack_id: str, chain: List[str]) -> None:
+        if pack_id in done:
+            return
+        if pack_id in visiting:
+            cycle = " -> ".join([*chain, pack_id])
+            raise BundleError(f"Bundle pack dependency cycle: {cycle}")
+        visiting.add(pack_id)
+        for required in by_id[pack_id].requires:
+            visit(required, [*chain, pack_id])
+        visiting.remove(pack_id)
+        done.add(pack_id)
+
+    for pack in packs:
+        visit(pack.id, [])
+
+
 def _fingerprint(manifest: Dict, files: Sequence[BundleFile]) -> str:
     payload = {
         "formatVersion": BUNDLE_FORMAT_VERSION,
@@ -152,6 +290,16 @@ def _fingerprint(manifest: Dict, files: Sequence[BundleFile]) -> str:
         "exampleSha256": manifest["example"]["sha256"],
         "files": [{"path": item.upstream_path, "sha256": item.sha256} for item in files],
     }
+    # Old bundles without packs must keep their historical fingerprint.
+    if manifest.get("packs"):
+        payload["packs"] = [
+            {
+                "id": entry["id"],
+                "files": list(entry["files"]),
+                "requires": list(entry.get("requires", [])),
+            }
+            for entry in manifest["packs"]
+        ]
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(canonical).hexdigest()
 
@@ -257,8 +405,73 @@ def load_bundle(bundle_root: Path | str) -> Bundle:
             BundleFile(upstream_path=upstream_path, snapshot_path=snapshot_path, sha256=expected)
         )
 
-    patch_paths = patch_affected_paths(patch_bytes)
     manifest_paths = [item.upstream_path for item in files]
+    raw_packs = manifest.get("packs")
+    packs: List[BundlePack] = []
+    if raw_packs is not None:
+        if not isinstance(raw_packs, list) or not raw_packs:
+            raise BundleError("Bundle manifest field 'packs' must be a non-empty array")
+        packed_paths = set()
+        pack_ids = set()
+        for index, entry in enumerate(raw_packs):
+            if not isinstance(entry, dict):
+                raise BundleError(f"Bundle manifest packs[{index}] must be an object")
+            pack_id = _require_string(entry.get("id"), f"packs[{index}].id")
+            if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", pack_id):
+                raise BundleError(f"Bundle pack id is invalid: {pack_id!r}")
+            if pack_id in pack_ids:
+                raise BundleError(f"Duplicate pack id in bundle: {pack_id}")
+            pack_ids.add(pack_id)
+            raw_files = entry.get("files")
+            if not isinstance(raw_files, list) or not raw_files:
+                raise BundleError(f"Bundle pack '{pack_id}' must list at least one file")
+            pack_files: List[str] = []
+            for raw_path in raw_files:
+                rel = _relative(raw_path, f"packs[{index}].files")
+                if rel not in manifest_paths:
+                    raise BundleError(
+                        f"Pack '{pack_id}' names a file that is not in the bundle: {rel}"
+                    )
+                if rel in packed_paths:
+                    raise BundleError(f"Bundle file is assigned to more than one pack: {rel}")
+                packed_paths.add(rel)
+                pack_files.append(rel)
+            raw_requires = entry.get("requires", [])
+            if not isinstance(raw_requires, list) or not all(
+                isinstance(item, str) and item for item in raw_requires
+            ):
+                raise BundleError(f"Bundle pack '{pack_id}' requires must be a string array")
+            if len(set(raw_requires)) != len(raw_requires):
+                raise BundleError(f"Bundle pack '{pack_id}' lists a dependency twice")
+            if pack_id in raw_requires:
+                raise BundleError(f"Bundle pack '{pack_id}' cannot require itself")
+            packs.append(
+                BundlePack(
+                    id=pack_id,
+                    label=_require_string(entry.get("label"), f"packs[{index}].label"),
+                    description=_require_string(
+                        entry.get("description"), f"packs[{index}].description"
+                    ),
+                    files=tuple(pack_files),
+                    requires=tuple(raw_requires),
+                )
+            )
+        if packed_paths != set(manifest_paths):
+            missing = sorted(set(manifest_paths) - packed_paths)
+            raise BundleError(
+                "Bundle packs must cover every managed file"
+                + (": " + ", ".join(missing[:5]) if missing else "")
+            )
+        for pack in packs:
+            unknown_requires = sorted(set(pack.requires) - pack_ids)
+            if unknown_requires:
+                raise BundleError(
+                    f"Pack '{pack.id}' requires unknown pack(s): "
+                    + ", ".join(unknown_requires)
+                )
+        _assert_pack_dependencies_acyclic(packs)
+
+    patch_paths = patch_affected_paths(patch_bytes)
     missing_from_patch = sorted(set(manifest_paths) - set(patch_paths))
     extra_in_patch = sorted(set(patch_paths) - set(manifest_paths))
     if missing_from_patch or extra_in_patch:
@@ -276,6 +489,7 @@ def load_bundle(bundle_root: Path | str) -> Bundle:
         patch_bytes=patch_bytes,
         example_bytes=example_bytes,
         files=tuple(files),
+        packs=tuple(packs),
         base_commit=base_commit,
         implementation_commit=implementation_commit,
         fingerprint=fingerprint,
