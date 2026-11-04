@@ -7,8 +7,9 @@ from pathlib import Path
 from typing import List, Optional
 
 from .gitutil import resolve_checkout
-from .installer import FileComparison, compare_installed
+from .installer import FileComparison, compare_installed, verify_installed
 from .lock import inspect_lock
+from .backup import load_backup
 from .store import Installation, Store
 
 
@@ -38,8 +39,8 @@ class StatusReport:
         if record.completed_at:
             lines.append(f"Completed: {record.completed_at}")
         lines.append(
-            f"Package: base {record.package_base_commit}, "
-            f"implementation {record.package_implementation_commit or 'unknown'}"
+            f"Package: {record.package_version or 'unknown'} (base {record.package_base_commit}, "
+            f"implementation {record.package_implementation_commit or 'unknown'})"
         )
         lines.append(f"Package fingerprint: {record.package_fingerprint}")
         if record.packs:
@@ -112,7 +113,7 @@ def collect_status(source: Path | str) -> StatusReport:
         outcome = "uninstalled"
     elif record.status == "recovery_required":
         outcome = "recovery required"
-    elif record.status in ("installing", "uninstalling"):
+    elif record.status in ("installing", "uninstalling", "updating"):
         outcome = f"interrupted ({record.status})"
         comparison = compare_installed(record, checkout.root)
     else:
@@ -124,4 +125,72 @@ def collect_status(source: Path | str) -> StatusReport:
         record=record,
         comparison=comparison,
         lock=lock,
+    )
+
+
+@dataclass
+class VerificationReport:
+    target: str
+    outcome: str
+    problems: List[str]
+    record: Optional[Installation] = None
+
+    def render(self) -> str:
+        lines = [f"Installation: {self.outcome}", f"Target: {self.target}"]
+        if self.record is not None:
+            lines.append(f"Package: {self.record.package_version or 'unknown'}")
+            lines.append(f"Backup: {self.record.backup_path}")
+        if self.problems:
+            lines.append(f"Problems: {len(self.problems)}")
+            for problem in self.problems:
+                lines.append(f"  {problem}")
+        else:
+            lines.append("Problems: none")
+        return "\n".join(lines)
+
+
+def verify_installation(source: Path | str) -> VerificationReport:
+    checkout = resolve_checkout(source)
+    store = Store(checkout)
+    state = store.load()
+    record = state.installation if state else None
+    if record is None:
+        return VerificationReport(
+            target=str(checkout.root),
+            outcome="not installed",
+            problems=[],
+        )
+    if record.status == "uninstalled":
+        return VerificationReport(
+            target=str(checkout.root),
+            outcome="uninstalled",
+            problems=[],
+            record=record,
+        )
+    if record.status == "recovery_required":
+        return VerificationReport(
+            target=str(checkout.root),
+            outcome="recovery required",
+            problems=["the installation record requires manual recovery"],
+            record=record,
+        )
+    problems: List[str] = []
+    if record.status == "installed":
+        problems.extend(verify_installed(record, checkout.root))
+    elif record.status in ("installing", "updating", "uninstalling"):
+        problems.append(
+            f"interrupted operation recorded: {record.status}; run the matching "
+            "install/update/uninstall command to reconcile it"
+        )
+    elif record.status not in ("uninstalled", "recovery_required"):
+        problems.append(f"unexpected installation state: {record.status}")
+    try:
+        load_backup(store, record)
+    except Exception as exc:
+        problems.append(f"backup: {exc}")
+    return VerificationReport(
+        target=str(checkout.root),
+        outcome=record.status,
+        problems=problems,
+        record=record,
     )

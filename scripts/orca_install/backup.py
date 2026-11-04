@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Dict
 import json
 import os
+import shutil
 
 from .errors import InstallationError, StateError
 from .paths import (
@@ -132,6 +133,144 @@ def create_backup(
         return backup_root, manifest_path
     except Exception:
         # No state record references this directory yet; the caller removes it.
+        raise
+
+
+def write_carried_backup(
+    store: Store,
+    checkout,
+    installation_id: str,
+    bundle_fingerprint: str,
+    entries,
+    directory_name: str,
+    retired_entries=None,
+) -> tuple[Path, Path]:
+    """Write a verified original backup from explicit entries.
+
+    Updates reuse the original bytes from the first backup and add entries for
+    newly managed paths. The first backup directory itself is never modified.
+    """
+
+    if (
+        not directory_name
+        or directory_name in (".", "..")
+        or "/" in directory_name
+        or "\\" in directory_name
+    ):
+        raise InstallationError(f"Invalid backup directory name: {directory_name!r}")
+    backup_root = store.install_dir(installation_id) / directory_name
+    if backup_root.exists():
+        raise InstallationError(f"Backup directory already exists: {backup_root}")
+    backup_root.mkdir(parents=True)
+    try:
+        prepared = []
+        seen = set()
+        for entry in entries:
+            rel = normalize_relative_path(entry["path"], "backup path")
+            if rel in seen:
+                raise InstallationError(f"Duplicate backup entry: {rel}")
+            seen.add(rel)
+            prepared.append((rel, entry))
+        manifest_entries = []
+        for rel, entry in prepared:
+            existed = bool(entry["existed"])
+            if existed:
+                data = entry["data"]
+                if not isinstance(data, bytes):
+                    raise InstallationError(f"Backup entry for '{rel}' has no bytes")
+                backup_rel = f"files/{rel}"
+                backup_file = rel_to_os(backup_root, backup_rel)
+                backup_file.parent.mkdir(parents=True, exist_ok=True)
+                atomic_write_bytes(
+                    backup_file, data, 0o600 if os.name != "nt" else None
+                )
+                manifest_entries.append(
+                    {
+                        "path": rel,
+                        "existed": True,
+                        "sha256": sha256_bytes(data),
+                        "size": len(data),
+                        "mode": int(entry["mode"]),
+                        "backupFile": backup_rel,
+                    }
+                )
+            else:
+                manifest_entries.append(
+                    {
+                        "path": rel,
+                        "existed": False,
+                        "sha256": None,
+                        "size": None,
+                        "mode": None,
+                        "backupFile": None,
+                    }
+                )
+        retired_manifest = []
+        seen_retired = set()
+        for entry in retired_entries or []:
+            rel = normalize_relative_path(entry["path"], "retired backup path")
+            if rel in seen_retired:
+                raise InstallationError(f"Duplicate retired backup entry: {rel}")
+            seen_retired.add(rel)
+            if bool(entry["existed"]):
+                data = entry["data"]
+                if not isinstance(data, bytes):
+                    raise InstallationError(f"Retired backup entry for '{rel}' has no bytes")
+                backup_rel = f"retired/{rel}"
+                backup_file = rel_to_os(backup_root, backup_rel)
+                backup_file.parent.mkdir(parents=True, exist_ok=True)
+                atomic_write_bytes(
+                    backup_file, data, 0o600 if os.name != "nt" else None
+                )
+                retired_manifest.append(
+                    {
+                        "path": rel,
+                        "existed": True,
+                        "sha256": sha256_bytes(data),
+                        "size": len(data),
+                        "mode": int(entry["mode"]),
+                        "backupFile": backup_rel,
+                    }
+                )
+            else:
+                retired_manifest.append(
+                    {
+                        "path": rel,
+                        "existed": False,
+                        "sha256": None,
+                        "size": None,
+                        "mode": None,
+                        "backupFile": None,
+                    }
+                )
+        manifest = {
+            "formatVersion": BACKUP_FORMAT_VERSION,
+            "installationId": installation_id,
+            "createdAt": utc_now(),
+            "target": {"root": str(checkout.root), "gitDir": str(checkout.git_dir)},
+            "packageFingerprint": bundle_fingerprint,
+            "files": manifest_entries,
+            "retiredEntries": retired_manifest,
+        }
+        manifest_path = backup_root / BACKUP_MANIFEST_NAME
+        atomic_write_bytes(
+            manifest_path,
+            (json.dumps(manifest, indent=2, ensure_ascii=False) + "\n").encode("utf-8"),
+            None,
+        )
+        for entry in manifest_entries + retired_manifest:
+            if not entry["existed"]:
+                continue
+            backup_file = rel_to_os(backup_root, entry["backupFile"])
+            if is_link_or_junction(backup_file) or not backup_file.is_file():
+                raise InstallationError(f"Backup file is missing or unsafe: {backup_file}")
+            data = backup_file.read_bytes()
+            if sha256_bytes(data) != entry["sha256"] or len(data) != entry["size"]:
+                raise InstallationError(f"Backup verification failed: {backup_file}")
+        return backup_root, manifest_path
+    except Exception:
+        # No record references this directory yet; remove every partial byte.
+        shutil.rmtree(backup_root, ignore_errors=True)
         raise
 
 

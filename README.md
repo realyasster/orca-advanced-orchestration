@@ -1,30 +1,63 @@
 # Orca Advanced Orchestration
 
-Orca'da Codex ve Claude gibi ajanların görevlerini otomatik sıraya koyar. İş akışını bir kez tanımlarsınız; bir görev bitince sıradaki başlar, bağımsız görevler paralel çalışır.
+Orca'da Codex ve Claude gibi ajanların görevlerini otomatik sıraya koyar. Bir görev bitince sıradaki başlar; bağımsız görevler paralel çalışır.
 
-Örnek: **Kod yaz → Test ve incelemeyi paralel çalıştır → Gerekirse düzelt → Sonucu raporla.**
-
-## Ne sağlar?
-
-- Ajanları tek tek başlatma ve sürekli durum kontrolü ihtiyacını azaltır.
-- Görev bağımlılıklarını, çalışma alanı paylaşımını ve inceleme kararlarını yönetir.
-- Akışı duraklatma, sürdürme ve iptal etme desteği sunar.
-- Ajan panosunun soluna, her çalışma alanına özel kalıcı bir **Todo** sütunu ekler; bu maddeler ajan başlatmaz ve ajan durumlarından ayrı tutulur.
-- Kurulum sırasında **Orchestrator** ve **Todo** bileşenleri ayrı ayrı seçilebilir; tek paket içinden yalnızca seçilen dosya grubu kurulur.
-- Rutin geçişlerdeki gereksiz koordinatör çağrılarını azaltmayı hedefler; ajanlar token tüketmeye devam eder.
+**Orca v1.4.246 kaynak koduna uygulanan bir yama paketidir.** Bağımsız uygulama veya plugin değildir; kurulumdan sonra derleme gerekir.
 
 ## Kurulum
 
-Bu depo, **Orca v1.4.246 kaynak koduna uygulanan bir değişiklik paketidir**. Kurulum aracı kaynak dosyaları yedekler ve değişiklikleri uygular; ardından Orca'yı derlemeniz gerekir. Bağımsız uygulama veya plugin değildir.
-
-Hızlı başlangıç (Windows PowerShell):
+Windows PowerShell'de tek komut:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/b9f7e62f3ea89ba51e4e102817c16920b473a7fe/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.0/install.ps1 | iex
 ```
 
-Kurulum menüsünde **Orchestrator** ve **Todo** bileşenlerini ayrı ayrı seçebilirsiniz.
+Menüden **Kur (bileşen seçimiyle)** seçin; **Orchestrator** ve **Todo** bileşenlerini ayrı ayrı işaretleyebilirsiniz. Betik paketi GitHub Releases'ten indirir, bütünlüğünü doğrular, önbelleğe alır ve Orca kaynağına uygular.
+
+Gereksinimler: **Python 3.9+**, **Git** ve **Orca v1.4.246** kaynak checkout'u. Checkout yoksa menü desteklenen sürümü klonlamayı önerir.
+
+Kurulumdan sonra:
+
+```powershell
+cd <orca-kaynak>
+pnpm install --frozen-lockfile
+pnpm build
+```
+
+> Kaynağın değiştirilmiş olması ile uygulamanın kullanıma hazır olması ayrı durumlardır. Derleme tamamlanmadan yeni davranış çalışmaz.
+
+## Menü
+
+```text
+Kur (bileşen seçimiyle) · Güncelle · Kaldır · Durum ve sürümler
+Doğrula · İşlem provası · Orca kaynak yolunu değiştir · Çıkış
+```
+
+Kaynak yolu kalıcı olarak kaydedilir. Güncelleme aynı sürümdeyse no-op çalışır; hata veya kesintide önceki kurulu sürüm geri getirilir.
+
+## Komut satırı
+
+```powershell
+.\install.ps1 -Action install -Source C:\orca-dev
+.\install.ps1 -Action update -Source C:\orca-dev
+.\install.ps1 -Action status -Source C:\orca-dev
+.\install.ps1 -Action verify
+.\install.ps1 -Action uninstall -Source C:\orca-dev
+.\install.ps1 -Action install -Source C:\orca-dev -Pack todo
+```
+
+`-Pack` tek veya virgüllü birden çok bileşen seçer; verilmezse tüm pack'ler kurulur. `-DryRun` işlem provası yapar, `-Version` sürüm seçer, `-NoPause` otomasyon için beklemesiz çalışır.
+
+## Ne yapar?
+
+- Bağımlılıkları ve paralel görevleri yönetir.
+- İnceleme kararlarını, düzeltme turlarını ve sonuç raporunu yönetir.
+- Duraklatma, sürdürme ve kontrollü iptal sunar.
+- Ajan panosunun soluna, her çalışma alanına özel kalıcı bir **Todo** sütunu ekler; Todo maddeleri ajan başlatmaz.
+- Kurulum öncesi yedek alır; kaldırmada özgün dosyaları geri yükler.
+
+## Belgeler
 
 **[Kurulum ve kullanım rehberi](docs/USAGE.md)** · [Örnek iş akışı](examples/workflow.json)
 
-[English](README.en.md) · [Teknik tasarım](docs/DESIGN.md) · [Test sonuçları ve bilinen sınırlamalar](docs/VALIDATION.md) · [MIT lisansı](LICENSE)
+[English](README.en.md) · [Teknik tasarım](docs/DESIGN.md) · [Doğrulama](docs/VALIDATION.md) · [MIT lisansı](LICENSE)

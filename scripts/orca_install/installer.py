@@ -121,6 +121,7 @@ def _record_from_plan(
         package_base_commit=bundle.base_commit,
         package_implementation_commit=bundle.implementation_commit,
         package_fingerprint=bundle.fingerprint,
+        package_version=bundle.package_version,
         backup_path=str(backup_root),
         backup_manifest_path=str(backup_manifest),
         recovery_archives=[],
@@ -494,6 +495,11 @@ def _perform_install(
 
 
 def _recovery_message(command: str, outcome: str) -> str:
+    if outcome == "update":
+        return (
+            "Recovered an interrupted update and restored the previously installed "
+            "version. No new install was performed; re-run the command."
+        )
     if outcome == "install":
         return (
             "Recovered an interrupted install and restored the original files. "
@@ -563,7 +569,7 @@ def install(
             raise RecoveryRequiredError(
                 f"The installation is in recovery_required state. See {store.base_dir}."
             )
-        if record and record.status in ("installing", "uninstalling"):
+        if record and record.status in ("installing", "uninstalling", "updating"):
             return InstallResult(
                 outcome="dry-run",
                 installation_id=record.installation_id,
@@ -578,7 +584,8 @@ def install(
             if record.package_fingerprint != bundle.fingerprint:
                 raise InstallationError(
                     "A different package version is already installed "
-                    f"({record.installation_id}). Uninstall it first."
+                    f"({record.installation_id}). Use the update command, or uninstall "
+                    "first."
                 )
             if explicit_selection:
                 _check_pack_selection(record, bundle, selected_packs)
@@ -621,7 +628,7 @@ def install(
             raise RecoveryRequiredError(
                 f"The installation is in recovery_required state. See {store.base_dir}."
             )
-        if record and record.status in ("installing", "uninstalling"):
+        if record and record.status in ("installing", "uninstalling", "updating"):
             from .recovery import reconcile_locked
 
             outcome = reconcile_locked(store, checkout, "install")
@@ -630,8 +637,8 @@ def install(
             if record.package_fingerprint != bundle.fingerprint:
                 raise InstallationError(
                     "A different package version is already installed "
-                    f"({record.installation_id}). Uninstall it first; the first backup "
-                    "is never overwritten."
+                    f"({record.installation_id}). Use the update command, or uninstall "
+                    "first; the first backup is never overwritten."
                 )
             if explicit_selection:
                 _check_pack_selection(record, bundle, selected_packs)

@@ -2,6 +2,7 @@
 /.claude/
 /.publication-checks/
 /ORCA-CORE-ORCHESTRATION-HANDOFF.md
+/dist/
 *.log
 node_modules/
 .env

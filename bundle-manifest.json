@@ -1,5 +1,9 @@
 {
   "formatVersion": 1,
+  "package": {
+    "name": "orca-advanced-orchestration",
+    "version": "1.1.0"
+  },
   "upstream": {
     "repository": "https://github.com/stablyai/orca",
     "version": "1.4.246",
@@ -831,25 +835,5 @@
       ],
       "requires": []
     }
-  ],
-  "bootstrap": {
-    "scripts/manage_installation.py": "d204d9e558f34c04dd0dd6f97b3832de6a5ef88d72d7a87c545921538a2ba8b6",
-    "scripts/orca_install/__init__.py": "15f0c82c41fdee4967c94122e661d3cbbb76884b52aec23215236df0d9699dd2",
-    "scripts/orca_install/archive.py": "ad7558a6595abcabc3b8d1fd30270f256399250a751490e9e896393916014ef1",
-    "scripts/orca_install/backup.py": "2b8e49f846127cdb8e16c9889b35203f1729ac4d9ef3e58282e1edc793131843",
-    "scripts/orca_install/bundle.py": "95f4dacb7259105c5457f840583e9d6f68132b6d816713293b84a99a1fdbad76",
-    "scripts/orca_install/cli.py": "d2b4a1407a336607c744312981c9887f1113d1c9bb8812d6cec6a1a40f66f861",
-    "scripts/orca_install/errors.py": "932f5805ab88487813af435a1ebfb55496d990b850e5a64e45ad9982a3ecf479",
-    "scripts/orca_install/gitutil.py": "612fc947dcb1bbaed2b8c2c551db1330aeca7a7c559a100db0080377a03b2aca",
-    "scripts/orca_install/installer.py": "cb8a3c39993362f363815b1a4eaf820596f1a5fb87e471b9722a907b68ab79ab",
-    "scripts/orca_install/lock.py": "40a1c4618e3fb3fc77498f946088805585266d24ea600da8f41c6ee4b2056600",
-    "scripts/orca_install/paths.py": "5980abe8341993ac36dec86a7ae381353ac456bf3e2fbd7edadf50494b32ac8b",
-    "scripts/orca_install/planner.py": "8939e4200f7e067fce098c133b0657add75e7eb14075383ffbdf8e3071425abe",
-    "scripts/orca_install/recovery.py": "d5888c94faddc41a08131018c4bef3b7926b9f579b879a7f2ce4d44ef26c8dbc",
-    "scripts/orca_install/status.py": "b9b7f44969b0c30c13b33dd1aa33e6f55329d3d7250e9ecb94d0e29a9f7829c0",
-    "scripts/orca_install/store.py": "8ddbf3475295b7a2f224c3bf8982d32c8eec78c82a9c663d404c447e1fc80476",
-    "scripts/orca_install/uninstaller.py": "1cab8858618e11efe761fb508821a3f9554c98aac83c4aaf0d7f6be10042ebc1",
-    "scripts/verify_bundle.py": "ea58a4878f9120235a349ec6437b53e9ac24703901007093020534780e980bb5",
-    "install.ps1": "308f67020ae0c3dde613893533263799a80d81253244e34ce8cb3bf7596bbe1e"
-  }
+  ]
 }

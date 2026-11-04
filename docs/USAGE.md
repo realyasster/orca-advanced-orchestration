@@ -1,159 +1,185 @@
-# Orca Advanced Orchestration
+# Orca Advanced Orchestration kullanım rehberi
 
-Orca için geliştirdiğimiz **olay tabanlı otomatik görev yürütme sisteminin değişiklik paketi**.
+Bu paket, Orca v1.4.246 kaynak koduna otomatik görev yürütme değişiklikleri uygular. Bağımsız bir uygulama veya plugin değildir; kurulumdan sonra kaynak checkout'un derlenmesi gerekir.
 
-[English](../README.en.md) · [Tasarım](../docs/DESIGN.md) · [Doğrulama](../docs/VALIDATION.md) · [MIT lisansı](../LICENSE)
+[English](USAGE.en.md) · [README](../README.md) · [Teknik tasarım](DESIGN.md) · [Doğrulama](VALIDATION.md)
 
-Görev akışını bir kez tanımlayın; bağımlılıkları tamamlandıkça sıradaki ajanı Orca başlatsın. Orkestratör planlama, sorular, hatalar ve karar noktalarında devreye girsin.
+## Hızlı başlangıç
 
-Bu bağımsız depo yalnızca geliştirdiğimiz çekirdek değişikliklerini, bunların testlerini, bir örnek akışı ve belgeleri içerir. **Tam Orca kaynak deposunu veya geçmişini içermez.** Kod, Orca çekirdeğine uygulanır; tek başına çalışan bir uygulama veya plugin değildir.
-
-## Çözdüğü problem
-
-Bir ajanın işinin bitmesini sürekli kontrol etmek ve her normal geçişte sıradaki ajanı başlatmak için orkestratör modelini çalıştırmak gereksiz çağrılar oluşturur. Buradaki yürütücü görev bağımlılıklarını Orca runtime içinde ilerletir.
-
-Örnek akış:
-
-```text
-Uygulama (Codex)
-    ├── Test (Codex)
-    └── İnceleme (Claude)
-              ↓
-       Gerekiyorsa karar / düzeltme
-              ↓
-         Sonuç raporu
-```
-
-İşçi ajanların token tüketimi devam eder. Amaç, bekleme ve öngörülebilir geçişlerdeki gereksiz **orkestratör** çağrılarını azaltmaktır; ölçülmüş bir tasarruf yüzdesi iddia edilmez.
-
-## İçerdiği değişiklikler
-
-- Mevcut elle yönetilen Run'larla birlikte isteğe bağlı otomatik yürütme.
-- Sıralı, paralel ve birleşen görev bağımlılıkları; varsayılan iki eşzamanlı işçi.
-- Sürüm kontrollü akış güncelleme; başlamış görevlerin sessizce değiştirilmemesi.
-- Kalıcı yürütme olayları, yinelenen bildirimlerin ele alınması ve kesinti sonrası uzlaştırma.
-- Çalışma alanı okuma/yazma zamanlaması ve önceki görev çıktılarının aktarılması.
-- İnceleme karar kapıları ve en fazla iki düzeltme turu.
-- Duraklatma, sürdürme ve kontrollü iptal.
-- CLI, RPC, veritabanı migrasyonu, mevcut görev/ajan gösterimleri ve orchestration kılavuzu güncellemeleri.
-
-## Depo yapısı
-
-| Yol | İçerik |
-| --- | --- |
-| [`scripts/manage_installation.py`](../scripts/manage_installation.py) | Kaynak checkout için yedeklemeli install / status / uninstall aracı |
-| [`install.ps1`](../install.ps1) | Windows için etkileşimli PowerShell kurulum menüsü |
-| [`scripts/orca_install/`](../scripts/orca_install/) | Aracın paket doğrulama, kilit, günlük, yedek ve geri yükleme modülleri |
-| [`patches/automatic-orchestration.patch`](../patches/automatic-orchestration.patch) | Upstream tabana uygulanacak gerçek değişiklikler |
-| [`changes/`](../changes/) | Değişen veya eklenen 133 dosyanın uygulama sonrası halleri; özgün yollar korunur |
-| [`examples/workflow.json`](../examples/workflow.json) | Uygulama → paralel test ve inceleme örneği |
-| [`bundle-manifest.json`](../bundle-manifest.json) | Taban commit, kaynak commit, pack listesi, dosya listesi ve SHA-256 değerleri |
-| [`scripts/verify_bundle.py`](../scripts/verify_bundle.py) | Paket bütünlüğü kontrolü |
-| [`tests/`](../tests/) | Python standart kütüphanesiyle çalışan installer testleri |
-
-`changes/` içindeki mevcut upstream dosyaları entegrasyonun okunabilmesi için tam halleriyle bulunur. Hangi satırların değiştiğini patch gösterir.
-
-## Orca'ya uygulama
-
-Hedef taban: [stablyai/orca](https://github.com/stablyai/orca), **v1.4.246**, commit `55ccff19ad4cd8ba28b6f3d2be798c1e626a2c2c`.
-
-Otomatik araç, yalnızca **desteklenen taban commit'indeki bir Orca kaynak checkout'unu** yönetir. Kurulu/paketlenmiş Orca uygulamasını değiştirmez. Hedef checkout'un `HEAD` değeri taban commit değilse araç hiçbir dosyayı değiştirmeden reddeder.
-
-### Otomatik kurulum (önerilen)
-
-Paketi ve ayrı bir Orca kaynak checkout'unu hazırlayın (Python 3.9+ ve Git gerekir; üçüncü taraf Python paketi gerekmez):
-
-```sh
-git clone https://github.com/realyasster/orca-advanced-orchestration.git
-git -c core.autocrlf=false clone --branch v1.4.246 --depth 1 https://github.com/stablyai/orca.git orca-dev
-cd orca-advanced-orchestration
-python scripts/manage_installation.py install --source ../orca-dev
-```
-
-Komutlar iki klonun aynı üst klasörde olduğunu varsayar. `--source` mutlaka checkout'un Git kök klasörü olmalıdır. Windows'ta `core.autocrlf=false` kullanılması, patch'in beklediği LF satır sonlarının korunmasını sağlar.
-
-### PowerShell menüsü (Windows)
-
-Orca `orca-dev` checkout'u hazır olduktan sonra tek komutla menüyü açabilirsiniz (paket deposu yerelde yoksa betik geçici indirir):
+Windows PowerShell'de, herhangi bir çalışma dizininden:
 
 ```powershell
-cd orca-advanced-orchestration
-powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.0/install.ps1 | iex
 ```
 
-Menüden seçim yapın:
+Menüden **Kur** seçin. Betik:
+
+1. Python 3.9+ ve Git'i kontrol eder.
+2. Son kararlı GitHub Release sürümünü bir kez çözümler (veya `-Version`).
+3. Yalnızca kurulum dosyalarını içeren sürümlenmiş ZIP'i ve `.sha256` dosyasını indirir.
+4. SHA-256 ile ZIP'i, ardından `bundle-manifest.json` içindeki 133 dosya hash'ini doğrular (patch ve örnek dahil toplam 135 paket dosyası).
+5. Paketi `%LOCALAPPDATA%\OrcaAdvancedOrchestration\packages\<sürüm>\` altında önbelleğe alır.
+6. Orca kaynak checkout'unu bulur; yoksa desteklenen upstream sürümünü klonlamayı önerir.
+7. Hedef `HEAD` değerini paketin taban commit'i ile karşılaştırır.
+8. Yedekleyip değişiklikleri uygular.
+
+Tam repo, Git geçmişi, testler veya geliştirme dosyaları indirilmez.
+
+### Gereksinimler
+
+- Windows PowerShell 5.1 veya PowerShell 7.
+- Python 3.9+ (`py -3`, `python` veya `python3`).
+- Git.
+- Derleme için Node.js 24 ve Orca'nın `package.json` içinde sabitlediği pnpm sürümü.
+
+### Orca kaynak checkout'u
+
+Mevcut bir checkout `-Source` ile verilebilir veya menüde sorulur. Verilmezse şu sıra denenir:
+
+1. Kayıtlı kaynak yolu (`config.json`).
+2. Yerel paket deposunun yanındaki `orca-dev`.
+3. Çalışma dizinindeki `orca-dev`.
+4. `%USERPROFILE%\orca-dev`.
+
+Yoksa menü yol sorar ve desteklenen sürümü şu komutla klonlamayı önerir:
+
+```powershell
+git -c core.autocrlf=false clone --branch v1.4.246 --depth 1 https://github.com/stablyai/orca.git <yol>
+```
+
+Klonlanan `HEAD`, `bundle-manifest.json` içindeki `upstream.baseCommit` değilse araç otomatik `reset`/`checkout` yapmaz; açık hata verir.
+
+## Menü
 
 ```text
   1) Kur (bileşen seçimiyle)
-  2) Durum
+  2) Güncelle
   3) Kaldır
-  4) Kurulum provası (bileşen seçimiyle)
-  5) Kaldırma provası (dry-run)
-  6) Paketi doğrula
+  4) Durum ve sürümler
+  5) Doğrula
+  6) İşlem provası (dry-run)
   7) Orca kaynak yolunu değiştir
   0) Çıkış
 ```
 
-Menüde `3) Kaldır` işlem başlamadan önce onay ister; onaylanmazsa hiçbir şey yapılmaz. Doğrudan `-Action uninstall` çağrısı onay sormaz. `7) Orca kaynak yolunu değiştir` seçeneğinde işlem iptal edilirse önceki kaynak yolu korunur.
+- **Kur (bileşen seçimiyle)**: Paketi indirir/doğrular, ardından **Orchestrator** ve **Todo** bileşenlerini ayrı ayrı seçtirir. Seçilen dosya grubu kaynağa uygulanır.
+- **Güncelle**: Kurulu sürümle hedef sürümü karşılaştırır; aynıysa no-op. Yeni paketi tamamen indirip doğrular, ön kontrolleri yapar ve işlemi tek kilit altında yürütür.
+- **Kaldır**: Özgün dosyaları geri yükler; sonradan değiştirilenleri kurtarma arşivine alır. Orca kaynak dizinini silmez. Onay ister.
+- **Durum ve sürümler**: Kurulum durumunu, paket sürümünü, yedekleri, yerel değişiklikleri, önbellekteki sürümleri ve erişilebiliyorsa son kararlı sürümü gösterir.
+- **Doğrula**: Paket hash'lerini ve varsa kurulum/yedek kaydını doğrular.
+- **İşlem provası**: Kurulum, güncelleme veya kaldırmayı `--dry-run` ile gösterir; hiçbir dosya değişmez.
+- **Orca kaynak yolunu değiştir**: Yeni yolu doğrular ve kalıcı kaydeder. İptal edilirse önceki yol korunur.
 
-`install.ps1` yalnızca mevcut Python aracını çağırır. Orca checkout'unu **klonlamaz**. Paket deposu yerelde yoksa `-BundleUrl` adresinden (varsayılan GitHub `main` arşivi) geçici bir kopya indirir. `-Source` verilmezse önce `..\orca-dev` aranır, bulunamazsa yol sorulur.
+`irm | iex` altında betik çağıranın shell'ini `exit` ile kapatmaz. `-File` ile çalıştırıldığında işlem kodu döndürür.
 
-Doğrudan eylem seçmek için:
+### Bileşen (pack) seçimi
+
+Manifest iki bağımsız pack tanımlar:
+
+- `orchestration`: otomatik orkestrasyon, CLI/RPC, migration ve karar kapıları (81 dosya).
+- `todo`: ajan panosunun soluna kalıcı Todo sütunu (52 dosya).
+
+Kurulum menüsünde numaraya basarak bileşenleri açıp kapatabilirsiniz. Enter seçili bileşenleri kurar; `A` tümünü, `N` hiçbirini seçer. Etkileşimsiz kurulumda `-Pack` verilmezse tüm pack'ler kurulur. Kurulu seçimi değiştirmek için önce `uninstall`, sonra yeni seçimle `install` gerekir.
 
 ```powershell
-.\install.ps1 -Action install -Source ..\orca-dev
-.\install.ps1 -Action install -Source ..\orca-dev -Pack todo
-.\install.ps1 -Action install -Source ..\orca-dev -Pack orchestration,todo -DryRun
-.\install.ps1 -Action status -Source ..\orca-dev
-.\install.ps1 -Action uninstall -Source ..\orca-dev
+.\install.ps1 -Action install -Source C:\orca-dev -Pack todo
+.\install.ps1 -Action install -Source C:\orca-dev -Pack orchestration,todo
+```
+
+`update` mevcut pack seçimini korur. Todo maddeleri ajan başlatmaz; her çalışma alanı için kalıcı listede tutulur.
+
+## Etkileşimsiz kullanım
+
+```powershell
+.\install.ps1 -Action install -Source C:\orca-dev
+.\install.ps1 -Action install -Source C:\orca-dev -Version 1.1.0 -DryRun
+.\install.ps1 -Action install -Source C:\orca-dev -Pack todo
+.\install.ps1 -Action update -Source C:\orca-dev
+.\install.ps1 -Action update -Source C:\orca-dev -Version 1.1.0 -DryRun
+.\install.ps1 -Action status -Source C:\orca-dev
 .\install.ps1 -Action verify
+.\install.ps1 -Action uninstall -Source C:\orca-dev
 ```
 
-`-NoPause` otomasyon için işlem sonu beklemesini kapatır; depo kökü otomatik bulunamazsa `-RepoRoot` ile belirtin. Doğrudan `-Action install` çağrısında `-Pack` verilmezse bileşen sorusu sorulmaz, tüm pack’ler kurulur. Menüde ise bileşen seçimi sorulur; `-NoPause` veya yönlendirilmiş girdi durumunda seçim atlanıp tüm pack’ler kullanılır.
+- `-Version` verilmezse GitHub Releases'teki son kararlı sürüm bir kez çözümlenir.
+- `-Source` verilmezse kayıtlı yol ve bilinen konumlar denenir; bulunamazsa etkileşimsiz modda açık hata verilir.
+- `-RepoRoot` yerel paket deposunu belirtir; bu seçenek indirmeyi atlar.
+- `-NoPause` işlem sonu beklemesini kapatır.
+- `-DryRun` yalnızca install, update ve uninstall ile anlamlıdır.
 
-`irm ... | iex` aynı menüyü açar. Paket deposu yerelde yoksa betik arşivi geçici olarak indirir; işlem sonunda geçici kopya silinir:
+Yalnızca yerel paket deposundan çalıştırmak için:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/b9f7e62f3ea89ba51e4e102817c16920b473a7fe/install.ps1 | iex
+cd orca-advanced-orchestration
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -RepoRoot . -Action install -Source ..\orca-dev
 ```
 
-`iex` uzaktan indirilen betiği doğrudan çalıştırır; URL'yi ve betiği önce inceleyin. Bootstrap, `-BundleRef` (varsayılan `v1.4.246-todo.1`) değerini GitHub API ile **sabit commit SHA’sına** çözümler, o commit'in arşivini indirir, `bundle-manifest.json` SHA-256 değerini ve manifestteki **bootstrap script hash listesini** doğrular. Yerel bir arşiv veya farklı sürüm için `-BundleRef`, `-BundleUrl`, `-BundleManifestSha256` ve isteğe bağlı tam zip doğrulaması için `-BundleArchiveSha256` kullanılabilir. Release tag’i yayımlanmadan varsayılan bootstrap çalışmaz; geçici olarak `-BundleRef main` verilebilir.
+Yerel modda `-Version` verilemez; sürüm `bundle-manifest.json` içinden okunur.
 
-### Bileşen seçimi
+## Önbellek, çevrimdışı kullanım ve bütünlük
 
-Paket iki bağımsız bileşen içerir:
+```text
+%LOCALAPPDATA%\OrcaAdvancedOrchestration\
+  config.json
+  packages\<sürüm>\
+    .verified
+    bundle-manifest.json
+    install.ps1
+    scripts\...
+    changes\...
+  downloads\
+```
 
-| Pack | İçerik |
-| --- | --- |
-| `orchestration` | Otomatik orkestrasyon, CLI/RPC, veritabanı ve karar kapıları |
-| `todo` | Ajan panosunun solundaki kalıcı Todo sütunu |
+- ZIP indirildikten sonra SHA-256 dosyasındaki değerle karşılaştırılır.
+- Arşiv yolları dizin dışına çıkamaz (`..`, kök yol, sürücü sözdizimi reddedilir).
+- Paket hash'leri doğrulandıktan sonra `.verified` yazılır.
+- Aynı sürüm tekrar kullanılırsa önbellekten alınır; sürüm işlem başına bir kez çözümlenir.
+- Kaldırma, önbellekteki yönetim aracıyla ağ bağlantısı olmadan çalışabilir. Önbellek boşsa ve kurulu sürüm bilinmiyorsa açık hata verilir.
 
-Kurulum menüsünde bileşenler işaretli bir liste olarak gelir: numaraya basarak seçimi değiştirin, **Enter** ile kurun, `A` tümünü, `N` hiçbirini seçer, `Q` iptal eder. Varsayılan ikisi de seçilidir.
+## Kurulum sonrası derleme
 
-Doğrudan seçim:
+Kurulum yalnızca kaynak dosyaları değiştirir. Araç derleme yapmaz, uygulamayı başlatmaz, veritabanı migrasyonu çalıştırmaz ve kurulu binary'yi değiştirmez. Kaynağın değiştirilmiş olması ile uygulamanın kullanıma hazır olması ayrı durumlardır.
+
+```powershell
+cd <orca-kaynak>
+pnpm install --frozen-lockfile
+pnpm build
+```
+
+Geliştirme için:
+
+```powershell
+pnpm dev --worktree-profile
+```
+
+Kurulum/güncelleme sonrası menü derleme komutlarını gösterir ve etkileşimli modda çalıştırmayı önerir.
+
+## Doğrudan Python aracı
+
+PowerShell betiği Python aracını çağırır. Aynı işlemler doğrudan da yapılabilir:
 
 ```sh
-python scripts/manage_installation.py install --source ../orca-dev --pack todo
-python scripts/manage_installation.py install --source ../orca-dev --pack orchestration
-python scripts/manage_installation.py install --source ../orca-dev --pack todo,orchestration
+python scripts/manage_installation.py install --source ../orca-dev --dry-run
+python scripts/manage_installation.py install --source ../orca-dev
+python scripts/manage_installation.py update --source ../orca-dev --dry-run
+python scripts/manage_installation.py update --source ../orca-dev
+python scripts/manage_installation.py status --source ../orca-dev
+python scripts/manage_installation.py status --source ../orca-dev --json
+python scripts/manage_installation.py verify --source ../orca-dev
+python scripts/manage_installation.py uninstall --source ../orca-dev --dry-run
+python scripts/manage_installation.py uninstall --source ../orca-dev
 ```
 
-`--pack` verilmezse tüm bileşenler kurulur. Seçim kurulum kaydına yazılır ve `status` çıktısında görünür. Kurulu pakette seçimi değiştirmek için önce `uninstall`, sonra yeni seçimle `install` çalıştırın.
+`--bundle` doğrudan komut satırında yoktur; araç kendi paket kökünü (`bundle-manifest.json` üst dizini) kullanır. Önbellekteki bir sürümü kullanmak için o sürümün dizinindeki `scripts/manage_installation.py` dosyasını çalıştırın; kaldırma güncel paket manifestine ihtiyaç duymaz.
 
-Önce yapılacakları görmek için:
+## Kurulum işleyişi
 
-```sh
-python scripts/manage_installation.py install --source ../orca-dev --pack todo --dry-run
-```
-
-Kurulumda araç sırasıyla:
-
-1. `bundle-manifest.json` içindeki patch, örnek ve 133 dosyanın SHA-256 değerlerini; toplam 135 paket dosyasını doğrular.
+1. Manifest, patch, örnek ve 133 dosyanın SHA-256 değerlerini doğrular.
 2. Hedefin Git checkout'unu, taban commit'i, yönetilen yolları ve symlink/junction durumunu kontrol eder.
-3. Patch'i, mevcut etkilenen dosyaların geçici kopyaları üzerinde uygular. Patch ile uyumlu yerel düzenlemeler korunur; uygulanamayan patch hedefi değiştirmeden durur.
-4. Yönetilen mevcut dosyaların **ham baytlarını ve izinlerini** Git veri dizini altında yedekler, yedek hash'lerini doğrular ve kalıcı bir JSON günlük yazar.
-5. Dosyaları tek tek atomik olarak değiştirir, ilerlemeyi günlüğe kaydeder ve sonuç hash'lerini doğrular.
-6. Yazma hatasında değiştirilmiş dosyaları ilk yedekten geri alır. Geri alma tamamlanamazsa başarı iddia etmez; kurulumu `recovery_required` olarak işaretler.
+3. Patch'i mevcut etkilenen dosyaların geçici kopyalarına uygular. Patch ile uyumlu yerel düzenlemeler korunur; uygulanamayan patch hedefi değiştirmeden durur.
+4. Mevcut yönetilen dosyaların ham baytlarını ve izinlerini checkout'un Git veri dizini altında yedekler, hash'leri doğrular ve kalıcı JSON günlük yazar.
+5. Dosyaları atomik olarak değiştirir, ilerlemeyi kaydeder ve sonuç hash'lerini doğrular.
+6. Yazma hatasında değiştirilmiş dosyaları ilk yedekten geri alır. Geri alma tamamlanamazsa `recovery_required` işaretler ve başarı iddia etmez.
 
 Yedek konumu checkout'a özgüdür:
 
@@ -161,74 +187,91 @@ Yedek konumu checkout'a özgüdür:
 <git-dizini>/orca-advanced-orchestration/<kurulum-kimliği>/backup
 ```
 
-`<git-dizini>` değerini `git -C ../orca-dev rev-parse --absolute-git-dir` ile bulabilirsiniz. Bağlı (linked) worktree kullanılıyorsa Git'in o worktree için döndürdüğü veri dizini kullanılır; ana checkout'un yedeğiyle karışmaz.
+Bağlı (linked) worktree kullanılıyorsa Git'in o worktree için döndürdüğü veri dizini kullanılır.
 
-Araç derleme yapmaz, uygulama başlatmaz, veritabanı migrasyonu çalıştırmaz ve kurulu binary'yi değiştirmez. Kaynak dosyalar geri yüklendikten veya patch uygulandıktan sonra geliştirme sürümünü ayrıca derlemeniz gerekir.
+## Güncelleme işleyişi
 
-### Kurulumdan sonra derleme
+- Kurulu kayıt yoksa veya durum `uninstalled` ise güncelleme reddedilir; Kur kullanılmalıdır.
+- Paket fingerprint'i aynıysa no-op; hiçbir dosya veya günlük yazılmaz.
+- Aynı sürüm farklı içerikle gelirse sessizce değiştirilmez; yeni sürüm numarası istenir.
+- Kurulum sonrası yerel olarak değiştirilmiş/eksik dosya varsa güncelleme hiçbir dosyaya dokunmadan reddedilir.
+- Kurulu paketin ve yeni paketin upstream tabanı aynı olmalıdır. Farklı taban veya checkout `HEAD` uyuşmazlığında otomatik reset/checkout yapılmaz.
+- Yeni dosya seti eklenen/kaldırılan yolları destekler. Yeni yönetilen bir yol önceden varsa özgün içerik olarak yedeklenir.
+- İşlem öncesi önceki kurulu sürümün baytları, hedef dosyalara dokunmadan önce doğrulanmış bir geri alma anlık görüntüsüne alınır.
+- Tek `installation.lock` ve kalıcı günlük kullanılır. Hata veya kesintide önceki kurulu sürüm geri getirilir; kesinti sonrası düzenlenmiş yabancı içerik önce kurtarma arşivine alınır.
+- Başarılı güncelleme yeni bir kümülatif özgün yedek oluşturur; ilk kurulum öncesi özgün yedek dizini korunur.
 
-Kurulum yalnızca kaynak dosyaları değiştirir; değişikliklerin çalışması için patch uygulanmış Orca checkout'unda derleme yapılmalıdır:
+Güncelleme sırasında `.git` altında geçici olarak `updating` durumu görülebilir. Bir sonraki komut önce bu günlüğü uzlaştırır ve komutun yeniden çalıştırılmasını ister.
 
-```sh
-cd ../orca-dev
-pnpm install --frozen-lockfile
-pnpm build
-```
+## Durum ve doğrulama
 
-`pnpm dev --worktree-profile` geliştirme için gerekli paketleri kendisi derler. Tam masaüstü ve native derlemesi için `pnpm build` kullanın; derleme tamamlanmadan yeni otomasyon davranışı çalışmaz.
+`status` salt okunurdur; kurulum kimliği, paket sürümü, yedek, kurtarma arşivleri, kurulum sonrası değişen/eksik dosyalar ve bekleyen kesintiyi gösterir. `--json` makine okunabilir çıktı verir.
 
-### Durum ve tekrar kurulum
+`verify` paket hash'lerini ve kurulum kaydını doğrular: yönetilen dosyaların kurulu hash'leri, yedek manifesti ve yedek baytları. `recovery_required` durumunda otomatik devam etmez.
 
-```sh
-python scripts/manage_installation.py status --source ../orca-dev
-```
+## Kaldırma ve kurtarma arşivi
 
-`status` salt okunurdur; kurulum kimliğini, paketi, yedek konumunu, kurtarma arşivlerini, kurulum sonrası değişen/eksik dosyaları ve varsa bekleyen kesintiyi gösterir. Hiçbir dosya, yedek, kilit veya günlük oluşturmaz.
+`uninstall` güncel manifeste değil, kurulum anında kaydedilen listeye ve özgün yedeğe dayanır. Paket sonradan silinse veya güncellense bile çalışır.
 
-Aynı paket zaten kuruluysa `install` tekrar çalıştırılabilir: işlem başarılı ve değişikliksiz döner, **ilk yedek asla ezilmez**. Kurulumdan sonra yerelde düzenlenmiş dosyalar da bu sırada sessizce geri alınmaz. Farklı bir paket sürümü kuruluysa önce `uninstall` çalıştırılmalıdır.
+1. Checkout kimliğini, kayıtlı yolları ve yedek hash'lerini doğrular.
+2. Kurulumdan sonra değiştirilen dosyaları kurtarma arşivine alır; uninstall öncesi silinmiş özgün dosyaları yokluk kaydıyla yazar.
+3. Arşivi tekrar doğrulamadan hedefe dokunmaz.
+4. Özgün dosyaları bayt ve izin olarak geri yükler.
+5. Kurulumun eklediği dosyaları kaldırır; sonradan düzenlenmiş olanları önce arşivler.
+6. Yalnızca kurulumun oluşturduğu ve boş kalan dizinleri temizler.
+7. Sonuç hash'lerini doğrular ve `uninstalled` yazar.
 
-### Kaldırma ve kurtarma arşivi
-
-```sh
-python scripts/manage_installation.py uninstall --source ../orca-dev --dry-run
-python scripts/manage_installation.py uninstall --source ../orca-dev
-```
-
-`uninstall`, güncel paket manifestine değil **kurulum anında kaydedilen listeye ve ilk yedeğe** dayanır; paket daha sonra güncellense veya silinse bile çalışır. İşlem sırasıyla:
-
-1. Hedef checkout kimliğini, kayıtlı yolları ve bütün yedek dosyalarının hash'lerini doğrular. Yedek eksik/bozuksa hiçbir hedef dosya değişmez.
-2. Kurulumdan sonra değiştirilmiş dosyaların mevcut halini ayrı bir kurtarma arşivine alır; uninstall öncesi silinmiş orijinal dosyaları yokluk kaydıyla arşiv manifestine yazar.
-3. Arşivi tekrar okuyup hash'lerini doğrulamadan hedef dosyalara dokunmaz.
-4. Kurulum öncesinde var olan dosyaları ilk yedekten **birebir** (bayt ve izin) geri yükler.
-5. Kurulumun eklediği dosyaları kaldırır. Kurulumdan sonra düzenlenmiş yeni dosyalar da önce arşivlenir.
-6. Yalnızca kurulumun oluşturduğu ve hâlâ boş olan dizinleri temizler; kullanıcı içeriği olan dizinleri silmez.
-7. Sonuç hash'lerini ve izinleri doğrular, durumu `uninstalled` olarak yazar.
-
-Kurtarma arşivi konumu:
+Kurtarma arşivi:
 
 ```text
 <git-dizini>/orca-advanced-orchestration/<kurulum-kimliği>/recovery/<arşiv-kimliği>/
 ```
 
-Arşivdeki `manifest.json` her dosyanın neden arşivlendiğini (`modified-after-install` veya `missing-before-uninstall`), hash'ini ve varsa arşiv içi yolunu belirtir. İlk yedek ve kurtarma arşivleri uninstall sonrasında silinmez; yollar komut çıktısında ve `status` içinde gösterilir.
+`manifest.json` her dosyanın neden arşivlendiğini, hash'ini ve arşiv içi yolunu kaydeder. İlk yedek ve arşivler uninstall sonrasında silinmez. Tekrar `uninstall` güvenli no-op'tur. `uninstall` Orca kaynak dizinini silmez.
 
-Tekrar `uninstall` güvenli bir no-op'tur. Yeni bir kurulum yeni bir kurulum kimliği ve yeni bir yedek oluşturur; eski yedekler korunur.
+## Kesinti, kilit ve güvenlik
 
-### Kesinti, kilit ve güvenlik
+Kayıt durumları: `installing`, `installed`, `updating`, `uninstalling`, `uninstalled`, `recovery_required`.
 
-Kayıt durumları: `installing`, `installed`, `uninstalling`, `uninstalled`, `recovery_required`.
+- Kesilen işlem sonraki çağrıda uzlaştırılır; yeni mutasyon aynı çağrıda başlamaz.
+- Kesilen kurulum özgün dosyalara, kesilen güncelleme önceki kurulu sürüme döner; kesilen uninstall kaldığı yerden devam eder.
+- `recovery_required` durumunda araç otomatik devam etmez; günlükteki yolu ve dosyaları incelemek gerekir.
+- Aynı checkout'ta eşzamanlı işlem kilit ile engellenir. Eski kilit yalnızca sahibinin çalışmadığı kanıtlanabiliyorsa kurtarılır.
+- Manifest, kayıt ve hedef yolları checkout dışına çıkacak şekilde veya symlink/junction üzerinden yazacak şekilde reddedilir.
+- `--dry-run` hiçbir dosya, yedek, kilit veya günlük oluşturmaz; `status` her zaman salt okunurdur.
 
-- İşlem yarıda kesilirse sonraki `install`/`uninstall` önce günlüğü uzlaştırır; yeni işlemi aynı çağrıda açmaz. Kurulum kesintisinde yedekten geri döner ve komutu tekrar çalıştırmanızı ister; uninstall kesintisi kaldığı yerden tamamlanır.
-- Beklenen orijinal/kurulu içerikle eşleşmeyen dosyalar geri alma öncesinde kurtarma arşivine alınır.
-- `recovery_required` durumunda araç otomatik devam etmez; günlükteki yolu ve dosyaları inceleyip gerekli düzeltmeyi siz yapmalısınız.
-- Aynı checkout'ta eşzamanlı işlem kilit ile engellenir. Eski kilit yalnızca sahibinin artık çalışmadığı doğrulanabiliyorsa kurtarılır; süreç canlılığı belirsizse kilit kırılmaz.
-- Manifest, kayıt ve hedef yolları checkout dışına çıkacak şekilde (`..`, mutlak yol, sürücü sözdizimi) veya symlink/junction üzerinden yazacak şekilde reddedilir.
+## Release paketi üretme ve yayımlama
 
-`--dry-run` hiçbir dosya, yedek, kilit veya günlük oluşturmaz; `status` her zaman salt okunurdur.
+Yerel üretim:
 
-### Manuel kurulum (alternatif)
+```powershell
+python scripts/build_release.py --output dist
+```
 
-Otomatik aracı kullanmak istemiyorsanız patch'i elle uygulayabilirsiniz:
+Çıktılar:
+
+```text
+dist/orca-advanced-orchestration-1.1.0.zip
+dist/orca-advanced-orchestration-1.1.0.zip.sha256
+```
+
+Arşiv yalnızca şunları içerir: `install.ps1`, `bundle-manifest.json`, `LICENSE`, yönetim Python modülleri, patch, örnek ve 133 değişiklik anlık görüntüsü. Testler, `orca-source/`, `.git`, README ve geliştirme dosyaları dışarıdadır. ZIP deterministik üretilir.
+
+Sürüm kaynağı `bundle-manifest.json` içindeki `package.version` alanıdır. Sürüm artırılmadan aynı etiketle yayımlamayın.
+
+GitHub Actions (`.github/workflows/release.yml`):
+
+- `v*` etiketiyle veya manuel çalışır.
+- Paket doğrulamasını ve Python testlerini çalıştırır.
+- Etiket sürümünü `package.version` ile karşılaştırır.
+- ZIP ve `.sha256` üretir; workflow artifact'i yükler.
+- Etiketli çalışmada GitHub Release oluşturur/günceller.
+
+Henüz yayımlanmış release yoksa `irm` ile gerçek indirme çalışmaz. Bu durumda `-Version` ve önceden doldurulmuş önbellek ile çevrimdışı doğrulama yapılabilir.
+
+## Manuel kurulum
+
+Otomatik aracı kullanmak istemiyorsanız:
 
 ```sh
 cd orca-dev
@@ -238,63 +281,14 @@ git apply --check ../orca-advanced-orchestration/patches/automatic-orchestration
 git apply ../orca-advanced-orchestration/patches/automatic-orchestration.patch
 ```
 
-`git rev-parse HEAD` çıktısı yukarıdaki taban commit ile aynı olmalıdır. Bu yöntem yedek, günlük, durum takibi veya otomatik geri yükleme sağlamaz; geri almak için kendi Git dalınızı kullanın. Başka Orca sürümlerine uygulanabilirlik doğrulanmadı.
+`git rev-parse HEAD` çıktısı taban commit ile aynı olmalıdır. Manuel yöntem yedek, günlük, durum takibi veya otomatik geri yükleme sağlamaz.
 
-## Geliştirme sürümünü çalıştırma
+## Sınırlar
 
-Bu komutlar değişiklik paketinde değil, **patch uygulanmış Orca kaynak klasöründe** çalıştırılır. Node.js 24, Orca'nın `package.json` dosyasında sabitlenen pnpm sürümü ve platforma uygun native derleme araçları gerekir. Testler için Bun sürümü `config/.bun-version` dosyasındadır. Tam kurulum ayrıntıları hedef Orca checkout'undaki `.github/CONTRIBUTING.md` dosyasındadır.
-
-```sh
-pnpm install --frozen-lockfile
-pnpm dev --worktree-profile
-```
-
-Kurulu üretim uygulamasını değiştirmek yerine geliştirme profilini kullanın. Bu depo bir kurulum paketi veya yeni Orca sürümü yayımlamaz.
-
-## Akış oluşturma
-
-Geliştirme uygulaması açıkken, koordinatörün Orca tarafından yönetilen terminalinden aşağıdaki komutları çalıştırın. `<run_id>` yerine ilk komutun döndürdüğü kimliği yazın:
-
-```sh
-node config/scripts/orca-dev.mjs orchestration run-create --objective "Implement, test, and review a change" --mode automatic --max-parallel 2 --json
-node config/scripts/orca-dev.mjs orchestration workflow-apply --run "<run_id>" --workflow-file ../orca-advanced-orchestration/examples/workflow.json --expected-version 0 --json
-node config/scripts/orca-dev.mjs orchestration run-start --id "<run_id>" --json
-```
-
-Örnekteki görev talimatlarını kendi işinize göre düzenleyin. Codex ve Claude, Orca içinde kurulu ve etkin olmalıdır. `workspaceFrom`, uygulama adımının çalışma alanını sonraki işçilere aktarır. Akış dosyası yolunu terminalin çalışma klasörüne göre gerekirse değiştirin.
-
-Koordinatör akışı başlattıktan sonra turunu bitirir; sıradaki işi başlatmak için sorgulama döngüsü çalıştırmaz. İnceleme, soru, başarısızlık veya son rapor gerektiğinde yeniden devreye girer.
-
-## Pano Todo sütunu
-
-Ajan panosunun en solundaki **Todo** sütunu, ajanlardan bağımsız elle işler içindir. **Ekle** ile tek satır metin ve çalışma alanı seçin; etkin çalışma alanı varsayılan gelir. Enter kaydeder, Escape iptal eder. Karttaki metne tıklayarak yerinde düzenleyin, kutudan tamamlayın; tamamlananlar aynı sütunun altındaki kapalı **Completed** bölümüne geçer ve tekrar açılabilir. Kart menüsünden silinen iş, kısa süre görünen **Undo** ile geri alınabilir. Liste her çalışma alanı için ayrıdır ve yeniden başlatmada korunur; maddeler ajan başlatmaz veya Done sütununa taşınmaz.
-
-## Kontroller
-
-```sh
-node config/scripts/orca-dev.mjs orchestration run-show --id "<run_id>" --json
-node config/scripts/orca-dev.mjs orchestration task-list --run "<run_id>" --json
-node config/scripts/orca-dev.mjs orchestration run-pause --id "<run_id>" --json
-node config/scripts/orca-dev.mjs orchestration run-resume --id "<run_id>" --json
-node config/scripts/orca-dev.mjs orchestration run-cancel --id "<run_id>" --json
-```
-
-Duraklatma yeni başlangıçları engeller; çalışan işçiler devam eder. İptal kontrollü durdurma ister; doğrulanmamış durma, tamamlanmış iptal olarak gösterilmez. Normal görev geçişlerini elle ilerletmek gerekmez.
-
-## Doğrulama durumu
-
-Todo ile ilgili **14 Orca test dosyasındaki 178 test** ve otomatik orkestrasyonun **7 dosyadaki 48 regresyon testi** geçti; değişen dosyalarda lint veya TypeScript hatası yok. Installer için **55 Python testi geçti**: temiz/kesintili kurulum, durum, kaldırma, kurtarma arşivi, CRLF, izinler, yedek doğrulama, kilit yarışı, path traversal, symlink/junction, linked worktree, PowerShell menüsü ve gerçek 133 dosyalık patch'in taban ağacına uygulanması.
-
-Tam CI, uygulama paketlemesi ve canlı çok ajanlı uçtan uca çalışma doğrulanmadı. Testler kontrollü işçi host'ları kullanır; gerçek üretim token ölçümü değildir. Gerçek patch fixture testi yerel `orca-source/` checkout'una ihtiyaç duyar ve o yoksa atlanır.
-
-Yeniden çalıştırma:
-
-```sh
-python scripts/verify_bundle.py
-python -m unittest discover -s tests -v
-```
-
-Ayrıntılı sonuçlar: [VALIDATION.md](../docs/VALIDATION.md).
+- Araç Orca'yı derlemez, başlatmaz veya kurulu paketi değiştirmez.
+- Diğer Orca sürümlerine uygulanabilirlik doğrulanmadı; farklı upstream tabanında otomatik geçiş yapılmaz.
+- Güncelleme, yönetilen dosyalarda kurulum sonrası yerel değişiklik varsa reddedilir. Önce değişikliği geri alın veya kaldırıp yeniden kurun.
+- macOS/Linux PowerShell davranışı bu depoda Windows kadar kapsamlı doğrulanmadı.
 
 ## Lisans ve kaynak
 
