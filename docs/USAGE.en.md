@@ -9,7 +9,7 @@ This package applies automatic task orchestration changes to the Orca v1.4.246 s
 From any working directory in Windows PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.0/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.1/install.ps1 | iex
 ```
 
 Choose **Install** in the menu. The script:
@@ -99,10 +99,10 @@ In the install menu, press a number to toggle a component. Enter installs the se
 
 ```powershell
 .\install.ps1 -Action install -Source C:\orca-dev
-.\install.ps1 -Action install -Source C:\orca-dev -Version 1.1.0 -DryRun
+.\install.ps1 -Action install -Source C:\orca-dev -Version 1.1.1 -DryRun
 .\install.ps1 -Action install -Source C:\orca-dev -Pack todo
 .\install.ps1 -Action update -Source C:\orca-dev
-.\install.ps1 -Action update -Source C:\orca-dev -Version 1.1.0 -DryRun
+.\install.ps1 -Action update -Source C:\orca-dev -Version 1.1.1 -DryRun
 .\install.ps1 -Action status -Source C:\orca-dev
 .\install.ps1 -Action verify
 .\install.ps1 -Action uninstall -Source C:\orca-dev
@@ -259,8 +259,8 @@ python scripts/build_release.py --output dist
 Outputs:
 
 ```text
-dist/orca-advanced-orchestration-1.1.0.zip
-dist/orca-advanced-orchestration-1.1.0.zip.sha256
+dist/orca-advanced-orchestration-1.1.1.zip
+dist/orca-advanced-orchestration-1.1.1.zip.sha256
 ```
 
 The archive contains only `install.ps1`, `bundle-manifest.json`, `LICENSE`, the management Python modules, the patch, the example, and the 133 change snapshots. Tests, `orca-source/`, `.git`, README, and development files are excluded. The ZIP is deterministic.

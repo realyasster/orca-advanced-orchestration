@@ -17,7 +17,7 @@ Example: **Write code → Run tests and review in parallel → Fix if needed →
 From Windows PowerShell, without cloning this repository:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.0/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.1/install.ps1 | iex
 ```
 
 Choose **Install (select components)** in the menu and toggle **Orchestrator** and **Todo** independently. The script downloads only the versioned ZIP required for installation from GitHub Releases, verifies its SHA-256 checksum and every bundle hash, and caches it by version under `%LOCALAPPDATA%\OrcaAdvancedOrchestration`. It never downloads the full repository, Git history, tests, or development files.
@@ -41,7 +41,7 @@ Non-interactive use:
 ```powershell
 .\install.ps1 -Action install -Source C:\orca-dev
 .\install.ps1 -Action update -Source C:\orca-dev
-.\install.ps1 -Action update -Source C:\orca-dev -Version 1.1.0 -DryRun
+.\install.ps1 -Action update -Source C:\orca-dev -Version 1.1.1 -DryRun
 .\install.ps1 -Action status -Source C:\orca-dev
 .\install.ps1 -Action verify
 .\install.ps1 -Action uninstall -Source C:\orca-dev

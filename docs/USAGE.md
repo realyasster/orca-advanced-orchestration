@@ -9,7 +9,7 @@ Bu paket, Orca v1.4.246 kaynak koduna otomatik görev yürütme değişiklikleri
 Windows PowerShell'de, herhangi bir çalışma dizininden:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.0/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.1/install.ps1 | iex
 ```
 
 Menüden **Kur** seçin. Betik:
@@ -99,10 +99,10 @@ Kurulum menüsünde numaraya basarak bileşenleri açıp kapatabilirsiniz. Enter
 
 ```powershell
 .\install.ps1 -Action install -Source C:\orca-dev
-.\install.ps1 -Action install -Source C:\orca-dev -Version 1.1.0 -DryRun
+.\install.ps1 -Action install -Source C:\orca-dev -Version 1.1.1 -DryRun
 .\install.ps1 -Action install -Source C:\orca-dev -Pack todo
 .\install.ps1 -Action update -Source C:\orca-dev
-.\install.ps1 -Action update -Source C:\orca-dev -Version 1.1.0 -DryRun
+.\install.ps1 -Action update -Source C:\orca-dev -Version 1.1.1 -DryRun
 .\install.ps1 -Action status -Source C:\orca-dev
 .\install.ps1 -Action verify
 .\install.ps1 -Action uninstall -Source C:\orca-dev
@@ -259,8 +259,8 @@ python scripts/build_release.py --output dist
 Çıktılar:
 
 ```text
-dist/orca-advanced-orchestration-1.1.0.zip
-dist/orca-advanced-orchestration-1.1.0.zip.sha256
+dist/orca-advanced-orchestration-1.1.1.zip
+dist/orca-advanced-orchestration-1.1.1.zip.sha256
 ```
 
 Arşiv yalnızca şunları içerir: `install.ps1`, `bundle-manifest.json`, `LICENSE`, yönetim Python modülleri, patch, örnek ve 133 değişiklik anlık görüntüsü. Testler, `orca-source/`, `.git`, README ve geliştirme dosyaları dışarıdadır. ZIP deterministik üretilir.

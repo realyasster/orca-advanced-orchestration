@@ -9,7 +9,7 @@ Orca'da Codex ve Claude gibi ajanların görevlerini otomatik sıraya koyar. Bir
 Windows PowerShell'de tek komut:
 
 ```powershell
-irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.0/install.ps1 | iex
+irm https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.1/install.ps1 | iex
 ```
 
 Menüden **Kur (bileşen seçimiyle)** seçin; **Orchestrator** ve **Todo** bileşenlerini ayrı ayrı işaretleyebilirsiniz. Betik paketi GitHub Releases'ten indirir, bütünlüğünü doğrular, önbelleğe alır ve Orca kaynağına uygular.

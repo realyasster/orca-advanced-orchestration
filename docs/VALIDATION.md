@@ -4,7 +4,7 @@
 
 - Orca tabanı: `55ccff19ad4cd8ba28b6f3d2be798c1e626a2c2c` (v1.4.246).
 - Uygulama referansı: yerel kaynak deposundaki `efab515b6c4e882a3f887266507614b1d29a89e4` commit'i. Bu commit'in tam kaynak geçmişi bu değişiklik paketinde yayımlanmaz.
-- Paket sürümü: `bundle-manifest.json` içindeki `package.version` (`1.1.0`).
+- Paket sürümü: `bundle-manifest.json` içindeki `package.version` (`1.1.1`).
 - Makineyle okunabilir yollar ve SHA-256 değerleri: [`bundle-manifest.json`](../bundle-manifest.json).
 
 ## Çalıştırılan odaklı Orca testleri
