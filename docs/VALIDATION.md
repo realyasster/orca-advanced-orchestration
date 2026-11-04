@@ -21,7 +21,7 @@ pnpm test src/main/runtime/orchestration/automatic-run/automatic-run-executor.te
 
 ## Installer testleri
 
-**5 test dosyası, 79 test: geçti.** Testler yalnızca Python standart kütüphanesi ve Git kullanır; geçici Git checkout'ları ve sentetik paketler oluşturur. Windows PowerShell 5.1 üzerinde çalıştırıldı.
+**5 test dosyası, 87 test: geçti.** Testler yalnızca Python standart kütüphanesi ve Git kullanır; geçici Git checkout'ları ve sentetik paketler oluşturur. Windows PowerShell 5.1 üzerinde çalıştırıldı.
 
 ```sh
 python scripts/verify_bundle.py
@@ -85,8 +85,9 @@ python -m unittest discover -s tests -v
 - `py` adayı stderr yazıp başarısız olduğunda Python çözümlemenin sonraki adaya geçmesi.
 - `[scriptblock]::Create(...)` ile çalıştırmada betiğin çağıran shell'i kapatmaması ve sonraki komutun çalışması.
 - Yerel HTTP sunucusundan gerçek `irm ... | iex` çalıştırmasının menüyü açması, `0` ile temiz çıkması ve çağıran shell'de sonraki komutun çalışması.
+- `SystemDrive` bulunmayan Linux ortamında (WSL Ubuntu, PowerShell 7.4.6) `-Action verify` Windows sürücü adayları üretmeden geçti; keşif yolları `dev/orca` gibi eğik çizgili biçimde üretiliyor.
 
-Canlı `https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.0/install.ps1` URL'sinden `irm` indirmesi doğrulandı: GitHub Releases'ten `1.1.0` arşivi indirildi, checksum ve **135 dosya** hash'i geçti, paket önbelleğe alındı. Aynı hat yerel HTTP sunucusundan da çalıştırıldı.
+Canlı `https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.1/install.ps1` URL'sinden `irm ... | iex` çalıştırıldı: menü açıldı ve `0` ile temiz çıktı. GitHub Releases'ten `1.1.1` arşivi indirildi; checksum ve **135 dosya** hash'i geçti, paket önbelleğe alındı. Aynı hat yerel HTTP sunucusundan da çalıştırıldı.
 
 ## Paket kontrolleri
 
