@@ -108,7 +108,7 @@ python -m unittest discover -s tests -v
 - Yerel HTTP sunucusundan gerçek `irm ... | iex` çalıştırmasının menüyü açması, `0` ile temiz çıkması ve çağıran shell'de sonraki komutun çalışması.
 - `SystemDrive` bulunmayan Linux ortamında (WSL Ubuntu, PowerShell 7.4.6) `-Action verify` Windows sürücü adayları üretmeden geçti; keşif yolları `dev/orca` gibi eğik çizgili biçimde üretiliyor.
 
-Canlı `https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.1.1/install.ps1` URL'sinden `irm ... | iex` çalıştırıldı: menü açıldı ve `0` ile temiz çıktı. GitHub Releases'ten `1.1.1` arşivi indirildi; checksum ve **135 dosya** hash'i geçti, paket önbelleğe alındı. Aynı hat yerel HTTP sunucusundan da çalıştırıldı.
+Canlı `https://raw.githubusercontent.com/realyasster/orca-advanced-orchestration/v1.2.0/install.ps1` URL'sinden `irm ... | iex` çalıştırıldı: menü açıldı ve `0` ile temiz çıktı. GitHub Releases'ten `1.2.0` arşivi indirildi; checksum ve **135 dosya** hash'i geçti, paket önbelleğe alındı. `-Action verify` otomatik keşifle Orca v1.4.248 checkout'unu buldu ve `package 1.2.0`, `Orca base 965978bc` raporladı. Aynı hat yerel HTTP sunucusundan da çalıştırıldı.
 
 ## Paket kontrolleri
 
